@@ -1,6 +1,6 @@
 // Home: "Go out". Where you go (in your words), who comes with you (whoever is in the house), and a background from
 // SillyTavern's; the scene out there is a free one, like a chat. "Back home" asks first, then brings you back.
-import { state, notify, esc, game, saveGame, toast, nowAbs } from '../core/store.js';
+import { state, notify, esc, game, saveGame, toast, nowAbs, residentsOf } from '../core/store.js';
 import { safeUrl } from '../core/safe.js';
 import { advance, hm } from '../sim/time.js';
 import { runPlans } from './plans.js';
@@ -24,7 +24,7 @@ export const bgStyle = (file: string) => (file ? `background-image:url('${safeUr
 // Who can come: anyone of the house (and its guests), wherever they are now (out at work, they meet you there).
 function canCome(): { avatar: string; name: string }[] {
     const g = game(); const w = g && getWorld(g.world); if (!g || !w) return [];
-    return Object.values(g.cast).filter(r => guestOf(g, r.avatar)?.kind !== 'outing').sort((a, b) => Number(b.met) - Number(a.met) || a.name.localeCompare(b.name)).map(r => ({ avatar: r.avatar, name: r.name }));
+    return residentsOf(g).filter(r => guestOf(g, r.avatar)?.kind !== 'outing').sort((a, b) => Number(b.met) - Number(a.met) || a.name.localeCompare(b.name)).map(r => ({ avatar: r.avatar, name: r.name }));
 }
 
 export function outingHtml(): string {

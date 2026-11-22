@@ -7,7 +7,7 @@
 // *Edit today* come through `photoLink` (sim/life.ts lists them, sim/actions.ts plays them). What the Lens app shows
 // comes from the views at the end. Freelance work (sim/freelance.ts) and photobooks (sim/photobooks.ts) hook in through
 // `afterDelivery`/`afterMissed`/`youParts`, so this file imports neither.
-import { adultOn, nowAbs, type Save, type Resident } from '../core/store.js';
+import { adultOn, nowAbs, type Save, type Resident, residentsOf } from '../core/store.js';
 import { systemOn, WEEKDAY_IDS, type WorldDef, type BriefDef, type PhotoClient, type ActionDef } from '../core/world.js';
 import { cameraAllows, BRIEF_DAYS, BRIEF_DC, BRIEF_HOURS, BRIEF_REP, ANY_STUDIO } from '../core/photo.js';
 import { onDay, onHour, onAction, photoLink, sceneLines, engineActions } from './hooks.js';
@@ -152,7 +152,7 @@ function subjectFor(g: Save, w: WorldDef, b: BriefDef, salt: string): { who?: st
     if (!s || s.who === 'client') return {};
     if (s.who === 'couple') return null;
     if (s.who === 'cast') {
-        const list = Object.values(g.cast).filter(r => subjectOk(g, w, r.avatar, b)).sort((a, c) => a.avatar.localeCompare(c.avatar));
+        const list = residentsOf(g).filter(r => subjectOk(g, w, r.avatar, b)).sort((a, c) => a.avatar.localeCompare(c.avatar));
         return list.length ? { who: list[Math.floor(H(salt) * list.length)].avatar } : null;
     }
     const r = personNamed(g, s.who);

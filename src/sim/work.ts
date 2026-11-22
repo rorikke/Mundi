@@ -20,7 +20,7 @@ import '../core/traits.js';
 import '../core/goals.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
 import { note } from './facts.js';
-import { cfg, nowAbs, type Save, type Resident, adultOn } from '../core/store.js';
+import { cfg, nowAbs, type Save, type Resident, adultOn, residentsOf } from '../core/store.js';
 import { career, systemOn, getWorld, offScreenWork, isScenario, WEEKDAY_IDS, type WorldDef, type Occupation, type Branch, type BranchOption, type Career, type Rank, type WorkEvent, type WorkChoice, type WorkResult, type When } from '../core/world.js';
 import { scheduleOf } from '../core/presets.js';
 import { advance, hour, hm, seasonDays, WEEKDAYS } from './time.js';
@@ -185,7 +185,7 @@ const span = (from: number, to: number) => (((to - from) % 24) + 24) % 24 || 24;
  *  longer than the shift lets you start any time it still fits (`latest`: the last start on time). */
 export interface ShiftTime { day: number; start: number; end: number; hours: number; latest: number }
 export function shiftOn(g: Save, w: WorldDef, o: Occupation, day: number): ShiftTime | null {
-    if (freelanceIn(g, w, o)) return null;   // (photography: a freelancer has briefs, not shifts)
+    if (noShiftsIn(g, w, o)) return null;   // (photography: a freelancer has briefs, not shifts; adult industry: bookings)
     o = trackOf(g, o);
     if (!workdays(g, w, o).includes(wdOf(day))) return null;
     const j = g.player.job as JobState | null;
@@ -227,7 +227,7 @@ export function canWork(g: Save, w: WorldDef, o: Occupation): { kind: 'shift' | 
     const s = shiftNow(g, w, o), now = nowAbs(g), grace = workRules(g, w).grace;
     if (s) return { kind: 'shift', shift: s, early: now < s.start, late: grace !== null && now > s.latest + grace };
     const j = jobOf(g);
-    if (freelanceIn(g, w, o)) return { kind: 'none', why: 'You work brief by brief now: your briefs are in Lens.' };
+    if (noShiftsIn(g, w, o)) return { kind: 'none', why: shiftlessApp(g, w)!.text };
     if (o.overtime && isOpen(g, o) && j?.extraDay !== g.day && !(j?.start !== undefined && g.day < j.start)) return { kind: 'overtime' };   // one overtime shift a day
     const n = nextShift(g, w, o);
     return { kind: 'none', why: n ? `Your next shift: ${whenText(g, n)}.` : 'No shift this week.' };
@@ -308,9 +308,19 @@ export function freelancePath(g: Save, w: WorldDef): BranchOption | null {
 }
 /** (photography) Are you a freelancer in your job (no shifts, no warnings, no vacation or bonus)? */
 export const isFreelance = (g: Save, w: WorldDef) => !!freelancePath(g, w);
-/** (photography) Is this job, for you, a freelance one (it's your job and you're on its freelance path)? */
-const freelanceIn = (g: Save, w: WorldDef, o: Occupation) => g.player.job?.id === o.id && isFreelance(g, w);
 export const FREELANCE_NO = 'You set your own hours now: there are no shifts to take off.';
+/** (adult industry) Is this job worked by bookings for you (Occupation.bookings on the job or your track, the world's
+ *  industry job, the `industry` system and adult content on)? Offers of a title each, no shifts (sim/bookings.ts). */
+export const bookedJob = (g: Save, w: WorldDef, o: Occupation | null | undefined): boolean =>
+    !!o && !!trackOf(g, o).bookings && w.industry?.job === o.id && systemOn(w, 'industry') && adultOn(g);
+/** No shifts in your job: a freelance path (photography) or a booked job (adult industry). Every guard a freelancer
+ *  has (no shifts, warnings, sack, vacation, sick days or seasonal bonus) reads this. */
+export const noShifts = (g: Save, w: WorldDef): boolean => isFreelance(g, w) || bookedJob(g, w, myJob(g, w));
+const noShiftsIn = (g: Save, w: WorldDef, o: Occupation) => g.player.job?.id === o.id && noShifts(g, w);
+/** Where a job without shifts sends you: the app its work is in (Lens for a freelancer, Take for bookings). */
+export const shiftlessApp = (g: Save, w: WorldDef): { app: string; text: string } | null =>
+    isFreelance(g, w) ? { app: 'photos', text: 'You work brief by brief now: your briefs are in Lens.' }
+        : bookedJob(g, w, myJob(g, w)) ? { app: 'take', text: 'You work title by title: your offers are in Take.' } : null;
 // With the save: the path the world gave them (a rank named in a branch, see `pathTo`), kept in `living.paths`; and
 // their own track (their gender's).
 export function npcCareer(o: Occupation, avatar: string, g?: Save): Career {
@@ -561,7 +571,7 @@ export function addPerf(g: Save, w: WorldDef, n: number): string[] {
     const j = jobOf(g); const o = myJob(g, w); if (!j || !o) return [];
     if (n > 0) n *= effectMul(g, w, 'perf', ['gain', o.id, ...jobTags(g, o)]);
     j.perf = Math.max(0, Math.min(100, (j.perf ?? 50) + n));
-    if (isFreelance(g, w)) { delete j.warn; return []; }   // (photography: clients don't warn, they stop calling)
+    if (noShifts(g, w)) { delete j.warn; return []; }   // (photography: clients don't warn, they stop calling; bookings: offers dry up)
     const low = workRules(g, w).low, out: string[] = [];
     if (j.perf >= 60) delete j.warn;
     const warn = j.warn ?? 0;
@@ -613,7 +623,7 @@ function shiftPerf(g: Save, w: WorldDef, o: Occupation, mode: WorkMode, part: nu
 /** The world's people with your job (or working at your place), by rank. */
 export const colleaguesOf = (g: Save, w: WorldDef, o: Occupation): Resident[] => {
     o = trackOf(g, o);
-    return Object.values(g.cast).filter(r => r.occupation && (r.occupation === o.id || jobDef(w, r.occupation)?.place === o.place)).sort((a, b) => npcRank(g, b.avatar) - npcRank(g, a.avatar));
+    return residentsOf(g).filter(r => r.occupation && (r.occupation === o.id || jobDef(w, r.occupation)?.place === o.place)).sort((a, b) => npcRank(g, b.avatar) - npcRank(g, a.avatar));
 };
 /** Colleagues on shift with you: here, at the place you work, now (an off-screen job has none you can see). */
 export const onShiftWith = (g: Save, w: WorldDef, o: Occupation): Resident[] =>
@@ -716,7 +726,7 @@ const eventDef = (o: Occupation, id: string) => (id === OVERTIME_ASK.id ? OVERTI
 export function colleagueFor(g: Save, w: WorldDef, o: Occupation, e: WorkEvent): Resident | null {
     if (!e.from) return null;
     const lvl = e.from.level || 'friend', self = (g as any).swap?.avatar;
-    return Object.values(g.cast).filter(r => r.occupation === o.id && r.met && !(r as any).gone && r.avatar !== self && levelHolds(g, w, r.avatar, lvl))
+    return residentsOf(g).filter(r => r.occupation === o.id && r.met && !(r as any).gone && r.avatar !== self && levelHolds(g, w, r.avatar, lvl))
         .sort((a, b) => fr(g, b.avatar, YOU) - fr(g, a.avatar, YOU))[0] ?? null;
 }
 // A work event as it is told: {who} is the colleague it comes from (or the unnamed one); a `feels` key "{who}" is them.
@@ -817,7 +827,7 @@ export const vacationLeft = (g: Save, w: WorldDef) => (workRules(g, w).vacation 
 /** Book a day off (a vacation day) for a shift today (not started) or later this week, or give it back. */
 export function bookOff(g: Save, w: WorldDef, day: number): string {
     const j = jobOf(g); const o = myJob(g, w); if (!j || !o) return '';
-    if (isFreelance(g, w)) return FREELANCE_NO;
+    if (noShifts(g, w)) return FREELANCE_NO;
     const off = (j.off ??= {});
     if (off[day] === 'vacation') { delete off[day]; if (workRules(g, w).vacation) j.vac = (j.vac ?? 0) + 1; return 'Day off cancelled: you work that day.'; }
     const s = shiftOn(g, w, o, day);
@@ -844,7 +854,7 @@ export function sickNo(g: Save, w: WorldDef): string {
 /** Kept off work until `until` (absolute minutes: a night in hospital): every shift not yet over that starts before then
  *  is a sick day, whatever the rules on calling in sick. */
 export function sickLeave(g: Save, w: WorldDef, until: number) {
-    const j = jobOf(g); const o = myJob(g, w); if (!j || !o || isFreelance(g, w)) return;
+    const j = jobOf(g); const o = myJob(g, w); if (!j || !o || noShifts(g, w)) return;
     for (let d = g.day - 1; d * 1440 < until; d++) {
         const s = shiftOn(g, w, o, d);
         if (s && s.start < until && s.end > nowAbs(g) && !worked(j, d) && !offOn(j, d)) (j.off ??= {})[d] = 'sick';
@@ -852,7 +862,7 @@ export function sickLeave(g: Save, w: WorldDef, until: number) {
 }
 export function callSick(g: Save, w: WorldDef): string {
     const j = jobOf(g); const o = myJob(g, w); if (!j || !o) return '';
-    if (isFreelance(g, w)) return FREELANCE_NO;
+    if (noShifts(g, w)) return FREELANCE_NO;
     const why = sickNo(g, w); if (why) return why;
     const s = shiftNow(g, w, o) ?? nextShift(g, w, o);
     if (!s || s.day > g.day + 1) return 'You have no shift to call in sick for.';
@@ -899,7 +909,7 @@ export function workDay(g: Save, w: WorldDef): string[] {
     const j = jobOf(g); const o = myJob(g, w);
     if (!j || !o || !systemOn(w, 'jobs')) return [];
     const rules = workRules(g, w), out: string[] = [];
-    if (isFreelance(g, w)) { j.vacAt = g.day; return out; }   // (photography: no vacation days and no seasonal bonus)
+    if (noShifts(g, w)) { j.vacAt = g.day; return out; }   // (photography, bookings: no vacation days and no seasonal bonus)
     if (rules.vacation) { while (g.day - (j.vacAt ?? g.day) >= rules.vacation) { j.vacAt = (j.vacAt ?? g.day) + rules.vacation; j.vac = Math.min(10, (j.vac ?? 0) + 1); } }
     else j.vacAt = g.day;
     const sd = seasonDays(g), season = Math.floor((g.day - 1) / sd) % 4, first = (g.day - 1) % sd === 0;

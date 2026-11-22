@@ -19,7 +19,7 @@ import { needWord } from '../sim/life.js';
 import { lifeOverlays, lifeAskHtml, soloOf, playAsOn } from './lifeui.js';
 import { swapOf } from '../sim/playas.js';
 import { clockWaitHtml, clockWaitBtn, waitGoHtml } from './waitgo.js';
-import { game, esc, state, UI, settings, saveSettings, notify, nowAbs, clockMode, onPhone, toast, saveGame } from '../core/store.js';
+import { game, esc, state, UI, settings, saveSettings, notify, nowAbs, clockMode, onPhone, toast, saveGame, residentsOf } from '../core/store.js';
 import { getWorld, activeStatuses, systemOn, type StatusDef, type WorldDef, type ActionDef, deviceLook, offScreenWork, isScenario, HOME_NEEDS, homeNeedsOn } from '../core/world.js';
 import { levelChip } from './rpgui.js';
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -195,7 +195,7 @@ const pageOpen = (avatar: string) => phone.open && phone.app === 'person' && pho
 // Your party: the people who came along with you (in the scene and on the map). Who is simply in this place is
 // shown at the top ("Here").
 function peopleColumn(g: Save, w: WorldDef) {
-    const list = Object.values(g.cast).filter(r => isWith(g, r.avatar));
+    const list = residentsOf(g).filter(r => isWith(g, r.avatar));
     if (!list.length) return '';
     const now = nowAbs(g);
     return `<aside class="mh-people mh-glass" aria-label="With you">${list.map(r => {

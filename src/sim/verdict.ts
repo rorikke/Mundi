@@ -8,7 +8,7 @@
 // (sim/private.ts).
 // Capture, settle, then ask: the scene is read and its messages settled at once (so swiping or hiding lines later
 // can't race with it), and the answer is applied when it comes back. A failure applies nothing and isn't retried.
-import { saveGame, nowAbs, notify, TUT, adultOn, type Save } from '../core/store.js';
+import { saveGame, nowAbs, notify, TUT, adultOn, type Save, residentIds } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { quiet, personaName, speakerOf } from '../st/bridge.js';
 import { openMessages, openTotals, openSince, readyToSettle, settleNow, addSettled, textOf } from './msglog.js';
@@ -162,7 +162,7 @@ export const daySnapshot = (g: Save, day: number): DaySnap | null => { const d =
 export function dayChanges(g: Save, start: DaySnap | null, last: Verdict | null): Change[] {
     if (!start) return last?.changes ?? [];
     const why = (a: string) => [...(start.why[a] ?? []), ...(last?.changes.filter(c => c.avatar === a).map(c => c.why) ?? [])];
-    const ids = new Set([...Object.keys(start.snap), ...Object.keys(g.cast)]);
+    const ids = new Set([...Object.keys(start.snap), ...residentIds(g)]);
     const out: Change[] = [];
     for (const a of ids) {
         if (!g.cast[a] || a === YOU) continue;

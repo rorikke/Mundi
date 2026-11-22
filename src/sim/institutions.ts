@@ -5,6 +5,7 @@
 // pass exams (a d20 check in the RPG, attendance and talent in Life-Sim) to climb the ladder; fail two in a row, or
 // stop paying, and you are expelled. Join a club for a weekly meeting with the others. The school's staff (the people
 // who work there) form the faculty: the highest-ranked one leads it.
+import { residentsOf } from '../core/store.js';
 import type { Save } from '../core/store.js';
 import { systemOn, type WorldDef, type InstitutionDef } from '../core/world.js';
 import { onDay } from './hooks.js';
@@ -116,7 +117,7 @@ onDay.push((g, w) => {
 });
 // The faculty: the people who work there, the highest-ranked first (the head), then the teachers.
 export function faculty(g: Save, w: WorldDef, d: InstitutionDef) {
-    const staff = Object.values(g.cast).filter(r => r.occupation && w.occupations.find(o => o.id === r.occupation)?.place === d.place)
+    const staff = residentsOf(g).filter(r => r.occupation && w.occupations.find(o => o.id === r.occupation)?.place === d.place)
         .sort((a, b) => npcRank(g, b.avatar) - npcRank(g, a.avatar) || a.name.localeCompare(b.name));
     return { head: staff[0] ?? null, teachers: staff.slice(1) };
 }

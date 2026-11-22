@@ -1,6 +1,6 @@
 // Places other systems hook into time (kept apart, with no imports, so no module waits on another).
 import type { Save, Resident } from '../core/store.js';
-import type { WorldDef, ActionDef, Place, StatusDef, WorkResult, SlotDef } from '../core/world.js';
+import type { WorldDef, ActionDef, Place, StatusDef, WorkResult, SlotDef, VentureDef } from '../core/world.js';
 import type { PrivateCtx, ActionDone } from './actions.js';
 import type { ShopItem } from '../core/presets.js';
 import type { RoomHere } from './homerooms.js';
@@ -199,6 +199,29 @@ export const photoLink: {
     /** a work result's `photorep`: the reputation moved, lines */
     rep: (g: Save, w: WorldDef, n: number) => string[];
 } = { holds: () => false, words: () => '', count: () => null, photo: () => [], act: () => null, rep: () => [] };
+// (adult industry) What the rest of the game asks of the industry (sim/industry.ts and the files beside it fill these
+// in; until then, and with the `industry` system or adult content off, nothing holds). `holds`: the condition keys
+// `titles`, `chart`, `fame`, `stance`, `seat`; `words`: such a key in words for what a goal or a rank still asks
+// ('' when it has none); `count`: how far you are on a counted one (null: not counted); `act`: one of the industry's
+// own actions was done (Play the next scene, Wait for your call, Edit the title: sim/onset.ts, offered through
+// `engineActions`), its lines and what the AI is told, or null for any other action.
+export const industryLink: {
+    holds: (g: Save, w: WorldDef, key: string, v: string) => boolean;
+    words: (g: Save, w: WorldDef, key: string, v: string) => string;
+    count: (g: Save, w: WorldDef, key: string, v: string) => number | null;
+    act: (g: Save, w: WorldDef, a: ActionDef, mates: string[]) => { lines: string[]; ai: string } | null;
+} = { holds: () => false, words: () => '', count: () => null, act: () => null };
+// (adult industry) Someone's stance on your work in adult video (sim/stance.ts fills these in; until then nothing
+// changes). Asked with store ids. `gain`: what a romance gain toward you is multiplied by now (1: as it is; uneasy while
+// you perform: less); `notYet`: why they won't start a couple status with you now (null: nothing in your work stops it;
+// `ever` is never true: a stance always lifts once you stop performing).
+export const stanceLink: {
+    gain: (g: Save, x: string) => number;
+    notYet: (g: Save, x: string, status: 'casual' | 'dating' | 'engaged' | 'married') => { ever: boolean; when: string } | null;
+} = { gain: () => 1, notYet: () => null };
+// (adult industry) A venture kind's own earnings for a day (sim/label.ts: a label's are its titles' sales), before the
+// share, ownership, closed days and effects; null: the usual takings (the tier's base, its fill and the day's demand).
+export const kindEarn: ((g: Save, w: WorldDef, d: VentureDef, day: number) => number | null)[] = [];
 // (C-7) Lines for the AI about the people here and the place right now, from systems that have them (the market's: the
 // other collector at a sale, the dealer at her van). Called in the scene's focus block (sim/prompt.ts).
 export const sceneLines: ((g: Save, w: WorldDef, present: Resident[]) => string[])[] = [];

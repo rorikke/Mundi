@@ -5,10 +5,10 @@
 // your friends come to. The world says what can be owned (`w.ventures`, core/world.ts); the save keeps what is
 // (`g.ventures`, read with defaults, no schema change). Everything waits on the `business` system: off, or with no
 // ventures in the world, nothing happens. The engine owns every number; the AI is told the state (`ventureLine`).
-import { nowAbs, adultOn, type Save, type Resident } from '../core/store.js';
+import { nowAbs, adultOn, type Save, type Resident, residentsOf } from '../core/store.js';
 import { systemOn, type WorldDef, type VentureDef, type TierDef, type UpgradeDef, type StyleDef, type WorkEvent, type CardDef, type WorkResult, type SeasonId } from '../core/world.js';
 import { statsOf, statName } from '../core/ventures.js';
-import { onDay, onLook, ventureLink } from './hooks.js';
+import { onDay, onLook, ventureLink, kindEarn } from './hooks.js';
 import { advance, isWeekend, seasonDays, SEASONS } from './time.js';
 import { openAt } from './daynight.js';
 import { festivalsOn } from './festivals.js';
@@ -199,8 +199,10 @@ export function shareOf(d: VentureDef, s: VentureState, ran: boolean): number {
 /** A day's takings (before the noise): the tier's `base` × how full it is × the day's demand × the share it earns; a
  *  hotel's by its rooms (sim/rooms.ts); a partnership's, your share of them. */
 export const dayValue = (g: Save, w: WorldDef, d: VentureDef, s: VentureState, day: number, ran: boolean, extra?: Record<string, number>) =>
-    (isHotel(d) ? hotelOn(g, w, d, s, day, extra).net : (tierOf(d, s.tier)?.base ?? 0) * fill(d, s, extra) * demandOn(g, w, d, s, day))
+    (ownEarn(g, w, d, day) ?? (isHotel(d) ? hotelOn(g, w, d, s, day, extra).net : (tierOf(d, s.tier)?.base ?? 0) * fill(d, s, extra) * demandOn(g, w, d, s, day)))
         * shareOf(d, s, ran) * mineOf(d, s) * closedOn(g, w, s, day) * ventureMul(g, w, d);
+// (adult industry) a kind with earnings of its own (a label: its titles' sales, sim/label.ts); null for every other
+const ownEarn = (g: Save, w: WorldDef, d: VentureDef, day: number): number | null => { for (const f of kindEarn) { const v = f(g, w, d, day); if (v !== null) return v; } return null; };
 // (track 7) A `venture` effect on its takings (Regulars' favourite, Five stars, Ebisu's charm): aimed at the venture, its
 // track or its kind.
 const ventureMul = (g: Save, w: WorldDef, d: VentureDef) => effectMul(g, w, 'venture', [d.id, d.track, d.kind].filter((x): x is string => !!x));
@@ -444,6 +446,7 @@ export function waysOpen(g: Save, w: WorldDef): WayOpen[] {
     const out: WayOpen[] = [];
     for (const d of ventureDefs(g, w)) {
         if (d.track === 'exec' || venturesOf(g).some(s => s.id === d.id || kindOf(ventureDef(w, s.id)) === kindOf(d))) continue;
+        if (d.ways?.when && !whenHolds(g, w, d.ways.when, { place: d.place, key: `ways|${d.id}` })) continue;   // (adult industry: the label waits for Naomi's storyline)
         for (const way of ['takeover', 'buy', 'partner'] as const) {
             const t = d.ways?.[way] as { place?: string; when?: string; story?: string; cost: number; rent?: number; note?: { down: number; weeks: number }; with?: string } | undefined;
             if (!t || (t.when && !whenHolds(g, w, t.when, { place: t.place ?? d.place, key: `${way}|${d.id}` })) || (t.story && !whenHolds(g, w, `seen: ${t.story}`))) continue;
@@ -677,7 +680,7 @@ function hangouts(g: Save, w: WorldDef, force = false) {
     if (!st || (!force && st.hang?.day === g.day)) return;
     const who: Record<string, string[]> = {};
     const open = venturesOf(g).map(s => ({ s, d: live(g, w, s) })).filter(x => x.d && x.d.track !== 'exec' && x.d.hangout !== false && ((tierOf(x.d, x.s.tier)?.alone ?? 0) > 0 || x.s.tier > 1));
-    if (open.length) for (const r of Object.values(g.cast) as Resident[]) {
+    if (open.length) for (const r of residentsOf(g)) {
         if (!r.met || (r as any).gone || !levelHolds(g, w, r.avatar, 'good')) continue;
         const liked = new Set(r.leisure.flatMap(id => kinds(w, id)));
         const places = open.flatMap(x => sitesOf(x.s)).filter(p => kinds(w, p).some(k => liked.has(k)) && !r.leisure.includes(p));

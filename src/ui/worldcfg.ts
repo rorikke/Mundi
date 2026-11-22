@@ -2,7 +2,7 @@
 // the lorebooks the world uses, and the world's rules. "Advanced" shows the finer settings.
 import { castLevel, neighbors, NEIGHBORS_MIN, FRIEND_BOND } from '../sim/happenings.js';
 import { bondOf } from '../sim/social.js';
-import { state, notify, esc, game, toast, saveGame, cfg, adultOn, type Save } from '../core/store.js';
+import { state, notify, esc, game, toast, saveGame, cfg, adultOn, type Save, residentsOf, residentIds } from '../core/store.js';
 import { DIFFICULTIES, difficultyOf } from '../sim/bills.js';
 import { isCustom, getWorld, activeStatuses, gameMode, GAME_MODES, systemOn, isScenario, homeNeedsOn, type WorldDef } from '../core/world.js';
 import { dressHtml, storyDressHtml } from './dressui.js';
@@ -99,7 +99,7 @@ SCOPES.save = {
     genders: () => gendersOf(getWorld(game()?.world ?? '')),
     romance: () => systemOn(getWorld(game()?.world ?? ''), 'romance'),
     adult: () => adultOn(game()),
-    cards: () => { const g = game(); return g ? Object.values(g.cast).filter(r => idOf(g, r.avatar) !== YOU && charOf(r.avatar)).map(r => ({ id: r.avatar, avatar: r.avatar, name: r.name })) : []; },
+    cards: () => { const g = game(); return g ? residentsOf(g).filter(r => idOf(g, r.avatar) !== YOU && charOf(r.avatar)).map(r => ({ id: r.avatar, avatar: r.avatar, name: r.name })) : []; },
 };
 
 // A minor is left out of every romance: a child born in the game, an age under 18 from the world, or this box.
@@ -113,7 +113,7 @@ function minorHtml(g: Save, avatar: string): string {
 const PAIR = { other: YOU as string };
 function pairHtml(g: Save, w: WorldDef, a: string): string {
     if (idOf(g, a) === YOU) return '';
-    const others = Object.values(g.cast).filter(x => x.avatar !== a && idOf(g, x.avatar) !== YOU).sort((x, y) => x.name.localeCompare(y.name));
+    const others = residentsOf(g).filter(x => x.avatar !== a && idOf(g, x.avatar) !== YOU).sort((x, y) => x.name.localeCompare(y.name));
     const b = PAIR.other === YOU || others.some(x => x.avatar === PAIR.other) ? PAIR.other : YOU;
     const you = b === YOU;
     const who = (x: string) => (x === YOU ? '<span>you</span>' : `<span data-notr>${esc(g.cast[x]?.name ?? x)}</span>`);   // names never translated
@@ -206,8 +206,8 @@ function workSection(g: Save, w: WorldDef) {
 // Opens a person's page in People (from Households).
 // How alive this world is with the people in it, and which social systems are working (they need cards).
 function lifeSection(g: Save, w: WorldDef) {
-    const n = Object.keys(g.cast).length, c = castLevel(n, gameMode(w)), nb = neighbors(g).length;
-    const friends = Object.values(g.cast).filter(r => r.met && bondOf(g, r.avatar) >= FRIEND_BOND).length;
+    const n = residentIds(g).length, c = castLevel(n, gameMode(w)), nb = neighbors(g).length;
+    const friends = residentsOf(g).filter(r => r.met && bondOf(g, r.avatar) >= FRIEND_BOND).length;
     const row = (on: boolean, name: string, why: string) => `<li class="${on ? 'is-on' : 'is-off'}"><b>${on ? '●' : '○'} ${esc(name)}</b> <small>${esc(why)}</small></li>`;
     return `<section class="mu-wc-sec"><h4>Life in the world</h4>
         <p><b>${n} ${n === 1 ? 'person' : 'people'}</b> · ${esc(c.level)}. <span class="mu-muted">${esc(c.tip)}</span></p>
@@ -218,7 +218,7 @@ function lifeSection(g: Save, w: WorldDef) {
 export function editPerson(avatar: string) { WC.tab = 'people'; WC.who = avatar; notify(); }
 
 function tabPeople(g: Save, w: WorldDef): string {
-    const list = Object.values(g.cast).sort((a, b) => a.name.localeCompare(b.name));
+    const list = residentsOf(g).sort((a, b) => a.name.localeCompare(b.name));
     if (!g.cast[WC.who] && WC.who !== YOU) WC.who = list[0]?.avatar ?? '';
     // grouped by address: people who live together are listed together
     const key = (r: typeof list[number]) => `${r.home.zone}:${r.home.x},${r.home.y}`;
@@ -366,7 +366,7 @@ function viewTie(t: { a: string; b: string; type: TieType }, avatar: string) {
 }
 function tiesHtml(g: Save, avatar: string) {
     const nm = (id: string) => (id === '__you' ? 'You' : g.cast[id]?.name ?? id);
-    const others = [['__you', 'You'] as [string, string], ...Object.values(g.cast).filter(x => x.avatar !== avatar).map(x => [x.avatar, x.name] as [string, string])];
+    const others = [['__you', 'You'] as [string, string], ...residentsOf(g).filter(x => x.avatar !== avatar).map(x => [x.avatar, x.name] as [string, string])];
     const list = tiesOf(g, avatar);
     return `<section class="mu-ties"><h4>Family</h4>
         ${list.length ? `<ul>${list.map(t => { const v = viewTie(t, avatar);

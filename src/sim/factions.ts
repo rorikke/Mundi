@@ -4,6 +4,7 @@
 // Rise to the top rank of a faction, or found your own, and you lead it: your shift becomes an audience (petitions
 // and dilemmas that cost the treasury, your purse or your standing) or you skip it for a passive income. Your own
 // faction grows in levels: a roster at level 2, a headquarters at level 3, then treasury and members.
+import { residentsOf } from '../core/store.js';
 import type { Save } from '../core/store.js';
 import { systemOn, type WorldDef, type FactionDef } from '../core/world.js';
 import { onDay, onHour } from './hooks.js';
@@ -198,7 +199,7 @@ export function startAudience(g: Save, w: WorldDef, id: string): Audience | stri
     const f = factionDef(g, w, id); const m = memberOf(g, id);
     if (!f || !m || !isLeader(g, w, id)) return 'Only the leader holds audiences.';
     if (m.audience === g.day || m.skipped === g.day) return 'Your shift is done for today.';
-    const people = Object.values(g.cast).filter(r => r.met);
+    const people = residentsOf(g).filter(r => r.met);
     const who = people.length ? people[Math.floor(H(`${g.day}|${id}|who`) * people.length)].name : 'A petitioner';
     const d = DILEMMAS[Math.floor(H(`${g.day}|${id}|d`) * DILEMMAS.length)];
     const a: Audience = { faction: id, who, text: d.text(who, f.name), choices: d.choices.map(c => ({ id: c.id, label: c.label, cost: c.cost })), dilemma: d.id, day: g.day };

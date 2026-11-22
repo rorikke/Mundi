@@ -28,7 +28,7 @@ import { feel } from '../sim/life.js';
 import { journalApp, openJournal } from './journal.js';
 import { relBar, relSubtitle, workWeekHtml, perfWord, askTrack, visitRow } from './relui.js';
 import { note } from '../sim/facts.js';
-import { notify, esc, game, toast, saveGame, settings, saveSettings, nowAbs, UI } from '../core/store.js';
+import { notify, esc, game, toast, saveGame, settings, saveSettings, nowAbs, UI, adultOn } from '../core/store.js';
 import { galleryPictures, photosOf } from './gallery.js';
 import { getWorld, worldFile, deviceLook, messageKind, appsShown, systemOn, type WorldDef, type Occupation, isScenario } from '../core/world.js';
 import { upcoming, when as planWhen, isWorking } from '../sim/plans.js';
@@ -93,22 +93,24 @@ const LAST_TAB: Record<string, App> = {};
 const FOLDED = new Set<string>(['standing']);
 // The Profile's Reputation tab: the Reputation app's name and page, where this world shows that app and has something
 // on it.
-const repTab = (g: Save, w: WorldDef) => (appsShown(w).some(a => a.id === 'standing') ? { name: appsOf(w).find(a => a.id === 'standing')?.name ?? 'Reputation', html: standingHtml(g, w) } : undefined);
+const repTab = (g: Save, w: WorldDef) => (shownApps(w).some(a => a.id === 'standing') ? { name: appsOf(w).find(a => a.id === 'standing')?.name ?? 'Reputation', html: standingHtml(g, w) } : undefined);
+// The apps this game shows: the world's (appsShown), and an adult app (Take) only with adult content on.
+const shownApps = (w: WorldDef) => appsShown(w).filter(a => !a.adult || adultOn(game()));
 const sectionFor = (a: App) => SECTIONS.find(s => s.apps.includes(a));
 // The apps of a section this world shows (the profile is always there).
-const secApps = (w: WorldDef, s: typeof SECTIONS[number]) => { const shown = new Set(appsShown(w).map(x => x.id)); return s.apps.filter(a => (a === 'profile' && !isScenario(w)) || shown.has(a)); };   // Home: no Profile app
+const secApps = (w: WorldDef, s: typeof SECTIONS[number]) => { const shown = new Set(shownApps(w).map(x => x.id)); return s.apps.filter(a => (a === 'profile' && !isScenario(w)) || shown.has(a)); };   // Home: no Profile app
 // The device's list: each app, or its section in the place of the section's first app (the profile at the end when none shows).
 // A section with only one app this world shows is that app, under its own name.
 // [the app it opens, name, icon, color, its key in the list]
 const APPS = (w: WorldDef): [App, string, string, string, string][] => {
     const out: [App, string, string, string, string][] = []; const done = new Set<string>();
-    for (const x of appsShown(w)) {
+    for (const x of shownApps(w)) {
         if (FOLDED.has(x.id)) continue;
         const s = sectionFor(x.id as App);
         if (!s) { out.push([x.id as App, x.name, x.icon, x.color, x.id]); continue; }
         if (done.has(s.id)) continue; done.add(s.id);
         const list = secApps(w, s); if (!list.length) continue; const open = LAST_TAB[s.id] && list.includes(LAST_TAB[s.id]) ? LAST_TAB[s.id] : list[0];
-        const only = list.length === 1 ? appsShown(w).find(a => a.id === list[0]) : undefined;
+        const only = list.length === 1 ? shownApps(w).find(a => a.id === list[0]) : undefined;
         out.push(only ? [only.id as App, only.name, only.icon, only.color, only.id] : [open, s.name, s.icon, s.color, s.id]);
     }
     if (!done.has('profile') && !isScenario(w)) { const s = SECTIONS[0]; out.push([LAST_TAB.profile ?? 'profile', s.name, s.icon, s.color, 'profile']); }
@@ -237,7 +239,7 @@ function tileBadge(g: Save, w: WorldDef, id: string, key: string): string {
 // The home screen's Today card, over the apps: the time and the day, and what's next today (the Calendar's agenda),
 // opening the Calendar. Without the Calendar, the time and the day alone.
 function todayCard(g: Save, w: WorldDef): string {
-    const cal = appsShown(w).some(a => a.id === 'plans'), now = nowAbs(g);
+    const cal = shownApps(w).some(a => a.id === 'plans'), now = nowAbs(g);
     const next = cal ? dayItems(g, w, g.day).filter(i => i.allDay || (i.to ?? i.from) > now).slice(0, 3) : [];
     const line = (i: ReturnType<typeof dayItems>[number]) => `<li><i>${icon(i.icon)}</i><span${i.titleData ? ' data-notr' : ''}>${esc(i.title)}</span><small>${i.allDay ? '' : esc(hm(i.from % 1440))}</small></li>`;
     const body = `<span class="mu-pt-clock"><b>${esc(hm(g.minutes % 1440))}</b><small>${esc(`${weekday(g.day)} · Day ${g.day}`)}</small></span>
@@ -543,7 +545,7 @@ function jobsApp(g: Save, w: WorldDef) {
     // your job, all it says (and your week)
     const mineHtml = () => (mine && j ? `<section class="mu-ph-card"><h4>${T('yourJob')}</h4><b>${esc(rankOf(g, mine).name)}</b><small>${esc(mine.name)}${track ? ` · ${esc(track)}` : ''} · ${esc(where(mine))}${(j.path ?? []).length ? ` · ${esc(pathNames(mine, j.path!))}` : ''}</small>
             <small>${free ? esc(`${money(w, retainerNow(g, w))} a week with a delivery`) : `${money(w, payOf(g, hourlyPay(g, w, mine)))}/h · ${mine.shift} h shifts · ${esc(weekText(g, w, mine))}`} · rank ${j.rank + 1} of ${careerOf(g, mine).ranks.length + (careerOf(g, mine).open ? 1 : 0)}</small>
-            ${free ? `<small>Your briefs are in Lens.</small>${appsShown(w).some(a => a.id === 'photos') ? '<button class="mu-ghost" data-act="ph-go" data-app="photos">Open Lens</button>' : ''}` : ''}
+            ${free ? `<small>Your briefs are in Lens.</small>${shownApps(w).some(a => a.id === 'photos') ? '<button class="mu-ghost" data-act="ph-go" data-app="photos">Open Lens</button>' : ''}` : ''}
             ${wait ? `<small class="mu-good">Your first shift is in ${wait} ${wait === 1 ? 'day' : 'days'}.</small>` : ''}
             ${sched ? `<small>Performance: ${perfOf(g)} (${perfWord(perfOf(g))})</small>${bar(perfOf(g))}` : ''}
             ${p ? `<small>Next rank: ${esc(p.rank.name)}</small>${bar(promoProgress(p))}${p.missing.length ? `<small class="mu-muted">Still needs: ${p.missing.map(m => `<span>${esc(m)}</span>`).join(', ')}</small>` : ''}` : pendingBranch(g, mine) ? '' : '<small>Top rank.</small>'}

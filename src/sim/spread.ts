@@ -4,6 +4,7 @@
 // below Wary by talk alone (losses need real evidence, S-15) and never up to Good friend (that takes time with you). When one person's talk has moved someone by 5 points, you
 // hear of it ("Saya has been talking about you"). Needs "Relationships between people"; its own setting
 // (`cfg.rel.spread`, on by default), and off with "Characters take the initiative" off.
+import { residentIds } from '../core/store.js';
 import type { Save } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onDay } from './hooks.js';
@@ -27,7 +28,7 @@ export function spreadOpinions(g: Save, w: WorldDef): string[] {
     const moved = (((seat(g) as any).spread ??= {}) as Record<string, number>);
     const used: Record<string, number> = {};
     const out: string[] = [];
-    const ids = Object.keys(g.cast).filter(a => idOf(g, a) !== YOU);
+    const ids = residentIds(g).filter(a => idOf(g, a) !== YOU);
     for (const s of ids) {
         const o = opinion(g, w, s); if (!o) continue;
         for (const f of ids) {

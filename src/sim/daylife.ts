@@ -4,7 +4,7 @@
 // · Places remember you: how often you come (a regular, a first time), who works there and who comes often, and
 //   where each person last saw you.
 // · Why each person is here, for the AI: a break, a shift, a standing appointment, a part in a festival, a date.
-import { nowAbs, type Save, type Resident } from '../core/store.js';
+import { nowAbs, type Save, type Resident, residentIds } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onHour } from './hooks.js';
 import { isWeekend, hm } from './time.js';
@@ -66,11 +66,11 @@ function work(g: Save, w: WorldDef, r: Resident, day: number, tense: boolean): B
     if (roll < 0.21) {
         const pairs: string[][] = couples(g);
         const ties: { a: string; b: string }[] = (g as any).living?.ties ?? [];   // family
-        const friends = Object.keys(g.cast).filter(a => fr(g, r.avatar, a) >= FRIEND);
+        const friends = residentIds(g).filter(a => fr(g, r.avatar, a) >= FRIEND);
         const exes = new Set(exesOf(g, r.avatar, false));   // exes (not old flings) don't drop by
         const close = [...pairs.filter(p => p.includes(r.avatar)).flat(), ...ties.filter(t => t.a === r.avatar || t.b === r.avatar).flatMap(t => [t.a, t.b]), ...friends]
             .filter(a => a !== r.avatar && a !== '__you' && g.cast[a] && homeOf(g.cast[a]) !== home && !exes.has(a));
-        const pool = close.length ? close : Object.keys(g.cast).filter(a => a !== r.avatar && homeOf(g.cast[a]) !== home && !isKid(g, a) && !exes.has(a));
+        const pool = close.length ? close : residentIds(g).filter(a => a !== r.avatar && homeOf(g.cast[a]) !== home && !isKid(g, a) && !exes.has(a));
         const h = 18 + Math.floor(H(`${k}|when`) * 3);
         if (pool.length && !onJob(at(h), at(h) + 120)) {
             const o = g.cast[pool[Math.floor(H(`${k}|whom`) * pool.length)]];

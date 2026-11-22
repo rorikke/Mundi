@@ -26,7 +26,7 @@
 // it sells (not gifts, never adult); `venture: 2 hotel [tier top]`, `venture: cafe tier top`, `venture: cafe discoveries 3`;
 // `board: 1` seasons a division met the board's target; (collection) `piece: halls 3`, `piece: all in <group>`,
 // `record: 50%` and `record: all in <record hall>`.
-import { nowAbs, adultOn, type Save, type Resident } from '../core/store.js';
+import { nowAbs, adultOn, type Save, type Resident, residentsOf, residentIds } from '../core/store.js';
 import { systemOn, activeStatuses, WEEKDAY_IDS, type WorldDef, type When, type LoreWhen, type Thread } from '../core/world.js';
 import { FOLDED_GOALS, SKILL_GROUPS } from '../core/goals.js';
 import { FRIEND_LEVELS, ROM_LEVELS } from '../core/feel.js';
@@ -49,19 +49,22 @@ import { myJob, rankOf } from './work.js';
 import { exampleOf } from './dayplan.js';
 import { REP_WORDS } from './standing.js';
 import { haveItem, ownedDefs, catOf, shopItems, SHOP_CATS } from './shop.js';
-import { collectionLink, placeGates, photoLink } from './hooks.js';
+import { collectionLink, placeGates, photoLink, industryLink } from './hooks.js';
 import { homeWorth, housingOn, ownedHere, ownedHomes, secondHome, toLet, isLet, rentHad } from './housing.js';
 import { sceneAt } from './homerooms.js';
 
 /** (photography) The photo gigs' keys (sim/photo.ts answers them through `photoLink`), and the kinds `photos:` takes. */
 export const PHOTO_KEYS: string[] = ['photorep', 'portfolio', 'contact', 'photobook', 'photos', 'studio', 'freelance'];
+/** (adult industry) The industry's keys (sim/industry.ts and sim/stance.ts answer them through `industryLink`). */
+export const INDUSTRY_KEYS: string[] = ['titles', 'chart', 'fame', 'stance', 'seat'];
 export const PHOTO_DONE = ['wedding', 'festival', 'event', 'magazine', 'portrait', 'stock'];
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
     'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known', 'degree',
     'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig', 'let', 'rent',
-    'fixtures', 'board', 'record', 'photorep', 'portfolio', 'contact', 'photobook', 'photos', 'studio', 'freelance'] as const;
+    'fixtures', 'board', 'record', 'photorep', 'portfolio', 'contact', 'photobook', 'photos', 'studio', 'freelance',
+    'titles', 'chart', 'fame', 'stance', 'seat'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -189,6 +192,12 @@ function badValue(key: WhenKey, v: string): string {
         case 'photos': return /^\d+$/.test(v) || PHOTO_DONE.includes(v.toLowerCase()) ? '' : `"${v}" should be a number of deliveries, or a kind: ${PHOTO_DONE.join(', ')}`;
         case 'studio': return ['any', 'cyc', 'dressing'].includes(v.toLowerCase()) ? '' : `"${v}" should be any, cyc or dressing`;
         case 'freelance': return ['any', 'blessing', 'fallout'].includes(v.toLowerCase()) ? '' : `"${v}" should be any, blessing or fallout`;
+        // (adult industry)
+        case 'titles': return /^([^\s,;]+\s+)?\d+$/.test(v) ? '' : `"${v}" should be a number of titles, or a seat (perform, direct, label) or a label's id and a number, like perform 3`;
+        case 'chart': return /^([^\s,;]+\s+)?top\s+\d+$/i.test(v) ? '' : `"${v}" should be top and a number, like top 10 (a seat or a label's id first if wanted)`;
+        case 'fame': return /^\d+$/.test(v) && Number(v) <= 100 ? '' : `"${v}" should be a fame from 0 to 100`;
+        case 'stance': return /^\S.*\s+(fine|uneasy|no)$/i.test(v) ? '' : `"${v}" should be a name and fine, uneasy or no, like Naomi fine`;
+        case 'seat': return /^(perform|direct|label)$/i.test(v) ? '' : `"${v}" should be perform, direct or label`;
         default: return '';   // period (a name may have spaces in older worlds), weather, present, onShift
     }
 }
@@ -372,7 +381,7 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'did': case 'attended': {
             const c = countedOf(key, v)!, k = countKey(w, key, c.what), n = (id: string) => (x.count ? x.count(id) : tallyOf(g, id));
             // with someone at a level: what was counted with each of them (`<key>|<avatar>`), for those at it now
-            const have = c.with ? Object.values(g.cast).filter(r => r.met && levelHolds(g, w, r.avatar, c.with!)).reduce((a, r) => a + n(`${k}|${r.avatar}`), 0) : n(k);
+            const have = c.with ? residentsOf(g).filter(r => r.met && levelHolds(g, w, r.avatar, c.with!)).reduce((a, r) => a + n(`${k}|${r.avatar}`), 0) : n(k);
             return have >= c.n;
         }
         case 'visited': return visitedHolds(g, w, v);
@@ -398,6 +407,7 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'board': return systemOn(w, 'business') && boardMet(g) >= Number(v);
         case 'record': return collectionLink.record(g, w, v);
         case 'photorep': case 'portfolio': case 'contact': case 'photobook': case 'photos': case 'studio': case 'freelance': return photoLink.holds(g, w, key, v);
+        case 'titles': case 'chart': case 'fame': case 'stance': case 'seat': return industryLink.holds(g, w, key, v);   // (adult industry)
         case 'had': return hadHolds(g, w, v);
         case 'piece': return collectionLink.piece(g, w, v);
         case 'museum': return collectionLink.museum(g, w, v);
@@ -522,7 +532,7 @@ function homeHolds(g: Save, w: WorldDef, v: string): boolean {
     const h = g.player.home, t = tally(g).home;
     if (!h) return false;
     switch (v.toLowerCase()) {
-        case 'alone': return !Object.values(g.cast).some(r => (r as any).homeWith === '__you');
+        case 'alone': return !residentsOf(g).some(r => (r as any).homeWith === '__you');
         case 'better': return !!t && homeWorth(w, h.zone) > homeWorth(w, t.first);
         // (housing) a home you own counts when it's worth at least the best rented kinds' dearest area
         case 'top': return topKinds(w).includes(h.kind) || (housingOn(w) && ownedHere(g) && homeWorth(w, h.zone) >= Math.min(...topKinds(w).map(k => Math.max(0, ...w.homes.zones.filter(z => z.kind === k).map(z => z.rent ?? 0)))));
@@ -536,7 +546,7 @@ function homeHolds(g: Save, w: WorldDef, v: string): boolean {
 // Someone with you as a couple: anyone (`any`), nobody (`none`), one who lives with you (`home`), or that status.
 function partnerHolds(g: Save, w: WorldDef, v: string): boolean {
     const on = systemOn(w, 'romance');
-    const list = on ? Object.keys(g.cast).filter(a => !!statusOf(g, a, YOU)) : [];
+    const list = on ? residentIds(g).filter(a => !!statusOf(g, a, YOU)) : [];
     if (v === 'none') return !list.length;
     if (v === 'any') return list.length > 0;
     if (v === 'home') return list.some(a => (g.cast[a] as any).homeWith === '__you');
@@ -554,7 +564,7 @@ function friendsHold(g: Save, w: WorldDef, v: string): boolean {
         return !!id && (id === map || w.maps.find(x => x.id === id)?.area === map);
     };
     const works = (r: Resident) => { const p = w.occupations.find(o => o.id === r.occupation)?.place; return !!p && isRegular(g, p); };
-    return Object.values(g.cast).filter(r => r.met && levelHolds(g, w, r.avatar, level) && (!map || onMap(r)) && (!atRegular || works(r))).length >= n;
+    return residentsOf(g).filter(r => r.met && levelHolds(g, w, r.avatar, level) && (!map || onMap(r)) && (!atRegular || works(r))).length >= n;
 }
 // The places a `visited` counts: real places (not a pin to another map, not private, not adult).
 // (business: a venture's unit isn't one of the places to visit: it's only there while it's yours)
@@ -847,6 +857,7 @@ export function missingWords(g: Save, w: WorldDef, when: When, place?: string, o
         else if (c.key === 'record' && !c.not) out.push(c.values.map(v => collectionLink.recordWords(g, w, v)).join(' or '));
         // (photography) "a photo reputation of 30 (12 now)", "Velvet Mode as a contact"
         else if (PHOTO_KEYS.includes(c.key) && !c.not && c.values.every(v => !!photoLink.words(g, w, c.key, v))) out.push(c.values.map(v => photoLink.words(g, w, c.key, v)).join(' or '));
+        else if (INDUSTRY_KEYS.includes(c.key) && !c.not && c.values.every(v => !!industryLink.words(g, w, c.key, v))) out.push(c.values.map(v => industryLink.words(g, w, c.key, v)).join(' or '));
         else if (c.key === 'venture' && !c.not && c.values.some(v => /^\d+\s|\stier\s+top$|\sdiscoveries\s/i.test(v))) out.push(c.values.map(v => ventureWords(g, w, v)).join(' or '));
         else if (!more) other = true;
         else if (c.key === 'seen' && !c.not) out.push([...new Set(c.values.map(v => seenWords(w, v)))].join(' or '));
@@ -906,6 +917,10 @@ export function endgameWords(g: Save, w: WorldDef, key: string, v: string): { te
     if (PHOTO_KEYS.includes(key)) {   // (photography)
         const text = photoLink.words(g, w, key, v), have = photoLink.count(g, w, key, v);
         return text ? { text: up(now(text)), ...(have !== null && /^\d+$/.test(v) ? { have, need: Number(v) } : {}) } : null;
+    }
+    if (INDUSTRY_KEYS.includes(key)) {   // (adult industry)
+        const text = industryLink.words(g, w, key, v), have = industryLink.count(g, w, key, v), n = /(\d+)$/.exec(v);
+        return text ? { text: up(now(text)), ...(have !== null && n ? { have, need: Number(n[1]) } : {}) } : null;
     }
     return null;
 }

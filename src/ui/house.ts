@@ -1,6 +1,6 @@
 // Your household on the HUD: the faces of who lives with you, under your card. Click one for: play as them (with
 // Play as on in Settings), call them over, or go to where they are.
-import { esc, game, notify, saveGame, toast, nowAbs, type Save } from '../core/store.js';
+import { esc, game, notify, saveGame, toast, nowAbs, type Save, residentsOf } from '../core/store.js';
 import { playAsOn } from './lifeui.js';
 import { getWorld, isScenario, type WorldDef } from '../core/world.js';
 import { thumb } from '../st/bridge.js';
@@ -15,7 +15,7 @@ import { icon } from './icons.js';
 import { ACT } from './reg.js';
 
 const H = { open: '' };
-export const housemates = (g: Save) => Object.values(g.cast).filter(r => homeKey(r.home) === homeKey(g.player.home) && r.avatar !== ((g as any).swap?.avatar || (g as any).swap?.origCard));
+export const housemates = (g: Save) => residentsOf(g).filter(r => homeKey(r.home) === homeKey(g.player.home) && r.avatar !== ((g as any).swap?.avatar || (g as any).swap?.origCard));
 const tooLittle = (g: Save, avatar: string) => { const k = kidOf(g, avatar); return !!k && ['baby', 'toddler'].includes(stageOf(k).id); };
 
 export function houseBar(g: Save, w: WorldDef): string {

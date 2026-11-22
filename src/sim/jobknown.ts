@@ -1,7 +1,7 @@
 // Whether you know what someone does for a living. Saying hi isn't enough: you learn it by seeing them at work, by
 // working the same job, or by getting to know them (an Acquaintance, by then it has come up). Once learned it stays
 // learned, kept on the person (`jobKnown`), even if you drift apart later.
-import { nowAbs, type Save, type Resident } from '../core/store.js';
+import { nowAbs, type Save, type Resident, residentsOf } from '../core/store.js';
 import type { WorldDef } from '../core/world.js';
 import { fr, YOU } from './rel.js';
 import { workingAt } from './people.js';
@@ -22,5 +22,5 @@ export const knowsJob = (g: Save, r: Resident) => !!r.jobKnown || coworker(g, r)
 export function learnJobs(g: Save, w: WorldDef, here: Resident[]): void {
     const at = nowAbs(g);
     for (const r of here) if (!r.jobKnown && r.occupation && workingAt(g, w, r, at) === g.player.loc) r.jobKnown = true;
-    for (const r of Object.values(g.cast)) if (!r.jobKnown && r.occupation && (coworker(g, r) || acquainted(g, r))) r.jobKnown = true;
+    for (const r of residentsOf(g)) if (!r.jobKnown && r.occupation && (coworker(g, r) || acquainted(g, r))) r.jobKnown = true;
 }

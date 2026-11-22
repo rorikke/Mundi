@@ -4,6 +4,7 @@
 // line and `needsItem` read them). The world's housing fields are read here with their defaults, never written into
 // the world; the save keeps what you own in `g.houses`, created by the first purchase. `property` (sim/holdings.ts,
 // houses to rent out, loans) is another system and isn't used here.
+import { residentsOf } from '../core/store.js';
 import type { Save } from '../core/store.js';
 import { systemOn, type WorldDef, type HomeZone, type HomeFixture } from '../core/world.js';
 import { homeKey } from './homes.js';
@@ -108,7 +109,7 @@ export const SECOND_HOME_ID = 'home:second';
  *  be rented or bought. */
 export function takenSpots(g: Save): Set<string> {
     const k = (h: { zone: string; x: number; y: number }) => `${h.zone}:${h.x},${h.y}`;
-    return new Set([g.player.home, ...Object.values(g.cast).map(r => r.home), ...ownedHomes(g)].filter(Boolean).map(k));
+    return new Set([g.player.home, ...residentsOf(g).map(r => r.home), ...ownedHomes(g)].filter(Boolean).map(k));
 }
 
 /* ---------- hooks ---------- */

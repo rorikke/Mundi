@@ -1,7 +1,7 @@
 // Places: the world's public places plus homes (the player's and each resident's), your second home and (photography)
 // your photo studio. Distances and travel time.
 import { travelFactor } from './life.js';
-import { cfg, type Save } from '../core/store.js';
+import { cfg, type Save, residentsOf } from '../core/store.js';
 import { isScenario, systemOn, type WorldDef, type Place } from '../core/world.js';
 import { effectMul } from './effects.js';
 import { housingOn, ownsFixtureIn, secondHome, SECOND_HOME_ID } from './housing.js';
@@ -65,7 +65,7 @@ export function placeOf(g: Save, w: WorldDef, id: string): (Place & { home?: boo
         if (w2 === '__you') return placeOf(g, w, playerHomeId);
         if (w2 && w2 !== r.avatar && g.cast[w2]) return placeOf(g, w, `home:${w2}`);
         const zone = w.homes.zones.find(z => z.id === r.home.zone);
-        const mates = Object.values(g.cast).filter(x => x.home.zone === r.home.zone && x.home.x === r.home.x && x.home.y === r.home.y && (x.home.unit ?? 0) === (r.home.unit ?? 0) && (x.met || x === r)).map(x => x.name);
+        const mates = residentsOf(g).filter(x => x.home.zone === r.home.zone && x.home.x === r.home.x && x.home.y === r.home.y && (x.home.unit ?? 0) === (r.home.unit ?? 0) && (x.met || x === r)).map(x => x.name);
         const label = mates.length <= 1 ? r.name : mates.length === 2 ? `${mates[0]} & ${mates[1]}` : `${r.name} & family`;
         return { id, name: `${label}'s home`, map: zone?.map ?? w.maps[0].id, x: r.home.x, y: r.home.y, tags: ['home'], desc: `${homeAddress(w, r.home)}: ${zone?.desc ?? ''}`, home: true, owner: r.avatar };
     }
@@ -147,7 +147,7 @@ export function pins(g: Save, w: WorldDef) {
     const studio = studioPlace(g, w);
     if (studio) out.push(studio);
     // (a guest with no bedroom of their own, zone '__guest', has no room to show)
-    for (const r of Object.values(g.cast)) if (r.met && r.home.zone !== '__guest') { const p = placeOf(g, w, `home:${r.avatar}`); if (p && !out.some(x => x.id === p.id)) out.push(p); }
+    for (const r of residentsOf(g)) if (r.met && r.home.zone !== '__guest') { const p = placeOf(g, w, `home:${r.avatar}`); if (p && !out.some(x => x.id === p.id)) out.push(p); }
     return out;
 }
 
