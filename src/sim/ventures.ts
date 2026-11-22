@@ -198,9 +198,14 @@ export function shareOf(d: VentureDef, s: VentureState, ran: boolean): number {
 }
 /** A day's takings (before the noise): the tier's `base` × how full it is × the day's demand × the share it earns; a
  *  hotel's by its rooms (sim/rooms.ts); a partnership's, your share of them. */
-export const dayValue = (g: Save, w: WorldDef, d: VentureDef, s: VentureState, day: number, ran: boolean, extra?: Record<string, number>) =>
-    (ownEarn(g, w, d, day) ?? (isHotel(d) ? hotelOn(g, w, d, s, day, extra).net : (tierOf(d, s.tier)?.base ?? 0) * fill(d, s, extra) * demandOn(g, w, d, s, day)))
+export function dayValue(g: Save, w: WorldDef, d: VentureDef, s: VentureState, day: number, ran: boolean, extra?: Record<string, number>): number {
+    // (adult industry) a kind with earnings of its own (a label's: its titles' sales, sim/label.ts) is what it says, on
+    // whatever day it comes and whoever ran it, so only your share and the effects on it count
+    const own = ownEarn(g, w, d, day);
+    if (own !== null) return own * mineOf(d, s) * ventureMul(g, w, d);
+    return (isHotel(d) ? hotelOn(g, w, d, s, day, extra).net : (tierOf(d, s.tier)?.base ?? 0) * fill(d, s, extra) * demandOn(g, w, d, s, day))
         * shareOf(d, s, ran) * mineOf(d, s) * closedOn(g, w, s, day) * ventureMul(g, w, d);
+}
 // (adult industry) a kind with earnings of its own (a label: its titles' sales, sim/label.ts); null for every other
 const ownEarn = (g: Save, w: WorldDef, d: VentureDef, day: number): number | null => { for (const f of kindEarn) { const v = f(g, w, d, day); if (v !== null) return v; } return null; };
 // (track 7) A `venture` effect on its takings (Regulars' favourite, Five stars, Ebisu's charm): aimed at the venture, its
