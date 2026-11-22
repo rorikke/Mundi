@@ -1,5 +1,5 @@
 /* The Goals app as its own app (ui/goalsui.ts): Hide finished, a goal page's Back, and unfolded: the goal you follow,
-   Suggested, the categories and Your perks listed on the left, what's picked on the right (a category's goals as cards) */
+   Suggested, the categories and Your perks listed on the left, what's picked on the right (a category's goals in one column, like Suggested) */
 #mundi-root .mu-gl-all > h4, #mundi-root .mu-gl-clist > h4 { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 #mundi-root .mu-gl-hide { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: normal; color: var(--fg); opacity: .85; cursor: pointer; }
 #mundi-root .mu-gl-hide input { margin: 0; }
@@ -27,7 +27,7 @@
 #mundi-root .mu-gl-ctitle { display: flex; gap: 8px; align-items: baseline; margin: 0; font-size: 16px; }
 #mundi-root .mu-gl-ctitle i { font-style: normal; }
 #mundi-root .mu-gl-ctitle small { margin-left: auto; font-size: 12px; font-weight: 400; opacity: .7; }
-#mundi-root .mu-gl-rows.is-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); padding-left: 0; }
+#mundi-root .mu-gl-rows.is-grid { padding-left: 0; }
 
 /* the journal (book look) */
 #mundi-root .mu-book .mu-gl-back { color: #7a4a1e; }
