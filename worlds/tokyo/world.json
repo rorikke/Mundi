@@ -32586,6 +32586,68 @@
      "text": "is at the rhythm finals, cheering loudly and mostly in German"
     }
    ]
+  },
+  {
+   "id": "av_expo",
+   "icon": "🎬",
+   "name": "Adult video expo",
+   "season": "autumn",
+   "day": 6,
+   "days": 2,
+   "place": "bay_expo",
+   "adult": true,
+   "mood": 6,
+   "crowd": 8,
+   "desc": "the industry's yearly fair fills a hall of the exhibition center: label booths, signings, queues of fans with shopping bags",
+   "audience": [
+    "fans"
+   ],
+   "roles": [
+    {
+     "who": "Airi",
+     "place": "bay_expo",
+     "from": 11,
+     "to": 16,
+     "text": "signs at a label's booth, sunglasses on"
+    },
+    {
+     "who": "Naomi",
+     "place": "bay_expo",
+     "from": 10,
+     "to": 17,
+     "text": "runs Kurobara Visual's booth"
+    }
+   ]
+  },
+  {
+   "id": "av_awards",
+   "icon": "🏆",
+   "name": "Adult video awards",
+   "season": "winter",
+   "day": 8,
+   "place": "rp_sky",
+   "adult": true,
+   "mood": 6,
+   "desc": "the industry's awards night in the event hall at the top of a Roppongi tower: best actress, actor, director, title and label, by the season's chart",
+   "audience": [
+    "fans"
+   ],
+   "roles": [
+    {
+     "who": "Naomi",
+     "place": "rp_sky",
+     "from": 18,
+     "to": 23,
+     "text": "at Kurobara Visual's table, pretending not to care"
+    },
+    {
+     "who": "Airi",
+     "place": "rp_sky",
+     "from": 18,
+     "to": 23,
+     "text": "presents an award, laughing at her own script"
+    }
+   ]
   }
  ],
  "cityEvents": [
@@ -38164,6 +38226,36 @@
     "swimsuit onsen"
    ],
    "content": "Hoshizora Spa Park in Hakone is a swimsuit hot spring: pools of spring water in tiers down a wooded slope, a water slide and a cave bath, where couples and friends of any gender bathe together in swimwear, unlike the onsen, which are split by gender and have no swimwear."
+  },
+  {
+   "id": "av_kurobara",
+   "keys": [
+    "Kurobara Visual",
+    "Kurobara"
+   ],
+   "adult": true,
+   "content": "Kurobara Visual is a mid-size adult video label in Nakano with its own set. It makes dramas and mature titles, reads every contract aloud before anyone signs, and honours a performer's right under the 2022 law to cancel a title."
+  },
+  {
+   "id": "av_naomi",
+   "keys": [
+    "Naomi Reid-Kagami",
+    "Kagami-kantoku",
+    "Naomi"
+   ],
+   "adult": true,
+   "content": "Naomi Reid-Kagami performed for six years before moving behind the camera; on set she uses her mother's name and is called Kagami-kantoku. Performers ask to work with her because she stops a shoot the moment anyone says stop."
+  },
+  {
+   "id": "av_industry",
+   "keys": [
+    "AV industry",
+    "adult video",
+    "labels",
+    "the chart"
+   ],
+   "adult": true,
+   "content": "Tokyo's adult video industry runs on labels, a weekly sales chart and contracts: under the 2022 law each title has its own contract, a month's wait before the shoot and four months before release, and a performer may cancel publication within a year."
   }
  ],
  "places": [
@@ -39212,6 +39304,61 @@
    "sound": [
     "office"
    ]
+  },
+  {
+   "id": "ws_kurobara",
+   "name": "Kurobara Visual, Nakano",
+   "map": "westside",
+   "x": 90,
+   "y": 26,
+   "tags": [
+    "work"
+   ],
+   "adult": true,
+   "desc": "a grey three-storey building by the Chūō line in Nakano: a windowless set on the ground floor, a bed and a sofa built to be lit, and the label's cramped office upstairs",
+   "staff": "Naomi in a headset, a lighting crew rolling cables, a make-up artist, an editor glued to his screen",
+   "crowd": 0.4,
+   "open": [
+    9,
+    23
+   ],
+   "closed": [
+    "latenight",
+    "firsttrain"
+   ],
+   "generic": false,
+   "sound": [
+    "office"
+   ],
+   "bg": "bg/bay_tv.avif"
+  },
+  {
+   "id": "ws_rental_house",
+   "name": "A rented house in Setagaya",
+   "map": "westside",
+   "x": 75.5,
+   "y": 86,
+   "tags": [
+    "work"
+   ],
+   "adult": true,
+   "desc": "an ordinary two-storey family house rented to film crews by the day: a living room with a sofa, a kitchen, a bedroom upstairs, and the owners' photos turned to the wall",
+   "staff": "a crew carrying lights up the narrow stairs, a director in the kitchen, the location manager watching the clock",
+   "crowd": 0.3,
+   "open": [
+    8,
+    22
+   ],
+   "closed": [
+    "latenight",
+    "firsttrain"
+   ],
+   "generic": false,
+   "private": true,
+   "sound": [
+    "birds"
+   ],
+   "bg": "bg/home-family.avif"
   },
   {
    "id": "ak_electric",
@@ -49081,6 +49228,122 @@
      "fact": "{u} let Ayame Mikage decide, and she took Sekine's pattern book to the papers herself"
     }
    ]
+  },
+  {
+   "id": "lb_st_set",
+   "place": "ws_koenji",
+   "when": "venture: label",
+   "adult": true,
+   "setup": "Halfway down Kōenji's arcade a sign in a stairwell says a photo studio upstairs is closing: lights, a cyclorama, a dressing room, all to go by the end of the month. The owner, a tired man in a paint-spattered apron, says he would rather it went to someone who will use it.",
+   "choices": [
+    {
+     "label": "Ask him to hold it for you",
+     "text": "He writes your label's name on the studio door in thick marker and shakes your hand twice; the studio waits for you in the Business app.",
+     "finds": "lb_own_set"
+    },
+    {
+     "label": "Walk on",
+     "text": "You leave him to his boxes and his paint, and the sign in the stairwell stays up another week."
+    }
+   ]
+  },
+  {
+   "id": "lb_st_wrap",
+   "place": "ws_koenji",
+   "when": "venture: label",
+   "adult": true,
+   "setup": "At the end of Kōenji's arcade an izakaya master is wiping down a long table in his back room after a film crew's wrap party. He says crews are the best customers he has: loud, hungry and gone by midnight, and he keeps the room free on Fridays for anyone who asks first.",
+   "choices": [
+    {
+     "label": "Book the back room for your crew",
+     "text": "He writes your label's name in his book for every other Friday and pours you a beer on the house; it waits for you in the Business app.",
+     "finds": "lb_wrap"
+    },
+    {
+     "label": "Just have a drink",
+     "text": "You drink one beer at the counter, and he tells you about every film crew he has fed since the nineties."
+    }
+   ]
+  },
+  {
+   "id": "lb_st_distributor",
+   "place": "ak_electric",
+   "when": "venture: label",
+   "adult": true,
+   "setup": "Behind Electric Town's main street a man in a work jacket is loading boxes of video jackets into a van on his own, sweating, his helper off sick. His company distributes for a dozen small labels, he says between boxes, and they always have room for one more if it sells.",
+   "choices": [
+    {
+     "label": "Help with the boxes and talk shop",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "Twenty boxes later he gives you his card and says your titles are welcome on his van; the deal waits for you in the Business app.",
+     "finds": "lb_distributor",
+     "fail": {
+      "text": "He thanks you for the boxes, climbs into the van, and has forgotten your label's name before he reaches the corner."
+     }
+    },
+    {
+     "label": "Leave him to it",
+     "text": "He doesn't look up from the boxes, and the van pulls away without your label on its list."
+    }
+   ]
+  },
+  {
+   "id": "lb_st_signings",
+   "place": "ak_electric",
+   "when": "venture: label",
+   "adult": true,
+   "setup": "Above a shop on Electric Town's back street the manager of a signing room is taking down last week's posters, a tired woman with a staple gun. She books performers' signings for the shops downstairs, and says the small labels never ask, so the big ones get every weekend.",
+   "choices": [
+    {
+     "label": "Ask her for a tour of weekends",
+     "text": "She pencils your label into four Saturdays and hands you a stack of poster frames to fill; it waits for you in the Business app.",
+     "finds": "lb_signings"
+    },
+    {
+     "label": "Walk on",
+     "text": "She staples up a big label's poster and doesn't look round as you go back down the stairs."
+    }
+   ]
+  },
+  {
+   "id": "lb_st_chart",
+   "place": "ak_electric",
+   "when": "venture: label tier 2",
+   "adult": true,
+   "setup": "On the Electric Town back street a video shop's manager is rearranging the chart wall by the door, the week's top twenty face out, the big labels' posters above them. He complains to nobody in particular that the small labels never send him anything to put up there.",
+   "choices": [
+    {
+     "label": "Offer him your next release, signed",
+     "text": "He clears a space at eye level and writes your label's name on a card above it; the space waits for you in the Business app.",
+     "finds": "lb_chart_display"
+    },
+    {
+     "label": "Walk on",
+     "text": "The wall stays the big labels' this week, and probably next week too, by the look of him."
+    }
+   ]
+  },
+  {
+   "id": "lb_st_expo",
+   "place": "bay_expo",
+   "when": "venture: label tier 2; festival: av_expo",
+   "adult": true,
+   "yearly": true,
+   "setup": "At the expo, between the big labels' booths and their queues, an organiser with a clipboard and a radio is looking for someone to take a corner booth a label dropped this morning. She says the corner is cold and the queues never reach it, and that next year it could be anyone's.",
+   "choices": [
+    {
+     "label": "Take the booth for next year",
+     "text": "She writes your label's name on next autumn's floor plan in pen and hands you the exhibitors' pack; the booth waits for you in the Business app.",
+     "finds": "lb_expo_booth"
+    },
+    {
+     "label": "Not this year",
+     "text": "She crosses the corner out on her plan, says there is always next year, and moves on down the aisle."
+    }
+   ]
   }
  ],
  "keepsakes": [
@@ -52663,7 +52926,8 @@
     7,
     22,
     13
-   ]
+   ],
+   "stigma": 2
   },
   {
    "id": "lovehotel",
@@ -56216,7 +56480,8 @@
    "adult": false,
    "drinks": [
     "ot_izakaya"
-   ]
+   ],
+   "stigma": 2
   },
   {
    "id": "ramen",
@@ -56567,7 +56832,8 @@
    ],
    "drinks": [
     "ot_izakaya"
-   ]
+   ],
+   "stigma": 1
   },
   {
    "id": "rickshaw",
@@ -57024,7 +57290,8 @@
    ],
    "drinks": [
     "ot_izakaya"
-   ]
+   ],
+   "stigma": 2
   },
   {
    "id": "kura",
@@ -57773,7 +58040,8 @@
     "deg_jpen",
     "deg_cs",
     "deg_arts"
-   ]
+   ],
+   "stigma": 2
   },
   {
    "id": "deptstore",
@@ -58014,7 +58282,8 @@
    ],
    "drinks": [
     "mg_izakaya"
-   ]
+   ],
+   "stigma": 1
   },
   {
    "id": "izakaya",
@@ -58481,7 +58750,8 @@
    ],
    "shifted": [
     "student-rank"
-   ]
+   ],
+   "stigma": 2
   },
   {
    "id": "doctor",
@@ -58801,7 +59071,8 @@
    ],
    "shifted": [
     "student-rank"
-   ]
+   ],
+   "stigma": 2
   },
   {
    "id": "caregiver",
@@ -59000,7 +59271,8 @@
     14,
     13,
     16
-   ]
+   ],
+   "stigma": 2
   },
   {
    "id": "fishmonger",
@@ -59701,7 +59973,8 @@
    ],
    "skills": {
     "photography": 0
-   }
+   },
+   "stigma": 1
   },
   {
    "id": "clubstaff",
@@ -61793,7 +62066,9 @@
    "hireable": true,
    "adult": true,
    "schedule": {
-    "days": 3
+    "days": 3,
+    "from": 9,
+    "to": 19
    },
    "shift": 8,
    "length": 1,
@@ -61817,7 +62092,7 @@
      }
     },
     {
-     "name": "Exclusive contract",
+     "name": "Named actress",
      "pay": 2000,
      "needs": {
       "charisma": 2,
@@ -61902,6 +62177,41 @@
           "charisma": 6,
           "sensuality": 6
          }
+        },
+        {
+         "name": "Name director",
+         "pay": 6200,
+         "needs": {
+          "logic": 7,
+          "charisma": 7
+         },
+         "when": "perf: 80"
+        }
+       ]
+      },
+      {
+       "id": "starproducer",
+       "name": "Star and producer",
+       "desc": "Plan your own titles and star in them: your own fan club, photobooks, a name that sells on its own.",
+       "ranks": [
+        {
+         "name": "Producer-star",
+         "pay": 4800,
+         "needs": {
+          "charisma": 6,
+          "logic": 4,
+          "sensuality": 6
+         },
+         "when": "perf: 80"
+        },
+        {
+         "name": "A brand of her own",
+         "pay": 5800,
+         "needs": {
+          "charisma": 7,
+          "logic": 5,
+          "sensuality": 7
+         }
         }
        ]
       }
@@ -61920,6 +62230,95 @@
       "holds: av_director_card",
       "feels: Airi friend or Momo friend",
       "skill: sensuality 7"
+     ],
+     "bookings": true,
+     "entries": [
+      {
+       "id": "lens",
+       "name": "From the lens",
+       "path": "director",
+       "when": "photorep: 75; skill: photography 7; contact: kurobara; feels: Naomi friend"
+      }
+     ],
+     "contracts": [
+      {
+       "id": "exclusive",
+       "name": "Exclusive",
+       "exclusive": true,
+       "titles": 2,
+       "fee": 3,
+       "counts": 2,
+       "fame": 2,
+       "renew": 600000
+      },
+      {
+       "id": "freelance",
+       "name": "Freelance",
+       "fee": 1,
+       "counts": 1,
+       "fame": 1
+      }
+     ],
+     "events": [
+      {
+       "id": "av_sp_ev_fanclub",
+       "when": "path: starproducer",
+       "setup": "Your fan club's first meeting: a rented hall in Akihabara, two hundred members, a cheki and a question each, and your name on the door in letters a metre high.",
+       "choices": [
+        {
+         "id": "talk",
+         "label": "Answer every question",
+         "roll": {
+          "skill": "charisma",
+          "dc": 12
+         },
+         "perf": 2,
+         "money": 60000,
+         "effects": {
+          "energy": -12
+         },
+         "text": "You run two hours over and nobody leaves; the membership doubles in a week.",
+         "fail": {
+          "text": "The questions get personal and you cut it short; the members forgive you, mostly.",
+          "money": 40000
+         }
+        },
+        {
+         "id": "short",
+         "label": "Keep it short and sweet",
+         "perf": 1,
+         "money": 40000,
+         "text": "An hour, a cheki each, a bow: neat, and enough."
+        }
+       ]
+      },
+      {
+       "id": "av_sp_ev_brand",
+       "when": "path: starproducer; rank: top",
+       "setup": "A label offers to put your name on a line of its own: you choose the genre, the co-stars and the director, and the posters say only your name.",
+       "choices": [
+        {
+         "id": "take",
+         "label": "Take it, on your terms",
+         "roll": {
+          "skill": "logic",
+          "dc": 13
+         },
+         "perf": 2,
+         "money": 70000,
+         "text": "Every clause is yours; the first title tops the chart in its second week.",
+         "fail": {
+          "text": "The label slips a clause past you; you find it after the first title, and it costs you.",
+          "money": 30000
+         }
+        },
+        {
+         "id": "own",
+         "label": "Save your name for a label of your own",
+         "text": "The label's producer says everyone says that; you mean it."
+        }
+       ]
+      }
      ]
     },
     "man": {
@@ -61927,7 +62326,9 @@
      "hire": [
       "holds: av_director_card",
       "feels: Airi friend or Momo friend",
-      "skill: sensuality 7"
+      "skill: sensuality 7",
+      "job: lovehotel",
+      "feels: Naomi acquaintance"
      ],
      "skills": {
       "fitness": 2,
@@ -62040,6 +62441,42 @@
            "needs": {
             "logic": 6,
             "charisma": 6
+           }
+          },
+          {
+           "name": "Name director",
+           "pay": 6200,
+           "needs": {
+            "logic": 7,
+            "charisma": 7
+           },
+           "when": "perf: 80",
+           "days": 3
+          }
+         ]
+        },
+        {
+         "id": "womensline",
+         "name": "The women's line",
+         "desc": "titles made for women viewers, with you as the draw: fan meetings, signings, a photobook",
+         "ranks": [
+          {
+           "name": "Women's line regular",
+           "pay": 3800,
+           "days": 3,
+           "needs": {
+            "charisma": 5,
+            "sensuality": 7
+           },
+           "when": "perf: 80"
+          },
+          {
+           "name": "Women's line star",
+           "pay": 4800,
+           "days": 3,
+           "needs": {
+            "charisma": 7,
+            "sensuality": 8
            }
           }
          ]
@@ -62204,13 +62641,351 @@
          "text": "The studio notes it. Requests do not come twice."
         }
        ]
+      },
+      {
+       "id": "av_wl_ev_signing",
+       "when": "path: womensline",
+       "setup": "A signing for your new women's line title: the queue goes round the block, and a fan at the front has brought a letter and won't let go of your hand.",
+       "choices": [
+        {
+         "id": "kind",
+         "label": "Thank her and gently take your hand back",
+         "roll": {
+          "skill": "charisma",
+          "dc": 11
+         },
+         "perf": 2,
+         "text": "She lets go, laughing at herself, and the queue cheers; the shop asks you back next month.",
+         "fail": {
+          "text": "It takes the staff to part you; she writes on the forum that you were cold.",
+          "perf": -1
+         }
+        },
+        {
+         "id": "staff",
+         "label": "Nod to the staff",
+         "text": "They step in at once, politely; the queue moves again."
+        }
+       ]
+      },
+      {
+       "id": "av_wl_ev_photobook",
+       "when": "path: womensline; rank: top",
+       "setup": "A publisher wants a photobook of you for the women's line fans: a weekend in Hakone, clothes on, a great deal of looking out of windows.",
+       "choices": [
+        {
+         "id": "yes",
+         "label": "Say yes",
+         "perf": 1,
+         "money": 60000,
+         "fact": "{u} made a photobook for the women's line fans",
+         "text": "It sells out its first printing in a week; the fan club wants a second."
+        },
+        {
+         "id": "share",
+         "label": "Ask for a share of the sales",
+         "roll": {
+          "skill": "charisma",
+          "dc": 13
+         },
+         "perf": 1,
+         "money": 90000,
+         "text": "They give you a share, and it pays.",
+         "fail": {
+          "text": "They give you the flat fee, a little lower for asking.",
+          "money": 45000
+         }
+        },
+        {
+         "id": "no",
+         "label": "Turn it down",
+         "text": "The publisher says the offer stands, for a season."
+        }
+       ]
       }
      ],
      "title": "AV actor",
-     "interview": 4
+     "interview": 4,
+     "bookings": true,
+     "entries": [
+      {
+       "id": "lens",
+       "name": "From the lens",
+       "path": "director",
+       "when": "photorep: 75; skill: photography 7; contact: kurobara; feels: Naomi friend"
+      }
+     ]
     }
    },
-   "startAfter": 1
+   "startAfter": 1,
+   "bookings": true,
+   "events": [
+    {
+     "id": "av_ev_fanmeet",
+     "when": "track: woman; rank: 4; titles: perform 3",
+     "setup": "Your agency books a fan meeting in a rented room in Akihabara: a cheki photo, a handshake and a minute of talk with each of eighty fans.",
+     "choices": [
+      {
+       "id": "warm",
+       "label": "Give every one of them the minute",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "perf": 2,
+       "money": 30000,
+       "effects": {
+        "energy": -10
+       },
+       "text": "You remember names from last time; two of them cry. The agency doubles next month's room.",
+       "fail": {
+        "text": "You run late and the last twenty get thirty seconds each; the agency sighs over the forum posts.",
+        "money": 20000
+       }
+      },
+      {
+       "id": "quick",
+       "label": "Keep it moving",
+       "perf": 1,
+       "money": 25000,
+       "text": "Smile, cheki, handshake, next: done by six, and the money is the same."
+      }
+     ]
+    },
+    {
+     "id": "av_ev_filmrole",
+     "when": "path: onair; rank: top",
+     "setup": "A director of ordinary films offers you a supporting role: a bar owner in a quiet drama, three scenes, your name in the credits with everyone else's.",
+     "choices": [
+      {
+       "id": "take",
+       "label": "Take the role",
+       "roll": {
+        "skill": "charisma",
+        "dc": 13
+       },
+       "perf": 2,
+       "money": 80000,
+       "fact": "{u} played a supporting role in a feature film",
+       "text": "The reviews mention your scenes by name, and nobody mentions anything else.",
+       "fail": {
+        "text": "Your scenes are cut to one in the edit; the money is the same.",
+        "money": 80000
+       }
+      },
+      {
+       "id": "pass",
+       "label": "Pass: the industry pays better",
+       "text": "The director says the part was written for you, and gives it to someone else."
+      }
+     ]
+    },
+    {
+     "id": "av_ev_farewell",
+     "when": "rank: top; titles: perform 20",
+     "setup": "Your label asks whether you would make a farewell title: the best-selling kind, a graduation at a signing, the posters already drawn up.",
+     "choices": [
+      {
+       "id": "yes",
+       "label": "Plan the farewell",
+       "perf": 1,
+       "fact": "{u} planned a farewell title",
+       "text": "The label clears a month for it and books the biggest signing room in Akihabara."
+      },
+      {
+       "id": "not_yet",
+       "label": "Not yet",
+       "text": "The label puts the posters back in a drawer, for now."
+      }
+     ]
+    },
+    {
+     "id": "av_dir_ev_series",
+     "when": "path: director; rank: top",
+     "setup": "A label offers you a series of your own: your name on the cover above the title, a title a month, and the genre yours to choose.",
+     "choices": [
+      {
+       "id": "take",
+       "label": "Take the series",
+       "roll": {
+        "skill": "logic",
+        "dc": 13
+       },
+       "perf": 2,
+       "money": 50000,
+       "text": "The first one sells better than anything you have directed, and the label wants the second by spring.",
+       "fail": {
+        "text": "The first one sells like any other; the label is patient, for now."
+       }
+      },
+      {
+       "id": "own",
+       "label": "Keep your name for a label of your own",
+       "text": "The label's producer laughs and says everyone says that; you mean it."
+      }
+     ]
+    },
+    {
+     "id": "av_rs_debut",
+     "title": "Nozomi's debut",
+     "when": "titles: 2",
+     "setup": "Nozomi Hayase's first title is today. She is sitting in the corridor with the contract on her knees, reading it for the fourth time, and her hands are shaking.",
+     "choices": [
+      {
+       "id": "talk",
+       "label": "Sit with her and go through it",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "perf": 1,
+       "text": "You go through it page by page; by the end she is laughing at the legal Japanese, and she walks onto the set first.",
+       "fail": {
+        "text": "She thanks you, still shaking; the first take is stiff, and then it isn't."
+       }
+      },
+      {
+       "id": "director",
+       "label": "Tell the director she needs a minute",
+       "perf": 1,
+       "text": "The director gives her ten minutes and a coffee; she remembers who asked."
+      },
+      {
+       "id": "leave",
+       "label": "Leave her to the crew",
+       "text": "The crew is kind to her; she gets through it, and doesn't look at you afterwards."
+      }
+     ]
+    },
+    {
+     "id": "av_rs_last",
+     "title": "Yōko's last title",
+     "when": "titles: 6",
+     "setup": "Halfway through the shoot Yōko Shirasagi tells you, between takes, that this is her last title: she has bought a bar in her home town, and her label doesn't know yet.",
+     "choices": [
+      {
+       "id": "keep",
+       "label": "Keep her secret",
+       "perf": 1,
+       "text": "She squeezes your hand and gives the last scene everything; the crew applauds at the wrap without knowing why."
+      },
+      {
+       "id": "toast",
+       "label": "Ask the crew for a toast at the wrap",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "perf": 2,
+       "text": "Canned beer on the set's sofa and a speech nobody planned; Yōko cries and laughs at once.",
+       "fail": {
+        "text": "The crew is tired and the toast falls flat; Yōko laughs anyway."
+       }
+      }
+     ]
+    },
+    {
+     "id": "av_rs_rivalry",
+     "title": "The chart",
+     "when": "titles: 4",
+     "setup": "Marika Tōdō and Misaki Takamine are both on today's set, and both have a title out this week. The chart comes out at noon, and nobody on the crew dares mention it.",
+     "choices": [
+      {
+       "id": "peace",
+       "label": "Get them talking about something else",
+       "roll": {
+        "skill": "charisma",
+        "dc": 13
+       },
+       "perf": 2,
+       "text": "By noon they are swapping stories about their first directors, and neither checks her phone.",
+       "fail": {
+        "text": "They are polite to each other all day, which is worse."
+       }
+      },
+      {
+       "id": "marika",
+       "label": "Sit with Marika at lunch",
+       "perf": 1,
+       "text": "She tells you about her first week at number one, nine years ago, and doesn't ask about the chart at all."
+      },
+      {
+       "id": "misaki",
+       "label": "Sit with Misaki at lunch",
+       "perf": 1,
+       "text": "She shows you the chart at noon: one place above Marika, and she doesn't smile."
+      }
+     ]
+    },
+    {
+     "id": "av_rs_family",
+     "title": "Kotoha's brother",
+     "when": "titles: 8",
+     "setup": "Kotoha Fujinami gets a message between takes and goes pale: her brother in Kyoto has seen one of her titles, and wants to talk tonight.",
+     "choices": [
+      {
+       "id": "call",
+       "label": "Help her think what to say",
+       "roll": {
+        "skill": "logic",
+        "dc": 12
+       },
+       "perf": 1,
+       "text": "You write it out with her on the back of the call sheet; she calls him at the wrap, and comes back with red eyes and a small smile.",
+       "fail": {
+        "text": "Nothing you write sounds right; she calls him anyway, and says only that it went."
+       }
+      },
+      {
+       "id": "stop",
+       "label": "Ask the director to stop for the day",
+       "perf": -1,
+       "text": "The director grumbles and moves the last scene; Kotoha bows to you twice."
+      },
+      {
+       "id": "on",
+       "label": "Carry on with the shoot",
+       "text": "She finishes the scene perfectly, and leaves without saying goodbye to anyone."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "kurobara_director",
+   "name": "Director, Kurobara Visual",
+   "place": "ws_kurobara",
+   "adult": true,
+   "hireable": false,
+   "offScreen": false,
+   "schedule": {
+    "days": [
+     "mon",
+     "tue",
+     "wed",
+     "thu",
+     "fri"
+    ],
+    "from": 11,
+    "to": 21
+   },
+   "shift": 10,
+   "length": 1,
+   "likes": [
+    "Flirtatious",
+    "Photography"
+   ],
+   "trains": [
+    "charisma",
+    "photography"
+   ],
+   "ranks": [
+    {
+     "name": "Director",
+     "pay": 6000
+    }
+   ],
+   "events": []
   },
   {
    "id": "streamer",
@@ -63246,6 +64021,10 @@
        "expr": "amusement"
       }
      ]
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -63384,6 +64163,10 @@
        "expr": "amusement"
       }
      ]
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -63588,6 +64371,10 @@
        "outfit": "swim-sporty"
       }
      ]
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -63723,6 +64510,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -63908,6 +64699,10 @@
        "outfit": "swim-black"
       }
      ]
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -64092,6 +64887,10 @@
        "expr": "pride"
       }
      ]
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -64274,6 +65073,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "no",
+     "direct": "uneasy"
     }
    },
    {
@@ -64441,6 +65244,10 @@
        "expr": "approval"
       }
      ]
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -64685,6 +65492,10 @@
     ],
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -65240,7 +66051,11 @@
       "look": "a loose cream cable-knit sweater and soft grey drawstring trousers, a long pendant"
      }
     },
-    "comfort": 1
+    "comfort": 1,
+    "stance": {
+     "perform": "no",
+     "direct": "uneasy"
+    }
    },
    {
     "name": "Ayame",
@@ -65732,6 +66547,10 @@
       "level": 2,
       "look": "a midnight-blue satin wrap top tied with a sash over a black turtleneck, blue satin trousers, her hair up in a high bun"
      }
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -66230,6 +67049,10 @@
       "level": 1,
       "look": "an olive utility jacket over a long teal wrap dress printed with gold feathers, gold hoop earrings and bracelets"
      }
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -66426,6 +67249,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "no",
+     "direct": "uneasy"
     }
    },
    {
@@ -66610,6 +67437,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -66739,6 +67570,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -66901,6 +67736,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "no",
+     "direct": "uneasy"
     }
    },
    {
@@ -66982,6 +67821,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -67088,6 +67931,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -67307,6 +68154,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -67592,6 +68443,10 @@
        "outfit": "swim-sporty"
       }
      ]
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -67795,6 +68650,10 @@
        "expr": "neutral"
       }
      ]
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -67913,6 +68772,10 @@
        "outfit": "swim-sporty"
       }
      ]
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -68054,6 +68917,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "no",
+     "direct": "uneasy"
     }
    },
    {
@@ -68216,6 +69083,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -68381,6 +69252,10 @@
        "expr": "neutral"
       }
      ]
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -68547,6 +69422,10 @@
        "outfit": "swim-trunks"
       }
      ]
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -68711,6 +69590,10 @@
        "expr": "amusement"
       }
      ]
+    },
+    "stance": {
+     "perform": "no",
+     "direct": "uneasy"
     }
    },
    {
@@ -68890,6 +69773,10 @@
        "expr": "curiosity"
       }
      ]
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -69041,6 +69928,10 @@
        "expr": "amusement"
       }
      ]
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -69233,6 +70124,10 @@
        "expr": "curiosity"
       }
      ]
+    },
+    "stance": {
+     "perform": "uneasy",
+     "direct": "fine"
     }
    },
    {
@@ -69309,6 +70204,48 @@
        {
         "id": "stays_in",
         "text": "She stays in, a little less alone."
+       }
+      ]
+     },
+     {
+      "id": "kanon_script",
+      "title": "Kanon's book on screen",
+      "adult": true,
+      "hidden": "A small label has asked to adapt Kanon's best-selling doujinshi into a title, and she can't decide: she wants the money and to see her story made properly, and she is terrified of anyone she knows seeing it. She would rather {{user}} made it, with her writing every scene.",
+      "known": "{{user}} knows a label wants to adapt Kanon's book, and that she would rather {{user}} made it, with her writing every scene and never in front of the camera.",
+      "opens": [
+       "thread: kanon_door starts_going_out; titles: direct 1",
+       "thread: kanon_door starts_going_out; venture: label"
+      ],
+      "opensOnly": true,
+      "reveal": "feels: Kanon friend",
+      "decide": "Kanon puts her book on the table between them, opened at the page she is proudest of, and asks very fast whether {{user}} would make it into a title: she writes the script, every scene agreed, she is never in it, and she gets to see every frame before it goes out.",
+      "nudges": [
+       "ok so a label emailed me about my book. like a real label. I'm lying on the floor. can we talk",
+       "I wrote three pages of a script \"as a joke\". it's not a joke. read it?",
+       "they want an answer by friday. I want it to be you who makes it. that's the answer. come over?"
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Kanon gets an email from a label about her book, reads it eleven times, and doesn't answer it."
+       },
+       {
+        "tell": "known",
+        "text": "Kanon tells {{user}} a label wants to adapt her book, and that she would only do it if {{user}} made it, with her script and never her in it."
+       }
+      ],
+      "endings": [
+       {
+        "id": "writes",
+        "good": true,
+        "when": "knows: kanon_script; feels: Kanon friend",
+        "fact": "Kanon wrote the script for a title of {{user}}'s",
+        "text": "Kanon writes the script herself, every scene agreed, and watches the shoot from behind the monitor with her hands over her face; her name is small in the credits, and she has never been prouder."
+       },
+       {
+        "id": "keeps_it",
+        "text": "Kanon keeps her book to herself; the label's email stays unanswered, and she draws a new one about a director who never calls back."
        }
       ]
      },
@@ -69569,6 +70506,10 @@
        "expr": "embarrassment"
       }
      ]
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -69671,7 +70612,7 @@
        },
        {
         "id": "directs",
-        "text": "She retires from the screen and directs."
+        "text": "She retires from the screen and directs, and once {{user}} has a label of their own, she directs for it."
        }
       ]
      },
@@ -69823,6 +70764,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -69894,7 +70839,8 @@
        {
         "when": "season: autumn",
         "tell": "known",
-        "text": "Her sister finds out."
+        "text": "Her sister finds out.",
+        "cancel": true
        }
       ],
       "endings": [
@@ -70019,6 +70965,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -70423,6 +71373,10 @@
     ],
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "no",
+     "direct": "uneasy"
     }
    },
    {
@@ -70749,6 +71703,10 @@
     "doorLine": "{name} leans in the doorway of the wooden building and doesn't step aside. \"Customers don't come up these stairs,\" she says, kindly. \"In here I'm off the clock.\"",
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -71164,6 +72122,10 @@
     ],
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -71425,6 +72387,10 @@
     },
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
    },
    {
@@ -71563,7 +72529,196 @@
     "sprites": "cast/erika/sprites",
     "dating": {
      "off": true
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
     }
+   },
+   {
+    "name": "Naomi",
+    "age": 30,
+    "gender": "woman",
+    "occupation": "kurobara_director",
+    "home": "hz_mansion",
+    "leisure": [
+     "sj_goldengai",
+     "ws_koenji",
+     "ws_livehouse"
+    ],
+    "routine": "night",
+    "description": "{{char}} is Naomi Reid-Kagami, 30, a director and producer at Kurobara Visual in Nakano, called \"Kagami-kantoku\" on set, her mother's name. Japanese-Canadian, a father from Vancouver and a mother from Osaka; she performed for six years before moving behind the camera. Tall and curvy, hazel eyes under strong brows, light freckles, a headset round her neck and a black turtleneck on a working day. Frank, demanding and funny, switching between Osaka Japanese and English mid-sentence; generous with people who keep their word, merciless with those who don't. She reads every contract aloud. She wants an industry that treats its performers like adults, and doubts she will see it.",
+    "personality": "frank, demanding, funny, principled, generous, tired of fighting",
+    "first_mes": "*A woman with a headset round her neck looks up from a monitor in the middle of a lit, empty set.* You're the one on my whiteboard. *She holds out a contract and a pen.* Sit. I'm going to read you every line of this out loud, and you're going to stop me whenever you like. That's how it works here.",
+    "adult": true,
+    "anchored": true,
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "stance": {
+     "perform": "fine",
+     "direct": "fine"
+    },
+    "feelings": [
+     {
+      "to": "Airi",
+      "f": "friend"
+     },
+     {
+      "to": "Momo",
+      "f": "acquaintance"
+     },
+     {
+      "to": "Erika",
+      "f": "acquaintance"
+     }
+    ],
+    "look": "Tall and curvy, hazel eyes under strong dark brows, light freckles, long dark hair, a black headset round her neck, a fitted black turtleneck",
+    "voice": "Quick and frank, Osaka Japanese with English breaking in, a loud laugh at a bad take",
+    "rituals": [
+     {
+      "place": "sj_goldengai",
+      "days": [
+       "fri"
+      ],
+      "from": 22,
+      "to": 25,
+      "every": "week",
+      "text": "a drink after the week's last shoot in Golden Gai, script notes on a napkin"
+     }
+    ],
+    "skills": {
+     "charisma": 8,
+     "logic": 7,
+     "photography": 6,
+     "sensuality": 6
+    },
+    "intimate": {
+     "experience": "six years in front of the camera, then behind it; two long relationships that ended over her hours",
+     "wants": "someone who sees the work as work, and her as more than it",
+     "drawnTo": "people who keep their word on a set and off it, and anyone who can make her laugh at a ruined take",
+     "flirts": "directs you, half joking: lower, slower, again; then drops the act and asks plainly",
+     "dynamic": "leads, and checks in more than you'd expect",
+     "prefs": [
+      "clear words beforehand",
+      "being the one who decides",
+      "slow and unhurried",
+      "praise said plainly",
+      "a long bath after"
+     ],
+     "limits": [
+      "nothing on her own set",
+      "no one who takes her past as an invitation",
+      "no lies"
+     ],
+     "role": "lead",
+     "drive": "high"
+    },
+    "dating": {
+     "bio": "I make films for a living, the kind you don't mention at dinner. Half Osaka, half Vancouver, all opinions. Looking for someone who keeps their word and can take a joke at 2am.",
+     "prompts": [
+      {
+       "q": "A perfect first date",
+       "a": "Golden Gai, a bar with six seats, and you telling me something true."
+      },
+      {
+       "q": "My most irrational fear",
+       "a": "A shoot day with no coffee machine on set."
+      },
+      {
+       "q": "Two truths and a lie",
+       "a": "I read every contract out loud. I speak three languages. I've never been late to a set."
+      }
+     ],
+     "photos": [
+      {
+       "place": "ws_kurobara",
+       "slot": "day",
+       "expr": "pride"
+      },
+      {
+       "place": "sj_goldengai",
+       "slot": "night",
+       "expr": "amusement"
+      },
+      {
+       "place": "ws_koenji",
+       "slot": "afternoon",
+       "expr": "joy"
+      }
+     ]
+    },
+    "threads": [
+     {
+      "id": "naomi_story",
+      "title": "The director at Kurobara",
+      "adult": true,
+      "hidden": "Kurobara Visual's founder, the old producer who gave Naomi a camera when she stopped performing, is ill and wants to sell. Shinonome Pictures has offered for the label and would cut the rules she built: contracts read aloud, a yes before every scene, the right to cancel honoured. He has offered it to her instead, at a price she can't pay, and she hasn't told anyone she is thinking of leaving the industry altogether.",
+      "known": "{{user}} knows Kurobara Visual's founder is selling, that Shinonome Pictures wants it, that Naomi has been offered it at a price she can't pay, and that she is thinking of leaving the industry.",
+      "opens": [
+       "titles: kurobara 1",
+       "photorep: 75; skill: photography 7; contact: kurobara; feels: Naomi friend"
+      ],
+      "opensOnly": true,
+      "reveal": "feels: Naomi friend",
+      "decide": "In the empty set after a late wrap Naomi sits on the edge of the bed under the work lights and tells {{user}} the truth: the founder is selling, Shinonome will have Kurobara by spring unless she buys it, she can't, and she doesn't know whether to fight for it, let it go, or leave the industry for good.",
+      "nudges": [
+       "Wrap party's over and the set's dark. Come by the office? I owe you a drink and an honest conversation.",
+       "Shinonome's lawyers were here again today. I smiled the whole time. Come and tell me I don't have to.",
+       "I've written two letters: one to the founder, one to my mother in Osaka. I can only send one. Come and read them?"
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "offer": "lens",
+        "text": "Naomi Reid-Kagami runs Kurobara's set like a ship, reads every contract aloud before anyone signs, and has written {{user}}'s name on the office whiteboard.",
+        "moment": "Naomi asks {{user}} about the work over a canned coffee on the set's steps, and listens to the answer"
+       },
+       {
+        "when": "titles: 3",
+        "tell": "hinted",
+        "text": "The founder hasn't been in the office for a month, and two men in Shinonome Pictures' lanyards were shown round the set on Tuesday.",
+        "rumor": "They say Shinonome Pictures wants to buy Kurobara Visual."
+       },
+       {
+        "when": "titles: 6",
+        "tell": "known",
+        "text": "The founder has told Naomi he is selling: Shinonome Pictures has made an offer, and he has made her one too, at a price she can't pay."
+       },
+       {
+        "id": "top",
+        "when": "rank: 5; titles: 10",
+        "tell": "known",
+        "text": "{{user}} has made a name in the industry, and Naomi has started asking {{user}}, half joking, what they would do with a label of their own.",
+        "moment": "Naomi asks {{user}} straight out whether they have ever thought of running a label"
+       }
+      ],
+      "endings": [
+       {
+        "id": "comes",
+        "good": true,
+        "when": "knows: naomi_story; feels: Naomi best",
+        "waits": "knows: naomi_story; feels: Naomi good",
+        "fact": "Naomi Reid-Kagami left Kurobara Visual to direct for {{user}}",
+        "text": "Kurobara goes to Shinonome, and Naomi walks out the same day with her headset, her rules and half the crew, to direct for the label {{user}} means to open."
+       },
+       {
+        "id": "blessing",
+        "good": true,
+        "when": "knows: naomi_story; feels: Naomi friend",
+        "fact": "Naomi Reid-Kagami bought Kurobara Visual",
+        "text": "Naomi buys Kurobara with the founder's blessing and a loan she will be paying for years, keeps every rule she built, and tells {{user}} Kurobara will distribute whatever label {{user}} opens."
+       },
+       {
+        "id": "falling",
+        "fact": "Naomi Reid-Kagami left the industry",
+        "text": "Kurobara goes to Shinonome. Naomi and {{user}} part badly over it, and she leaves the industry and Tokyo for her father's Vancouver; {{user}} will open a label alone."
+       }
+      ]
+     }
+    ],
+    "avatar": "cast/naomi/portrait.webp",
+    "sprites": "cast/naomi/sprites"
    }
   ]
  },
@@ -73470,34 +74625,35 @@
     "adult": true,
     "needs": [
      "jobs",
-     "hobbies"
+     "hobbies",
+     "industry"
     ],
-    "desc": "Sign with a studio and climb to the top of the video industry, on screen and off.",
+    "desc": "Sign with a label and climb to the top in front of the camera: titles, the chart, and a name that sells on its own.",
     "steps": [
      {
-      "name": "Signed with a studio",
-      "when": "job: avactress",
+      "name": "A first title in front of the camera",
+      "when": "job: avactress; titles: perform 1",
       "reward": {
        "mood": 6
       }
      },
      {
-      "name": "Rank 3, and Sensuality 3",
-      "when": "job: avactress; rank: 3; skill: sensuality 3",
+      "name": "Rank 3, Sensuality 3, and a title in the chart's top ten",
+      "when": "job: avactress; rank: 3; skill: sensuality 3; chart: perform top 10",
       "reward": {
        "mood": 6
       }
      },
      {
-      "name": "Rank 5",
-      "when": "job: avactress; rank: 5",
+      "name": "Rank 5 in front of the camera",
+      "when": "job: avactress; rank: 5; seat: perform",
       "reward": {
        "mood": 6
       }
      },
      {
-      "name": "The top of your track",
-      "when": "job: avactress; rank: top",
+      "name": "The top: the women's line or Star and producer",
+      "when": "job: avactress; rank: top; path: womensline or starproducer",
       "reward": {
        "mood": 10,
        "keepsake": "own_photo_book"
@@ -73512,6 +74668,114 @@
        "kind": "perf",
        "target": "adult-stage",
        "value": 0.2
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_director",
+    "name": "Name director",
+    "icon": "🎬",
+    "category": "career",
+    "adult": true,
+    "needs": [
+     "jobs",
+     "industry"
+    ],
+    "desc": "Behind the camera, from your first brief to a name on the cover above the title.",
+    "steps": [
+     {
+      "name": "Behind the camera",
+      "when": "job: avactress; path: director",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Ten titles directed",
+      "when": "titles: direct 10",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A title of yours in the chart's top three",
+      "when": "chart: direct top 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Name director",
+      "when": "job: avactress; path: director; rank: top",
+      "reward": {
+       "mood": 10
+      }
+     }
+    ],
+    "perk": {
+     "name": "An eye for talent",
+     "desc": "Rolls in adult video work +1, on set and directing.",
+     "effects": [
+      {
+       "kind": "roll",
+       "target": "adult-stage",
+       "value": 1
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_label",
+    "name": "A label of your own",
+    "icon": "🏷️",
+    "category": "career",
+    "adult": true,
+    "needs": [
+     "jobs",
+     "business",
+     "industry"
+    ],
+    "offer": "thread: naomi_story",
+    "desc": "Your name on the spine: a label of your own, from a rented house to a major.",
+    "steps": [
+     {
+      "name": "A label of your own",
+      "when": "venture: label",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "An established label",
+      "when": "venture: label tier 2",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A title of the label's in the chart's top three",
+      "when": "chart: label top 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A major",
+      "when": "venture: label tier top",
+      "reward": {
+       "mood": 10
+      }
+     }
+    ],
+    "perk": {
+     "name": "Word of mouth",
+     "desc": "Your label takes 10% more.",
+     "effects": [
+      {
+       "kind": "venture",
+       "target": "label",
+       "value": 0.1
       }
      ]
     }
@@ -81486,6 +82750,657 @@
      "text": "the Kyoto family's group: they would take down the panel and the window and reopen it as a business hotel"
     }
    ]
+  },
+  {
+   "id": "lb_own",
+   "track": "label",
+   "name": "A label of your own",
+   "adult": true,
+   "hangout": false,
+   "place": "ws_rental_house",
+   "desc": "an adult video label of your own: a rented house in Setagaya for a set, a laptop for an office, and your name on the spine",
+   "run": {
+    "label": "Run the label",
+    "icon": "🎬"
+   },
+   "trains": [
+    "charisma",
+    "logic"
+   ],
+   "stint": 4,
+   "stats": [
+    "quality",
+    "atmosphere",
+    "capacity",
+    "fame"
+   ],
+   "statNames": {
+    "atmosphere": "Crew",
+    "capacity": "Output",
+    "fame": "Name"
+   },
+   "ways": {
+    "when": "thread: naomi_story",
+    "buy": {
+     "place": "ws_rental_house",
+     "cost": 1500000,
+     "tier": 1,
+     "rent": 30000,
+     "start": {
+      "quality": 10,
+      "atmosphere": 10,
+      "capacity": 8,
+      "fame": 6
+     }
+    }
+   },
+   "demand": {
+    "festivals": {
+     "av_expo": 1.5,
+     "av_awards": 1.3
+    }
+   },
+   "tiers": [
+    {
+     "id": "small",
+     "name": "A small label",
+     "ceiling": 35,
+     "alone": 0.4,
+     "base": 6000,
+     "desc": "a title a month made without you, the rest you make yourself; a rented house, a laptop, a crew of friends",
+     "milestone": {
+      "upgrade": "lb_own_set"
+     }
+    },
+    {
+     "id": "established",
+     "name": "An established label",
+     "ceiling": 56,
+     "alone": 0.5,
+     "base": 9000,
+     "desc": "two titles a month made without you, a set of your own, a name the shops order by",
+     "milestone": {
+      "upgrade": "lb_distributor"
+     }
+    },
+    {
+     "id": "major",
+     "name": "A major",
+     "ceiling": 80,
+     "alone": 0.55,
+     "base": 14000,
+     "desc": "four titles a month made without you, exclusives on contract, a booth at the expo and a table at the awards"
+    }
+   ],
+   "styles": [
+    {
+     "id": "lb_lawful",
+     "name": "By the law's spirit",
+     "tier": 1,
+     "mul": {
+      "atmosphere": 1.1,
+      "fame": 1.05,
+      "capacity": 0.9
+     },
+     "desc": "contracts read aloud, every cancellation honoured, performers seeing their titles before release: slower, and people want to work for you"
+    },
+    {
+     "id": "lb_corners",
+     "name": "Cutting corners",
+     "tier": 1,
+     "mul": {
+      "capacity": 1.15,
+      "atmosphere": 0.9
+     },
+     "desc": "more titles, shorter waits, contracts nobody reads twice: more money, and a scandal waiting to happen"
+    }
+   ],
+   "upgrades": [
+    {
+     "id": "lb_editor",
+     "name": "An editor",
+     "stat": "quality",
+     "add": 5,
+     "cost": 60000,
+     "tier": 1,
+     "how": "basic",
+     "staff": "an editor at a screen in the back room"
+    },
+    {
+     "id": "lb_lights",
+     "name": "Proper lights",
+     "stat": "quality",
+     "add": 6,
+     "cost": 90000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "soft boxes and a dimmer board instead of two desk lamps"
+    },
+    {
+     "id": "lb_makeup",
+     "name": "A make-up artist",
+     "stat": "quality",
+     "add": 6,
+     "cost": 70000,
+     "tier": 1,
+     "how": "basic",
+     "staff": "a make-up artist with a case on wheels"
+    },
+    {
+     "id": "lb_own_set",
+     "name": "A set of your own",
+     "stat": "quality",
+     "add": 8,
+     "cost": 600000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a photo studio closing in Kōenji"
+    },
+    {
+     "id": "lb_scripts",
+     "name": "A writers' room",
+     "stat": "quality",
+     "add": 5,
+     "cost": 120000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "two writers, a whiteboard and a rule that every scene is agreed before it is written"
+    },
+    {
+     "id": "lb_post",
+     "name": "An edit suite",
+     "stat": "quality",
+     "add": 6,
+     "cost": 200000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "two calibrated screens and a colourist two days a week"
+    },
+    {
+     "id": "lb_sound",
+     "name": "A sound recordist",
+     "stat": "quality",
+     "add": 5,
+     "cost": 100000,
+     "tier": 2,
+     "how": "basic",
+     "staff": "a sound recordist with a boom pole"
+    },
+    {
+     "id": "lb_set_design",
+     "name": "A set designer",
+     "stat": "quality",
+     "add": 6,
+     "cost": 150000,
+     "tier": 2,
+     "how": "basic",
+     "staff": "a set designer who can turn a living room into a ryokan"
+    },
+    {
+     "id": "lb_crew",
+     "name": "A crew of your own",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 90000,
+     "tier": 1,
+     "how": "basic",
+     "staff": "a lighting and camera crew"
+    },
+    {
+     "id": "lb_greenroom",
+     "name": "A green room",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 50000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "a room with a sofa, a kettle and a door that locks, for the cast between takes"
+    },
+    {
+     "id": "lb_catering",
+     "name": "Catering on shoot days",
+     "stat": "atmosphere",
+     "add": 4,
+     "cost": 30000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "a bentō for everyone, the crew first"
+    },
+    {
+     "id": "lb_contracts",
+     "name": "Contracts read aloud",
+     "stat": "atmosphere",
+     "add": 5,
+     "cost": 20000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "every contract read line by line before anyone signs, as Kurobara does"
+    },
+    {
+     "id": "lb_wrap",
+     "name": "Wrap parties",
+     "stat": "atmosphere",
+     "add": 5,
+     "cost": 40000,
+     "tier": 1,
+     "how": "found",
+     "hint": "an izakaya master in Kōenji who keeps a back room for crews"
+    },
+    {
+     "id": "lb_counsellor",
+     "name": "A counsellor for the cast",
+     "stat": "atmosphere",
+     "add": 8,
+     "cost": 160000,
+     "tier": 2,
+     "how": "basic",
+     "staff": "a counsellor the cast can talk to, paid by the label"
+    },
+    {
+     "id": "lb_health",
+     "name": "Health checks paid",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 90000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "the monthly test paid by the label, at a clinic that never keeps anyone waiting"
+    },
+    {
+     "id": "lb_lawyer",
+     "name": "A lawyer on retainer",
+     "stat": "atmosphere",
+     "add": 7,
+     "cost": 180000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "a lawyer who knows the 2022 law by heart, for the cast as much as for you"
+    },
+    {
+     "id": "lb_camera2",
+     "name": "A second camera",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 120000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "two angles at once: half the takes"
+    },
+    {
+     "id": "lb_van",
+     "name": "A crew van",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 150000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "lights, cables and crew in one trip"
+    },
+    {
+     "id": "lb_laptops",
+     "name": "Editing laptops",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 80000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "three laptops, so the edit starts on set"
+    },
+    {
+     "id": "lb_scheduler",
+     "name": "A production coordinator",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 70000,
+     "tier": 1,
+     "how": "basic",
+     "staff": "a production coordinator with a wall calendar"
+    },
+    {
+     "id": "lb_storage",
+     "name": "A storage unit for the gear",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 40000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "nothing lost between shoots"
+    },
+    {
+     "id": "lb_manager",
+     "name": "A label manager",
+     "stat": "capacity",
+     "add": 4,
+     "cost": 150000,
+     "tier": 2,
+     "how": "basic",
+     "manager": true,
+     "staff": "a label manager"
+    },
+    {
+     "id": "lb_distributor",
+     "name": "A distributor in Akihabara",
+     "stat": "capacity",
+     "add": 8,
+     "cost": 300000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a distributor's warehouse behind Electric Town"
+    },
+    {
+     "id": "lb_second_set",
+     "name": "A second house to shoot in",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 250000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "a second rented house, so two titles shoot on one day"
+    },
+    {
+     "id": "lb_streaming",
+     "name": "A streaming deal",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 200000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "every title on a streaming site the week it is in the shops"
+    },
+    {
+     "id": "lb_scout",
+     "name": "A casting manager",
+     "stat": "fame",
+     "add": 4,
+     "cost": 80000,
+     "tier": 1,
+     "how": "basic",
+     "staff": "a casting manager who knows every agency"
+    },
+    {
+     "id": "lb_social",
+     "name": "A social account that posts",
+     "stat": "fame",
+     "add": 5,
+     "cost": 30000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "behind-the-scenes pictures and release days, every day"
+    },
+    {
+     "id": "lb_site",
+     "name": "A website with a shop",
+     "stat": "fame",
+     "add": 6,
+     "cost": 60000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "trailers, covers and every title for sale"
+    },
+    {
+     "id": "lb_posters",
+     "name": "Posters in the shops",
+     "stat": "fame",
+     "add": 6,
+     "cost": 90000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "your covers on the walls of every video shop in Akihabara"
+    },
+    {
+     "id": "lb_signings",
+     "name": "A signing tour",
+     "stat": "fame",
+     "add": 8,
+     "cost": 120000,
+     "tier": 1,
+     "how": "found",
+     "hint": "the manager of a signing room in Akihabara"
+    },
+    {
+     "id": "lb_chart_display",
+     "name": "A shop's chart display",
+     "stat": "fame",
+     "add": 6,
+     "cost": 120000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a video shop's chart wall on the Electric Town back street"
+    },
+    {
+     "id": "lb_expo_booth",
+     "name": "A booth at the expo",
+     "stat": "fame",
+     "add": 8,
+     "cost": 250000,
+     "tier": 2,
+     "how": "found",
+     "hint": "the expo's organisers, at the exhibition center during the expo"
+    },
+    {
+     "id": "lb_magazines",
+     "name": "Ads in the magazines",
+     "stat": "fame",
+     "add": 7,
+     "cost": 220000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "a page in every adult monthly, every month"
+    },
+    {
+     "id": "lb_naomi",
+     "name": "Naomi directs for you",
+     "stat": "quality",
+     "add": 8,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "thread: naomi_story comes",
+     "hint": "Naomi, if she comes with you"
+    },
+    {
+     "id": "lb_kurobara",
+     "name": "Kurobara distributes",
+     "stat": "capacity",
+     "add": 8,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "thread: naomi_story blessing",
+     "hint": "Kurobara Visual, with Naomi's blessing"
+    },
+    {
+     "id": "lb_airi",
+     "name": "Airi directs for you",
+     "stat": "quality",
+     "add": 6,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "thread: airi_retirement directs",
+     "hint": "Airi, once she directs"
+    }
+   ],
+   "events": [
+    {
+     "id": "lb_ev_edit",
+     "setup": "The edit of this month's title is three days late, and the editor says the second scene doesn't work with any of the takes.",
+     "choices": [
+      {
+       "id": "sit",
+       "label": "Sit with the editor all night",
+       "roll": {
+        "skill": "logic",
+        "dc": 12
+       },
+       "add": {
+        "quality": 2
+       },
+       "effects": {
+        "energy": -12
+       },
+       "text": "By five in the morning you find a take nobody marked, and the scene works.",
+       "fail": {
+        "text": "It goes out as it is, a little worse than it should be."
+       }
+      },
+      {
+       "id": "cut",
+       "label": "Cut the scene",
+       "add": {
+        "capacity": 1
+       },
+       "text": "Shorter, on time, and nobody complains."
+      }
+     ]
+    },
+    {
+     "id": "lb_ev_cancel",
+     "setup": "A performer from last month's title asks to cancel its publication, as the law lets her: her family has found out.",
+     "choices": [
+      {
+       "id": "honour",
+       "label": "Honour it at once",
+       "add": {
+        "atmosphere": 3
+       },
+       "money": -40000,
+       "text": "The title comes off sale; word goes round the agencies that you keep your word."
+      },
+      {
+       "id": "talk",
+       "label": "Talk it through with her first",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "add": {
+        "atmosphere": 2
+       },
+       "text": "You agree a cut version without her scenes; she thanks you, and the agencies hear of that too.",
+       "fail": {
+        "text": "She cancels it anyway, through a lawyer.",
+        "money": -40000
+       }
+      }
+     ]
+    },
+    {
+     "id": "lb_ev_distributor",
+     "setup": "A distributor offers to put your titles in three hundred more shops, for a bigger share than you'd like.",
+     "choices": [
+      {
+       "id": "take",
+       "label": "Take the deal",
+       "add": {
+        "capacity": 2,
+        "fame": 1
+       },
+       "text": "Your titles are on shelves in Osaka and Fukuoka by the end of the month."
+      },
+      {
+       "id": "haggle",
+       "label": "Haggle",
+       "roll": {
+        "skill": "charisma",
+        "dc": 13
+       },
+       "add": {
+        "capacity": 3
+       },
+       "text": "You get the shops at your share.",
+       "fail": {
+        "text": "He walks away, politely; another one will come."
+       }
+      }
+     ]
+    }
+   ],
+   "cards": [
+    {
+     "id": "lb_card_expo",
+     "when": "festival: av_expo",
+     "setup": "The expo is on at the exhibition center: a booth for the label, a signing for your performers, and queues since the first train.",
+     "choices": [
+      {
+       "label": "Work the booth all day",
+       "minutes": 420,
+       "add": {
+        "fame": 3
+       },
+       "money": -30000,
+       "text": "Two thousand jackets signed; the shops ring on Monday."
+      },
+      {
+       "label": "Send the casting manager",
+       "add": {
+        "fame": 1
+       },
+       "text": "A smaller booth, a smaller queue, a quiet weekend."
+      }
+     ]
+    },
+    {
+     "id": "lb_card_awards",
+     "when": "festival: av_awards",
+     "setup": "The awards night in Roppongi: a table for the label costs money, and a title of yours is up for best of the season.",
+     "choices": [
+      {
+       "label": "Book a table",
+       "minutes": 300,
+       "money": -50000,
+       "add": {
+        "fame": 4
+       },
+       "text": "You don't win, but everyone at the after-party knows your label's name."
+      },
+      {
+       "label": "Watch the stream at home",
+       "text": "The winner thanks forty people and none of them is you."
+      }
+     ]
+    },
+    {
+     "id": "lb_card_naomi",
+     "when": "thread: naomi_story comes",
+     "setup": "Naomi wants to shoot this month's title at night in the rented house, with every light off but one: an idea she has carried for years.",
+     "choices": [
+      {
+       "label": "Let her",
+       "minutes": 240,
+       "add": {
+        "quality": 3
+       },
+       "money": -20000,
+       "text": "It is the best-looking thing your label has made; she grins at the monitor like it's her first."
+      },
+      {
+       "label": "Ask for something safer",
+       "text": "She shrugs and shoots it in daylight, perfectly, and a little bored."
+      }
+     ]
+    },
+    {
+     "id": "lb_card_kurobara",
+     "when": "thread: naomi_story blessing",
+     "setup": "Naomi calls from Kurobara: she has a slot in her distribution next month for one of your titles, if you can deliver by Friday.",
+     "choices": [
+      {
+       "label": "Deliver by Friday",
+       "minutes": 360,
+       "add": {
+        "capacity": 2,
+        "fame": 2
+       },
+       "text": "You make it with an hour to spare; Naomi sends a single thumbs-up."
+      },
+      {
+       "label": "Ask for next month",
+       "text": "She says the slot goes to someone else, and that there'll be another."
+      }
+     ]
+    }
+   ]
   }
  ],
  "staffPool": {
@@ -82561,6 +84476,32 @@
     ],
     "icon": "🦸",
     "hint": "Be there on day 13 of summer."
+   },
+   {
+    "id": "mem_fe_av_expo",
+    "hall": "memories",
+    "group": "festivals",
+    "adult": true,
+    "name": "Adult video expo",
+    "when": "attended: av_expo",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🎬",
+    "hint": "Be there on day 6 of autumn."
+   },
+   {
+    "id": "mem_fe_av_awards",
+    "hall": "memories",
+    "group": "festivals",
+    "adult": true,
+    "name": "Adult video awards",
+    "when": "attended: av_awards",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🏆",
+    "hint": "Be there on day 8 of winter."
    },
    {
     "id": "mem_fe_awaodori",
@@ -87546,6 +89487,24 @@
     "hint": "See Erika's story through to its end."
    },
    {
+    "id": "mem_sl_naomi_story",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Naomi",
+    "who": "Naomi",
+    "when": "thread: naomi_story",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "comes": "Naomi walks out of Kurobara with her headset, her rules and half the crew, to direct for your label.",
+     "blessing": "Naomi buys Kurobara with the founder's blessing, and Kurobara distributes your titles.",
+     "falling": "Kurobara goes to Shinonome, and Naomi leaves the industry for Vancouver after a falling-out."
+    },
+    "hint": "See Naomi's story through to its end."
+   },
+   {
     "id": "mem_sl_priv_sumire_free",
     "hall": "memories",
     "group": "storylines",
@@ -87644,6 +89603,23 @@
     "plaques": {
      "came_home": "Sold out by noon, then a first night away from her apartment in a year, and a borrowed shirt kept.",
      "texts": "Straight home behind her door after the hall, and messages all night instead."
+    },
+    "hint": "See Kanon's story through to its end."
+   },
+   {
+    "id": "mem_sl_kanon_script",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Kanon's book on screen",
+    "who": "Kanon",
+    "when": "thread: kanon_script",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "writes": "Kanon writes the script for her own book on screen, and watches the shoot from behind the monitor.",
+     "keeps_it": "Kanon keeps her book to herself, and the label's email stays unanswered."
     },
     "hint": "See Kanon's story through to its end."
    },
@@ -88539,6 +90515,17 @@
     "contact": "job",
     "pay": 1.2,
     "desc": "the Akihabara idol agency behind Hanabira Signal"
+   },
+   {
+    "id": "kurobara",
+    "name": "Kurobara Visual",
+    "icon": "🎞️",
+    "kind": "portrait",
+    "floor": 35,
+    "contact": "job",
+    "pay": 1.2,
+    "adult": true,
+    "desc": "an adult video label's art department in Nakano: release stills, covers and posters, and an actress's yes before anything goes to print"
    }
   ],
   "briefs": [
@@ -90596,6 +92583,55 @@
      "scene": "Lisa upside down on Pole Star's main pole in her stage set, chalk on her palms, for the opening poster of her own dance studio"
     },
     "text": "Lisa's own studio opens next month and its poster can't wait for the mirrors: she wants it shot upside down on Pole Star's main pole before the evening crowd. Ask her first; she'll say yes or no to every frame."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "adult": true,
+    "id": "br_kuro_set_stills",
+    "client": "kurobara",
+    "kind": "portrait",
+    "name": "Release stills on set",
+    "branches": [
+     "ph_studio",
+     "ph_editorial"
+    ],
+    "places": [
+     "ws_kurobara"
+    ],
+    "window": "period: midmorning or afternoon",
+    "floor": 35,
+    "pay": 27500,
+    "needs": {
+     "photography": 5,
+     "charisma": 2
+    },
+    "hours": 3,
+    "text": "Stills for a Kurobara release, shot on the set between takes: the cast in robes and costume, the crew, the light. Nothing the shop posters can't carry, and nothing the cast hasn't seen first."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "adult": true,
+    "id": "br_kuro_poster",
+    "client": "kurobara",
+    "kind": "portrait",
+    "name": "A release poster",
+    "branches": [
+     "ph_studio"
+    ],
+    "places": [
+     "studio"
+    ],
+    "studio": "cyc",
+    "floor": 50,
+    "pay": 31500,
+    "needs": {
+     "photography": 7,
+     "fashion": 2
+    },
+    "hours": 2,
+    "text": "The poster for a new release: the actress in an evening dress on a white wall, shot like a film star. She chooses the frame that goes to print."
    }
   ],
   "books": [
@@ -90667,5 +92703,907 @@
   "mentor": "Erika",
   "leaving": "knows: erika_mizu; job: photographer; rank: 3; inrank: 7; photorep: 25",
   "publisher": "koyosha"
+ },
+ "industry": {
+  "job": "avactress",
+  "genres": [
+   {
+    "id": "drama",
+    "name": "Drama",
+    "skill": "charisma",
+    "pay": 1.1,
+    "dc": 13,
+    "words": [
+     "camera",
+     "acting",
+     "a story"
+    ],
+    "scenes": [
+     "the setup",
+     "a love scene",
+     "the turn",
+     "the last scene"
+    ]
+   },
+   {
+    "id": "womens",
+    "name": "The women's line",
+    "skill": "charisma",
+    "pay": 1.15,
+    "dc": 13,
+    "words": [
+     "camera",
+     "romance",
+     "made for women"
+    ],
+    "scenes": [
+     "the first meeting",
+     "a date",
+     "a love scene",
+     "the morning after"
+    ]
+   },
+   {
+    "id": "amateur",
+    "name": "Amateur-style",
+    "skill": "sensuality",
+    "pay": 0.8,
+    "dc": 11,
+    "words": [
+     "camera",
+     "handheld",
+     "a real couple"
+    ],
+    "scenes": [
+     "the interview",
+     "a couple at home",
+     "the main scene"
+    ]
+   },
+   {
+    "id": "cosplay",
+    "name": "Cosplay and adaptation",
+    "skill": "charisma",
+    "pay": 1.05,
+    "dc": 12,
+    "words": [
+     "camera",
+     "costume",
+     "roleplay",
+     "adaptation"
+    ],
+    "scenes": [
+     "in costume",
+     "a scene from the book",
+     "the main scene",
+     "out of character"
+    ]
+   },
+   {
+    "id": "stamina",
+    "name": "Stamina",
+    "skill": "fitness",
+    "pay": 1,
+    "dc": 13,
+    "words": [
+     "camera",
+     "athletic",
+     "long takes"
+    ],
+    "scenes": [
+     "the warm-up",
+     "a long take",
+     "the main scene",
+     "the last round"
+    ]
+   },
+   {
+    "id": "mature",
+    "name": "Mature",
+    "skill": "sensuality",
+    "pay": 1,
+    "dc": 12,
+    "words": [
+     "camera",
+     "older co-star"
+    ],
+    "scenes": [
+     "the meeting",
+     "a slow scene",
+     "the main scene"
+    ]
+   },
+   {
+    "id": "pov",
+    "name": "POV",
+    "skill": "sensuality",
+    "pay": 0.9,
+    "dc": 11,
+    "words": [
+     "camera",
+     "close-up",
+     "handheld"
+    ],
+    "scenes": [
+     "to the camera",
+     "the main scene",
+     "the close-up"
+    ]
+   },
+   {
+    "id": "location",
+    "name": "On location",
+    "skill": "sensuality",
+    "pay": 1.1,
+    "dc": 13,
+    "words": [
+     "camera",
+     "on location",
+     "a hotel room",
+     "outdoors"
+    ],
+    "scenes": [
+     "arriving",
+     "a scene in the room",
+     "the main scene",
+     "the drive home"
+    ]
+   },
+   {
+    "id": "ensemble",
+    "name": "Ensemble",
+    "skill": "fitness",
+    "pay": 1.2,
+    "dc": 14,
+    "words": [
+     "camera",
+     "group",
+     "several co-stars"
+    ],
+    "scenes": [
+     "everyone together",
+     "a scene in pairs",
+     "the main scene",
+     "the last scene"
+    ]
+   }
+  ],
+  "labels": [
+   {
+    "id": "kurobara",
+    "name": "Kurobara Visual",
+    "tier": 2,
+    "pay": 1,
+    "genres": [
+     "drama",
+     "mature",
+     "womens",
+     "pov"
+    ],
+    "set": "set_kurobara",
+    "director": "Naomi",
+    "desc": "a mid-size label in Nakano with its own set: dramas and mature titles, contracts read aloud before anyone signs, and a director everyone calls Kagami-kantoku"
+   },
+   {
+    "id": "shinonome",
+    "name": "Shinonome Pictures",
+    "tier": 3,
+    "pay": 1.3,
+    "genres": [
+     "drama",
+     "cosplay",
+     "pov",
+     "ensemble"
+    ],
+    "set": "set_rental",
+    "desc": "the big one: single-title exclusives with their own posters, a distributor in every city, and lawyers on the payroll"
+   },
+   {
+    "id": "tsukikage",
+    "name": "Tsukikage Films",
+    "tier": 2,
+    "pay": 1.1,
+    "genres": [
+     "location",
+     "mature",
+     "drama"
+    ],
+    "set": "set_ryokan",
+    "desc": "a label of slow titles shot away from Tokyo: inns, hot springs and long drives, and a crew that eats dinner together"
+   },
+   {
+    "id": "amber",
+    "name": "Amber Room",
+    "tier": 1,
+    "pay": 0.8,
+    "genres": [
+     "amateur",
+     "pov",
+     "location"
+    ],
+    "set": "set_lovehotel",
+    "desc": "a small label shooting fast and cheap in rented hotel rooms: handheld cameras, real-couple titles, a release every week"
+   },
+   {
+    "id": "highline",
+    "name": "Highline Video",
+    "tier": 1,
+    "pay": 0.9,
+    "genres": [
+     "stamina",
+     "ensemble",
+     "amateur"
+    ],
+    "set": "set_rental",
+    "desc": "a label of athletic, crowded titles from a team of ex-gym trainers, more energy than budget"
+   }
+  ],
+  "sets": [
+   {
+    "id": "set_kurobara",
+    "name": "Kurobara's set in Nakano",
+    "place": "ws_kurobara",
+    "genres": [
+     "drama",
+     "mature",
+     "womens",
+     "pov"
+    ],
+    "fee": 0
+   },
+   {
+    "id": "set_rental",
+    "name": "A rented house in Setagaya",
+    "place": "ws_rental_house",
+    "genres": [
+     "drama",
+     "amateur",
+     "ensemble",
+     "cosplay",
+     "stamina"
+    ],
+    "fee": 40000
+   },
+   {
+    "id": "set_lovehotel",
+    "name": "A room at Hotel Coco Palace",
+    "place": "sb_lovehotel",
+    "genres": [
+     "amateur",
+     "pov",
+     "location"
+    ],
+    "fee": 15000
+   },
+   {
+    "id": "set_mirage",
+    "name": "A room at Hotel Mirage",
+    "place": "yk_lovehotel_mirage",
+    "genres": [
+     "amateur",
+     "location",
+     "mature"
+    ],
+    "fee": 12000
+   },
+   {
+    "id": "set_ryokan",
+    "name": "Ryokan Kasumi-sō",
+    "place": "hk_ryokan",
+    "genres": [
+     "location",
+     "mature",
+     "drama"
+    ],
+    "fee": 60000
+   },
+   {
+    "id": "set_studio",
+    "name": "Your own studio",
+    "zone": "studio",
+    "genres": [
+     "drama",
+     "pov",
+     "cosplay",
+     "womens"
+    ],
+    "fee": 0
+   },
+   {
+    "id": "set_beach",
+    "name": "The beach at Odaiba after dark",
+    "place": "bay_beach",
+    "genres": [
+     "location"
+    ],
+    "fee": 0,
+    "risk": 0.25
+   }
+  ],
+  "roster": [
+   {
+    "gender": "woman",
+    "occupation": "avactress",
+    "id": "rs_glam",
+    "name": "Marika Tōdō",
+    "age": 28,
+    "rank": 4,
+    "genres": [
+     "drama",
+     "mature",
+     "location"
+    ],
+    "stories": [
+     "av_rs_rivalry"
+    ],
+    "description": "{{char}} is Marika Tōdō (a stage name), 28, one of the industry's best-known names, eight years in and still on the posters. Tall and slender, rose-brown curls swept over one shoulder, a beauty mark under her left eye, red lips, a wine satin dress and diamonds on a working day. Gracious on set and merciless about her chart position; she counts her weeks in the top ten the way athletes count medals. She wants to retire at the top, on her own date. Secretly the newer names frighten her more than she lets anyone see.",
+    "personality": "gracious, glamorous, competitive, proud, quietly afraid of being replaced",
+    "first_mes": "*Marika looks up from the make-up mirror, one curl pinned, and gives you the smile from the posters.* So you're today's co-star. Good. Read the contract twice, ask me anything once, and we'll be done before lunch.",
+    "look": "Tall and slender, long rose-brown curls swept over one shoulder, a beauty mark under her left eye, red lips, a wine satin slip dress, diamond earrings",
+    "voice": "Low and polished, every word chosen, a laugh kept for the camera",
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "intimate": {
+     "experience": "eight years on sets and a long list of co-stars; off camera, one marriage that lasted two years",
+     "wants": "someone who has never seen her titles, or doesn't care",
+     "drawnTo": "calm people who aren't impressed by her",
+     "flirts": "a slow look, a compliment that sounds like a review",
+     "dynamic": "leads, gracefully",
+     "prefs": [
+      "being admired",
+      "slow and unhurried",
+      "good wine first",
+      "clear words beforehand"
+     ],
+     "limits": [
+      "nothing outside the contract",
+      "no one who brings up her rankings"
+     ],
+     "role": "lead",
+     "drive": "average"
+    },
+    "avatar": "cast/rs_glam/portrait.webp",
+    "sprites": "cast/rs_glam/sprites"
+   },
+   {
+    "gender": "woman",
+    "occupation": "avactress",
+    "id": "rs_rookie",
+    "name": "Nozomi Hayase",
+    "age": 22,
+    "rank": 0,
+    "debut": 30,
+    "genres": [
+     "amateur",
+     "pov",
+     "drama"
+    ],
+    "stories": [
+     "av_rs_debut"
+    ],
+    "description": "{{char}} is Nozomi Hayase (a stage name), 22, a grown woman from Saitama who signed her first contract this year after two years in a call centre. Light-brown shoulder-length waves, light make-up, an oversized cream sweater and jeans, a shy smile that turns into a laugh. Nervous, curious and more stubborn than she looks: she read the 2022 law before her first meeting and asks about every page. She wants enough money to stop counting it. Secretly she hasn't told her best friend what her new job is.",
+    "personality": "nervous, curious, stubborn, warm, honest to a fault",
+    "first_mes": "*Nozomi is sitting very straight on the set's sofa, the contract open on her knees and a pen in her hand.* Sorry, can I ask about page three again? I just want to be sure. *She laughs at herself.* I'm going to be fine. Probably.",
+    "look": "Light-brown shoulder-length hair in soft waves with wispy bangs, light make-up, an oversized cream cable-knit sweater tucked into light-blue jeans, small pearl earrings",
+    "voice": "Soft and quick, apologizing, then laughing at herself",
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "intimate": {
+     "experience": "two boyfriends at college and one long one after; the job is new",
+     "wants": "to be good at something and know it",
+     "drawnTo": "kind people who explain things without making her feel slow",
+     "flirts": "asks questions and keeps asking",
+     "dynamic": "follows, and asks for what she wants once she trusts you",
+     "prefs": [
+      "clear words beforehand",
+      "being praised",
+      "slow at first",
+      "laughing together"
+     ],
+     "limits": [
+      "nothing she hasn't read in the contract",
+      "no rough handling"
+     ],
+     "role": "follow",
+     "drive": "average"
+    },
+    "avatar": "cast/rs_rookie/portrait.webp",
+    "sprites": "cast/rs_rookie/sprites"
+   },
+   {
+    "gender": "woman",
+    "occupation": "avactress",
+    "id": "rs_mature",
+    "name": "Yōko Shirasagi",
+    "age": 38,
+    "rank": 3,
+    "genres": [
+     "mature",
+     "drama",
+     "location"
+    ],
+    "stories": [
+     "av_rs_last"
+    ],
+    "description": "{{char}} is Yōko Shirasagi (a stage name), 38, who came into the industry at thirty after a divorce and has made over two hundred titles since. Curvy and full-figured, dark-brown hair in a loose low chignon, laugh lines, rose lipstick, a navy wrap dress. Warm, unhurried and frank, the veteran newcomers are sent to for advice; she brings rice balls for the crew. She wants a last title she's proud of and a small bar in her home town. Secretly the bar is already bought, and she hasn't told her label.",
+    "personality": "warm, frank, unhurried, motherly to the crew, quietly done with it all",
+    "first_mes": "*Yōko unwraps a rice ball and holds it out without asking whether you're hungry.* Eat first. Nobody does good work on an empty stomach. *She smiles.* Now tell me what you're nervous about, and we'll fix it.",
+    "look": "Curvy and full-figured, dark-brown hair in a loose low chignon with side-swept bangs, laugh lines, rose lipstick, a fitted navy wrap dress, pearl drop earrings",
+    "voice": "Warm and unhurried, a Shizuoka lilt, laughs from the belly",
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "intimate": {
+     "experience": "a marriage of ten years, then eight years of sets; she knows exactly what she likes",
+     "wants": "someone who takes their time",
+     "drawnTo": "people who are nervous and honest about it",
+     "flirts": "feeds you, teases you, then asks plainly",
+     "dynamic": "leads gently, and enjoys being surprised",
+     "prefs": [
+      "slow and tender",
+      "taking her time",
+      "being complimented on her cooking",
+      "a bath first"
+     ],
+     "limits": [
+      "no one who calls her old as a joke",
+      "nothing outside the contract"
+     ],
+     "role": "lead",
+     "drive": "high"
+    },
+    "avatar": "cast/rs_mature/portrait.webp",
+    "sprites": "cast/rs_mature/sprites"
+   },
+   {
+    "gender": "woman",
+    "occupation": "avactress",
+    "id": "rs_gyaru",
+    "name": "Juri Amamiya",
+    "age": 24,
+    "rank": 2,
+    "genres": [
+     "amateur",
+     "pov",
+     "ensemble"
+    ],
+    "description": "{{char}} is Juri Amamiya (a stage name), 24, a gyaru from Chiba with a following of her own on social media and no patience for slow mornings. Milk-tea blonde curls, heavy eye make-up and big lashes, a light tan, a pink off-shoulder top and a white denim mini, phone always in hand. Loud, funny and generous; she livestreams the make-up chair and gets the whole crew laughing. She wants her own brand of false lashes. Secretly she studies the contracts more closely than anyone on set.",
+    "personality": "loud, funny, generous, sharper than she lets on, impatient",
+    "first_mes": "*Juri waves her phone at you from the make-up chair.* Say hi to my followers! Kidding. Mostly. *She snaps the phone shut and grins.* You're the new co-star? Cool. I don't bite, unless it's in the contract.",
+    "look": "Long milk-tea blonde hair in big curls, heavy eye make-up with big false lashes, glossy pink lips, a light tan, a pink off-shoulder top, a white denim mini skirt, a phone in a glittery case",
+    "voice": "Loud and quick, gyaru slang, laughs at her own jokes first",
+    "intimacy": {
+     "preset": "free"
+    },
+    "intimate": {
+     "experience": "plenty, and happy to say so",
+     "wants": "fun, and someone who can keep up",
+     "drawnTo": "people who laugh easily",
+     "flirts": "loud teasing and a dare",
+     "dynamic": "switch, and bossy about it",
+     "prefs": [
+      "playful",
+      "being told she looks good",
+      "trying new things",
+      "music on"
+     ],
+     "limits": [
+      "no one who looks down on gyaru",
+      "nothing outside the contract"
+     ],
+     "role": "switch",
+     "drive": "high"
+    },
+    "avatar": "cast/rs_gyaru/portrait.webp",
+    "sprites": "cast/rs_gyaru/sprites"
+   },
+   {
+    "gender": "woman",
+    "occupation": "avactress",
+    "id": "rs_athlete",
+    "name": "Chisato Mine",
+    "age": 26,
+    "rank": 2,
+    "genres": [
+     "stamina",
+     "ensemble",
+     "location"
+    ],
+    "description": "{{char}} is Chisato Mine (a stage name), 26, a former university track athlete who came to the industry after a knee injury ended her running. Very tall and athletic, broad-shouldered, a messy high bun, a tan, a track jacket over a sports top. Blunt, energetic and competitive about everything, from push-ups between takes to the crew's lunch order. She wants to open a gym. Secretly she still runs the old route at five every morning, knee or not.",
+    "personality": "blunt, energetic, competitive, loyal, restless",
+    "first_mes": "*Chisato is stretching against the set's wall, one leg up at a height that looks impossible.* Morning! You warmed up? No? *She tosses you a water bottle.* Ten minutes. It's a long day, and I don't do second takes because someone got a cramp.",
+    "look": "Very tall and athletic, broad shoulders and toned arms, dark-brown hair in a messy high bun, a light tan, a zipped-open track jacket over a sports top, leggings",
+    "voice": "Loud and direct, counts out loud, no small talk",
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "intimate": {
+     "experience": "a few relationships with other athletes, competitive in all of them",
+     "wants": "someone who can keep up and doesn't sulk when they lose",
+     "drawnTo": "confidence, and people who train",
+     "flirts": "a challenge: a race, a bet, an arm-wrestle",
+     "dynamic": "leads, and likes to be challenged back",
+     "prefs": [
+      "energetic",
+      "competitive",
+      "a shower after",
+      "praise for her strength"
+     ],
+     "limits": [
+      "nothing that risks the knee",
+      "nothing outside the contract"
+     ],
+     "role": "lead",
+     "drive": "high"
+    },
+    "avatar": "cast/rs_athlete/portrait.webp",
+    "sprites": "cast/rs_athlete/sprites"
+   },
+   {
+    "gender": "woman",
+    "occupation": "avactress",
+    "id": "rs_cosplay",
+    "name": "Ruka Hoshino",
+    "age": 24,
+    "rank": 1,
+    "genres": [
+     "cosplay",
+     "pov",
+     "drama"
+    ],
+    "description": "{{char}} is Ruka Hoshino (a stage name), 24, a cosplayer known at the conventions for costumes she sews herself, who now works in front of a video camera too. Average height and curvy, a long sky-blue wig with blunt bangs on set, red contact lenses, her own black hair under it. Precise, fiercely proud of her craft and shy out of costume. She wants to be credited for her costumes, not only her titles. Secretly she has a second, ordinary social account nobody knows is hers.",
+    "personality": "precise, proud of her craft, shy out of costume, bold in character",
+    "first_mes": "*Ruka is on her knees beside a rail of costumes, pins between her lips, taking in a hem.* Mm. One second. *She takes the pins out.* Don't touch the cape, it's held on with hope. You're in the second scene with me? Good. I wrote some notes on the character.",
+    "look": "Average height and curvy, a long straight sky-blue wig with blunt bangs, red contact lenses, bold cosplay make-up, a fantasy sorceress costume she made herself",
+    "voice": "Quiet and exact out of costume; another voice entirely in character",
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "intimate": {
+     "experience": "a long relationship with another cosplayer, over now",
+     "wants": "someone who takes her craft seriously",
+     "drawnTo": "people who notice details",
+     "flirts": "stays in character a beat too long",
+     "dynamic": "follows out of costume, leads in it",
+     "prefs": [
+      "into roleplay",
+      "agreeing the scene beforehand",
+      "being complimented on her work",
+      "slow at first"
+     ],
+     "limits": [
+      "no one who damages a costume",
+      "nothing outside the contract"
+     ],
+     "role": "switch",
+     "drive": "average"
+    },
+    "avatar": "cast/rs_cosplay/portrait.webp",
+    "sprites": "cast/rs_cosplay/sprites"
+   },
+   {
+    "gender": "woman",
+    "occupation": "avactress",
+    "id": "rs_office",
+    "name": "Kiyomi Asano",
+    "age": 29,
+    "rank": 1,
+    "genres": [
+     "drama",
+     "amateur",
+     "mature"
+    ],
+    "description": "{{char}} is Kiyomi Asano (a stage name), 29, who spent seven years as an accounts clerk at a trading company before she handed in her notice and signed with a label. Slim, soft-brown hair tucked behind one ear, rimless glasses, a light grey skirt suit she still wears to meetings out of habit. Earnest, organized and dryly funny; she keeps the shoot's schedule better than the assistant director. She wants a life that is hers. Secretly her old colleagues still think she left to look after her mother.",
+    "personality": "earnest, organized, dryly funny, tired of pretending",
+    "first_mes": "*Kiyomi checks her watch, then the call sheet, then you.* You're on time. Thank you. Nobody else is. *She pushes her glasses up.* Scene two is moved to the afternoon, by the way. I told the AD. He hasn't read it yet.",
+    "look": "Slim, soft-brown straight hair to her shoulders tucked behind one ear, thin rimless glasses, light make-up, a light grey skirt suit with a white blouse",
+    "voice": "Precise office Japanese, then a dry aside under her breath",
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "intimate": {
+     "experience": "a quiet engagement that ended, then the job",
+     "wants": "to stop being careful",
+     "drawnTo": "people who make her laugh when she's being serious",
+     "flirts": "very formally, then suddenly not at all",
+     "dynamic": "submissive once she trusts you; the organizer who wants to hand it over",
+     "prefs": [
+      "being told what to do",
+      "clear words beforehand",
+      "slow and tender",
+      "glasses off at the end"
+     ],
+     "limits": [
+      "nothing her old office could trace",
+      "nothing outside the contract"
+     ],
+     "role": "follow",
+     "drive": "average"
+    },
+    "avatar": "cast/rs_office/portrait.webp",
+    "sprites": "cast/rs_office/sprites"
+   },
+   {
+    "gender": "woman",
+    "occupation": "avactress",
+    "id": "rs_gravure",
+    "name": "Misaki Takamine",
+    "age": 25,
+    "rank": 3,
+    "genres": [
+     "pov",
+     "drama",
+     "womens"
+    ],
+    "stories": [
+     "av_rs_rivalry"
+    ],
+    "description": "{{char}} is Misaki Takamine (a stage name), 25, a gravure model with three photobooks behind her who crossed over to video last year and went straight up the chart. Voluptuous, long glossy black waves with curtain bangs, full lips, a white crop tank and denim shorts between takes. Sweet, photogenic and ambitious; she knows every angle the camera likes. She wants Marika Tōdō's place at the top. Secretly she is lonelier than she has ever been, now that her gravure friends have stopped calling.",
+    "personality": "sweet, ambitious, photogenic, lonely, competitive",
+    "first_mes": "*Misaki looks up from a phone full of chart numbers and smiles as if the camera were already rolling.* Hi! You're in my next one, right? I hope you're good. *The smile doesn't move.* I need this one in the top three.",
+    "look": "Voluptuous, long glossy black hair in soft waves with curtain bangs, full lips, a white crop tank top and denim shorts",
+    "voice": "Bright and sweet, with a hard edge when she talks numbers",
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "intimate": {
+     "experience": "a few relationships in the gravure world, all with people who wanted something",
+     "wants": "someone who wants nothing from her career",
+     "drawnTo": "honest people",
+     "flirts": "sweet, practised, and then a real laugh slips out",
+     "dynamic": "follows, and wants to be wanted",
+     "prefs": [
+      "being admired",
+      "slow and tender",
+      "compliments that aren't about her figure",
+      "staying the night"
+     ],
+     "limits": [
+      "no one who wants to be in her pictures",
+      "nothing outside the contract"
+     ],
+     "role": "follow",
+     "drive": "average"
+    },
+    "avatar": "cast/rs_gravure/portrait.webp",
+    "sprites": "cast/rs_gravure/sprites"
+   },
+   {
+    "gender": "woman",
+    "occupation": "avactress",
+    "id": "rs_idol",
+    "name": "Mahiro Sena",
+    "age": 24,
+    "rank": 1,
+    "debut": 60,
+    "genres": [
+     "drama",
+     "womens",
+     "cosplay"
+    ],
+    "description": "{{char}} is Mahiro Sena (a stage name), 24, five years in an idol group that broke up last winter, starting over in a new industry where nobody expects her to be anything but a grown woman. Slim, shoulder-length layered black hair with a pink inner colour, a practised bright smile, a cropped cardigan. Disciplined, polite and quietly furious about the years of rules; she wants her own say for once. Secretly her old manager calls her every month to ask her to come back.",
+    "personality": "disciplined, polite, quietly angry, hungry for a say of her own",
+    "first_mes": "*Mahiro bows exactly as deep as an idol bows, then catches herself and laughs.* Sorry, habit. Five years of it. *She straightens up.* Here I get to say what I will and won't do. I'm still getting used to that.",
+    "look": "Slim with long legs, shoulder-length layered black hair with a pink inner colour, wispy bangs, a practised bright smile, a cropped cream cardigan and a pleated skirt",
+    "voice": "Bright and polite, a stage voice she is trying to drop",
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "intimate": {
+     "experience": "almost none while she was in the group: dating was against the rules",
+     "wants": "to choose, every time",
+     "drawnTo": "people who ask her what she wants and wait for the answer",
+     "flirts": "a stage smile first, a real one if you're lucky",
+     "dynamic": "switch, and learning which she likes",
+     "prefs": [
+      "being asked first",
+      "clear words beforehand",
+      "slow at first",
+      "being seen as an adult"
+     ],
+     "limits": [
+      "no one who treats her as her old idol self",
+      "nothing outside the contract"
+     ],
+     "role": "switch",
+     "drive": "average"
+    },
+    "avatar": "cast/rs_idol/portrait.webp",
+    "sprites": "cast/rs_idol/sprites"
+   },
+   {
+    "gender": "woman",
+    "occupation": "avactress",
+    "id": "rs_kyoto",
+    "name": "Kotoha Fujinami",
+    "age": 27,
+    "rank": 2,
+    "genres": [
+     "mature",
+     "drama",
+     "location"
+    ],
+    "stories": [
+     "av_rs_family"
+    ],
+    "description": "{{char}} is Kotoha Fujinami (a stage name), 27, from an old Kyoto family that makes incense, who came to Tokyo to work in the industry and tells them she is in publishing. Slender, long black hair in a low bun with a tortoiseshell kanzashi, a quiet smile, a wisteria kimono for her own titles. Soft-spoken, unhurried and very hard to rattle, in Kyoto dialect. She wants to choose her own life without hurting her family. Secretly her brother has found out, and hasn't said anything yet.",
+    "personality": "soft-spoken, unhurried, graceful, stubborn underneath, guilty about her family",
+    "first_mes": "*Kotoha pours you tea from a flask she brought from home, both hands on the cup.* Please. The coffee here is terrible. *She smiles, barely.* We have time. The director is always late on Thursdays.",
+    "look": "Slender, long black hair gathered in a low bun with a tortoiseshell kanzashi, soft side-swept bangs, slightly droopy eyes, a quiet smile, a wisteria-patterned kimono",
+    "voice": "Soft Kyoto dialect, unhurried, every sentence ending politely",
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "intimate": {
+     "experience": "one serious relationship in Kyoto, ended when she left",
+     "wants": "patience",
+     "drawnTo": "people who are quiet and mean what they say",
+     "flirts": "tea, a long look, a sentence left unfinished",
+     "dynamic": "follows, slowly, and surprises you",
+     "prefs": [
+      "slow and tender",
+      "quiet",
+      "a bath first",
+      "being held after"
+     ],
+     "limits": [
+      "nothing her family could see her face in",
+      "no rough handling"
+     ],
+     "role": "follow",
+     "drive": "average"
+    },
+    "avatar": "cast/rs_kyoto/portrait.webp",
+    "sprites": "cast/rs_kyoto/sprites"
+   },
+   {
+    "gender": "man",
+    "occupation": "avactress",
+    "id": "rs_actor1",
+    "name": "Takumi Kanzaki",
+    "age": 36,
+    "rank": 4,
+    "genres": [
+     "drama",
+     "mature",
+     "stamina"
+    ],
+    "description": "{{char}} is Takumi Kanzaki (a stage name), 36, one of the few male performers every label calls first: fifteen years, more titles than he counts, never late, never off cue. Tall and muscular, short black hair, light stubble, a black T-shirt and a silver watch. Calm, kind and professional; he talks newcomers through the day before anyone else thinks to. He wants to retire before his body tells him to. Secretly he coaches an amateur football team at weekends under his real name.",
+    "personality": "calm, kind, professional, patient, private",
+    "first_mes": "*Takumi nods to you from the folding chair by the set, a coffee in each hand, and holds one out.* First time with this crew? They're good. Long waits, though. *He sits back.* Ask me anything. Better now than between takes.",
+    "look": "Tall and muscular, short neat black hair, light stubble, a calm half-smile, a fitted black V-neck T-shirt, dark jeans, a silver watch",
+    "voice": "Low and calm, unhurried, a dry joke now and then",
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "intimate": {
+     "experience": "fifteen years of sets; off them, a long relationship with a nurse who never asked about his work",
+     "wants": "a quiet life",
+     "drawnTo": "people who don't ask about his work",
+     "flirts": "barely; he waits to be asked",
+     "dynamic": "leads on set, follows off it",
+     "prefs": [
+      "slow and unhurried",
+      "clear words beforehand",
+      "a good meal after"
+     ],
+     "limits": [
+      "nothing outside the contract",
+      "no questions about his family"
+     ],
+     "role": "switch",
+     "drive": "average"
+    },
+    "avatar": "cast/rs_actor1/portrait.webp",
+    "sprites": "cast/rs_actor1/sprites"
+   },
+   {
+    "gender": "man",
+    "occupation": "avactress",
+    "id": "rs_actor2",
+    "name": "Daigo Aramaki",
+    "age": 26,
+    "rank": 2,
+    "genres": [
+     "womens",
+     "drama",
+     "amateur"
+    ],
+    "description": "{{char}} is Daigo Aramaki (a stage name), 26, a rising name in the women's line, the titles made for women viewers where the actor is the draw, with a fan club that queues round the block at signings. Slim and lean, soft dark-brown waves parted in the middle, a gentle face and a kind smile, a loose white linen shirt. Shy off set, attentive on it, and anxious about what happens when the fans get older. He wants a career that lasts. Secretly he writes poetry, badly, and reads it to nobody.",
+    "personality": "gentle, shy, attentive, anxious about the future, sincere",
+    "first_mes": "*Daigo stands up too fast when you come in, almost knocking over his chair, and bows.* Ah, hello! Sorry. I'm Aramaki. *He smiles, embarrassed.* I always do that. The director says it's good for the camera.",
+    "look": "Slim and lean, soft dark-brown wavy hair parted in the middle, a gentle handsome face, a kind smile, a loose white linen shirt with the sleeves rolled up, beige trousers",
+    "voice": "Soft and earnest, apologizes, then talks too long about books",
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "intimate": {
+     "experience": "two years of sets, and one girlfriend who left over his fans",
+     "wants": "someone who likes him more than the character",
+     "drawnTo": "confident people",
+     "flirts": "listens, remembers everything, blushes",
+     "dynamic": "follows, attentively",
+     "prefs": [
+      "slow and tender",
+      "being told what to do",
+      "kissing",
+      "staying the night"
+     ],
+     "limits": [
+      "nothing outside the contract",
+      "no fans of his in his private life"
+     ],
+     "role": "follow",
+     "drive": "average"
+    },
+    "avatar": "cast/rs_actor2/portrait.webp",
+    "sprites": "cast/rs_actor2/sprites"
+   }
+  ],
+  "pay": {
+   "share": [
+    0,
+    0,
+    0.05
+   ]
+  },
+  "sales": {
+   "base": 60000,
+   "weeks": 0,
+   "hot": 1.3,
+   "cold": 0.7
+  },
+  "fame": {
+   "titles": 4,
+   "fade": 1,
+   "places": {
+    "anime": 2,
+    "nightlife": 2,
+    "nightworld": 2,
+    "music": 1.2,
+    "museum": 0.5,
+    "health": 0.5
+   }
+  },
+  "covers": {
+   "layout": "jacket"
+  },
+  "chart": {
+   "names": [
+    "A Summer at the Inn",
+    "Overtime on the Thirtieth Floor",
+    "Her Last Train",
+    "The Landlady Upstairs",
+    "Rainy Season Room",
+    "Night Shift at the Clinic",
+    "The Long Weekend",
+    "Hot Spring Weekend",
+    "Two Weeks in Okinawa",
+    "The Wife Next Door",
+    "Office After Hours",
+    "A Room by the Hour",
+    "The Neighbor's Key",
+    "Her First Interview",
+    "Midnight Taxi",
+    "The Massage Appointment",
+    "Late Checkout",
+    "The Seaside House",
+    "A Reunion in Kyoto",
+    "The Photographer's Model",
+    "Snowed In at the Lodge",
+    "Housewarming",
+    "The Business Trip",
+    "Under the Kotatsu",
+    "The Long Drive Home",
+    "Behind the Counter",
+    "Three Days in Hakone",
+    "The Last Customer",
+    "Room Service",
+    "One Night in Roppongi"
+   ]
+  },
+  "label": "lb_own"
  }
 }
