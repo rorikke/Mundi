@@ -62294,7 +62294,7 @@
       },
       {
        "id": "av_sp_ev_brand",
-       "when": "path: starproducer; rank: top",
+       "when": "path: starproducer; rank: top; seen: not av_sp_ev_brand",
        "setup": "A label offers to put your name on a line of its own: you choose the genre, the co-stars and the director, and the posters say only your name.",
        "choices": [
         {
@@ -62669,7 +62669,7 @@
       },
       {
        "id": "av_wl_ev_photobook",
-       "when": "path: womensline; rank: top",
+       "when": "path: womensline; rank: top; seen: not av_wl_ev_photobook:1; seen: not av_wl_ev_photobook:2",
        "setup": "A publisher wants a photobook of you for the women's line fans: a weekend in Hakone, clothes on, a great deal of looking out of windows.",
        "choices": [
         {
@@ -62753,7 +62753,7 @@
     },
     {
      "id": "av_ev_filmrole",
-     "when": "path: onair; rank: top",
+     "when": "path: onair; rank: top; seen: not av_ev_filmrole",
      "setup": "A director of ordinary films offers you a supporting role: a bar owner in a quiet drama, three scenes, your name in the credits with everyone else's.",
      "choices": [
       {
@@ -62781,7 +62781,7 @@
     },
     {
      "id": "av_ev_farewell",
-     "when": "rank: top; titles: perform 20",
+     "when": "rank: top; titles: perform 20; seen: not av_ev_farewell:1",
      "setup": "Your label asks whether you would make a farewell title: the best-selling kind, a graduation at a signing, the posters already drawn up.",
      "choices": [
       {
@@ -62800,7 +62800,7 @@
     },
     {
      "id": "av_dir_ev_series",
-     "when": "path: director; rank: top",
+     "when": "path: director; rank: top; seen: not av_dir_ev_series",
      "setup": "A label offers you a series of your own: your name on the cover above the title, a title a month, and the genre yours to choose.",
      "choices": [
       {
@@ -62826,8 +62826,7 @@
     },
     {
      "id": "av_rs_debut",
-     "title": "Nozomi's debut",
-     "when": "titles: 2",
+     "when": "titles: 2; seen: not av_rs_debut",
      "setup": "Nozomi Hayase's first title is today. She is sitting in the corridor with the contract on her knees, reading it for the fourth time, and her hands are shaking.",
      "choices": [
       {
@@ -62858,8 +62857,7 @@
     },
     {
      "id": "av_rs_last",
-     "title": "Yōko's last title",
-     "when": "titles: 6",
+     "when": "titles: 6; seen: not av_rs_last",
      "setup": "Halfway through the shoot Yōko Shirasagi tells you, between takes, that this is her last title: she has bought a bar in her home town, and her label doesn't know yet.",
      "choices": [
       {
@@ -62885,8 +62883,7 @@
     },
     {
      "id": "av_rs_rivalry",
-     "title": "The chart",
-     "when": "titles: 4",
+     "when": "titles: 4; seen: not av_rs_rivalry",
      "setup": "Marika Tōdō and Misaki Takamine are both on today's set, and both have a title out this week. The chart comes out at noon, and nobody on the crew dares mention it.",
      "choices": [
       {
@@ -62918,8 +62915,7 @@
     },
     {
      "id": "av_rs_family",
-     "title": "Mitsuki's mother",
-     "when": "titles: 8",
+     "when": "titles: 8; seen: not av_rs_family",
      "setup": "Mitsuki Himuro has just run a whole scene, and the director, in three words. Then she reads a message between takes and goes pale: her mother in Nagano has found out what she does, and is on a train to Tokyo tonight.",
      "choices": [
       {
@@ -93321,7 +93317,7 @@
      "pov",
      "stamina"
     ],
-    "description": "{{char}} is Wakana Ōshiro (a stage name), 22, a grown woman from Niigata who worked in a library before signing with a label. Black hair to her shoulders with heavy bangs, a pale, serious face, a loose cardigan and a long skirt, a paperback always in her bag. Off set she barely speaks: she answers in single words, hides behind her book and goes red when anyone looks at her. On set, once the camera rolls, she is insatiable, with an appetite for sex the crews talk about, and she is the one asking for another take. The gap is her whole draw, and she knows it. She wants to be understood without having to explain. Secretly she notes every take she liked in the margins of her books.",
+    "description": "{{char}} is Wakana Ōshiro (a stage name), 22, a grown woman from Niigata who worked in a library before signing with a label. Black hair to her shoulders with heavy bangs, a pale, serious face, a loose cardigan and a long skirt, a paperback always in her bag. Off set she barely speaks: she answers in single words, hides behind her book and goes red when anyone looks at her. On set, once the camera rolls, she is insatiable, with an appetite the crews talk about, and she is the one asking for another take. The gap is her whole draw, and she knows it. She wants to be understood without having to explain. Secretly she notes every take she liked in the margins of her books.",
     "personality": "quiet, shy, introverted, bookish, insatiable on set",
     "first_mes": "*Wakana sits in the corner of the green room with a paperback held up in front of her face, and lowers it just far enough to look at you.* ...Good morning. *A long pause; she goes red.* I'm Ōshiro. I don't talk much. It's fine. *The book goes back up.*",
     "look": "Black shoulder-length hair with heavy bangs, a pale serious face, a loose oatmeal cardigan over a long dark skirt, a paperback in her hand",
