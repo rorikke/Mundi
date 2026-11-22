@@ -1733,7 +1733,7 @@ function industryRules(w: WorldDef) {
         <span class="mu-cw-sub">Pay: a director's share of their titles' sales, by rank on the director's path (0–0.5; 0.05: 5%)</span>
         ${(I.pay?.share ?? []).map((_x, k) => `<div class="mu-row mu-cw-inline">${bounded(`Rank ${k + 1} of the path`, `industry.pay.share.${k}`, 0, 0.5, 0.01)}${rowDel(`industry.pay.share.${k}`)}</div>`).join('') || `<small class="mu-muted">None: the game's (${esc(D.share.join(' · '))}).</small>`}
         ${addBtn('ishare', 'industry.pay.share', 'Add a rank')}
-        <span class="mu-cw-sub">Sales</span>
+        <span class="mu-cw-sub">Title sales</span>
         <div class="mu-row2">${bounded(`A title's weekly sales at quality 60 on a tier-2 label (${sym}; empty: ${esc(D.sales.base)})`, 'industry.sales.base', 0, INDUSTRY_PAY_MAX)}${bounded('The weeks they fade over (0–52; 0 or empty: a season)', 'industry.sales.weeks', 0, 52)}</div>
         <div class="mu-row2">${bounded(`The month's hot genres sell × (1–3; empty: ${esc(D.sales.hot)})`, 'industry.sales.hot', 1, 3, 0.05)}${bounded(`…its cold genre × (0.1–1; empty: ${esc(D.sales.cold)})`, 'industry.sales.cold', 0.1, 1, 0.05)}</div>
         <span class="mu-cw-sub">Fame (0–100)</span>

@@ -279,7 +279,7 @@ function salesHtml(g: Save, w: WorldDef, t: TitleCard): string {
     if (t.cancelled || !t.weeks && !t.sold) return '';
     const hist = (rawTitle(g, t.id)?.hist ?? []).map(x => num(x));
     const weeks = hist.map((x, i) => `<li><span>${esc(`Week ${n(i + 1)}`)}</span><b>${cash(w, x)}</b></li>`).join('');
-    return `<section class="mu-take-card"><h4>Sales</h4><b class="mu-take-big-n">${cash(w, t.sold)}</b><small>${esc(`${plural(t.weeks, '1 week', '{0} weeks')} of ${plural(salesWeeks(g, w), '1', '{0}')} · last week ${money(w, num(t.lastWeek))}`)}</small>
+    return `<section class="mu-take-card"><h4>Title sales</h4><b class="mu-take-big-n">${cash(w, t.sold)}</b><small>${esc(`${plural(t.weeks, '1 week', '{0} weeks')} of ${plural(salesWeeks(g, w), '1', '{0}')} · last week ${money(w, num(t.lastWeek))}`)}</small>
         ${hist.length ? `<span class="mu-take-spark" aria-label="${esc('Sales week by week')}">${esc(sparkline(hist))}</span><ul class="mu-take-list">${weeks}</ul>` : ''}</section>`;
 }
 function chartHtml(t: TitleCard): string {

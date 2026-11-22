@@ -9400,6 +9400,7 @@ const DICT: Record<string, string> = {
  "Museum": "Museu",
  "Dealer": "Marchand",
  "Sales": "Leilões",
+ "Title sales": "Vendas do título",
  "1 piece in your display cases (room for {0}).": "1 peça nas suas vitrines (cabem {0}).",
  "{0} pieces in your display cases (room for {1}).": "{0} peças nas suas vitrines (cabem {1}).",
  "1 piece in your display cases (room for {0}), 1 boxed.": "1 peça nas suas vitrines (cabem {0}), 1 numa caixa.",
