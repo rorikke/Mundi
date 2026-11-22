@@ -1,6 +1,6 @@
 // Places other systems hook into time (kept apart, with no imports, so no module waits on another).
 import type { Save, Resident } from '../core/store.js';
-import type { WorldDef, ActionDef, Place, StatusDef, WorkResult, SlotDef, VentureDef } from '../core/world.js';
+import type { WorldDef, ActionDef, Place, StatusDef, WorkResult, SlotDef, VentureDef, ThreadStage } from '../core/world.js';
 import type { PrivateCtx, ActionDone } from './actions.js';
 import type { ShopItem } from '../core/presets.js';
 import type { SetCall, TitleRec } from '../core/industry.js';
@@ -241,6 +241,9 @@ export const onRelease: ((g: Save, w: WorldDef, title: TitleRec) => string[])[] 
 // (adult industry) Are you performing now (a performer title in the last 30 days, or a performer offer taken)?
 // sim/titles.ts fills it in; sim/stance.ts reads it. False until then.
 export const performingLink: { now: (g: Save, w: WorldDef) => boolean; lastDay: (g: Save) => number | null } = { now: () => false, lastDay: () => null };
+// (adult industry) What a storyline stage brings besides its moment, rumor and fact (sim/threads.ts calls these as the
+// stage begins; sim/titles.ts reads its `offer`, an entry of the industry's job such as the lens, and its `cancel`).
+export const stageGives: ((g: Save, w: WorldDef, stage: ThreadStage, thread: string, avatar: string) => void)[] = [];
 // (C-7) Lines for the AI about the people here and the place right now, from systems that have them (the market's: the
 // other collector at a sale, the dealer at her van). Called in the scene's focus block (sim/prompt.ts).
 export const sceneLines: ((g: Save, w: WorldDef, present: Resident[]) => string[])[] = [];

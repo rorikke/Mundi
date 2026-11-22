@@ -321,6 +321,34 @@ const noShiftsIn = (g: Save, w: WorldDef, o: Occupation) => g.player.job?.id ===
 export const shiftlessApp = (g: Save, w: WorldDef): { app: string; text: string } | null =>
     isFreelance(g, w) ? { app: 'photos', text: 'You work brief by brief now: your briefs are in Lens.' }
         : bookedJob(g, w, myJob(g, w)) ? { app: 'take', text: 'You work title by title: your offers are in Take.' } : null;
+/** (adult industry) What a booked job says (sim/bookings.ts fills these in): `hired`, the sentence after "You got the
+ *  job!" in place of the week of shifts; `line`, the AI's work line (empty: the plain one). */
+export const bookedLink: { hired: (g: Save, w: WorldDef) => string; line: (g: Save, w: WorldDef) => string } = {
+    hired: () => 'Your offers will come to Take, one title at a time.', line: () => '' };
+/** (adult industry) Hired straight onto a branch path's first rank through one of the job's `entries` (EntryDef: the lens,
+ *  a photographer made assistant director): no interview and no fee, the job you held left first, your track your
+ *  gender's (else the first that has the entry). The caller checks the entry's `when` and that it was offered. */
+export function hireEntry(g: Save, w: WorldDef, jobId: string, entryId: string): { ok: boolean; text: string } {
+    const job = jobDef(w, jobId);
+    if (!job || (job.adult && !adultOn(g))) return { ok: false, text: '' };
+    const keys = job.tracks && Object.keys(job.tracks).length ? [playerTrack(g, job), ...Object.keys(job.tracks)].filter((k, i, l): k is string => k !== undefined && l.indexOf(k) === i) : [undefined];
+    for (const key of keys) {
+        const o: TrackedJob = key !== undefined ? layTrack(job, key) : job;
+        const e = (o.entries ?? []).find(x => x.id === entryId);
+        const b = e && (o.branches ?? []).find(x => x.options?.some(opt => opt.id === e.path));
+        if (!e || !b) continue;
+        const rank = career(o, [e.path]).ranks.findIndex(r => b.options.find(opt => opt.id === e.path)!.ranks.includes(r));
+        if (rank < 0) continue;
+        if (g.player.job) quitJob(g, w);
+        const j: JobState = { id: jobId, rank, shifts: 0, perf: 50, since: nowAbs(g), checked: g.day, vac: 0, vacAt: g.day, path: [e.path] };
+        if (key !== undefined) j.track = key;
+        g.player.job = j as any;
+        const name = career(o, [e.path]).ranks[rank].name;
+        note(g, '{u} got hired: {0} at {1}.', [name, o.name], [], o.place, 'work');
+        return { ok: true, text: `You are now ${name} (${o.name}). ${bookedJob(g, w, job) ? bookedLink.hired(g, w) : ''}`.trim() };
+    }
+    return { ok: false, text: 'That way in is not open.' };
+}
 // With the save: the path the world gave them (a rank named in a branch, see `pathTo`), kept in `living.paths`; and
 // their own track (their gender's).
 export function npcCareer(o: Occupation, avatar: string, g?: Save): Career {
@@ -531,6 +559,8 @@ export function hire(g: Save, w: WorldDef, id: string, track?: string): { ok: bo
     if (fee) { g.player.money -= fee; book(g, `${o.name}: fee`, -fee); }
     headStart(g, w, o, j);
     note(g, '{u} got hired: {0} at {1}.', [o.ranks[rank].name, o.name], [], o.place, 'work');
+    // (adult industry) a booked job has no week of shifts: its offers come to Take
+    if (bookedJob(g, w, job)) return { ok: true, text: `You got the job! ${r.text}${fee ? ` You paid the fee (${money(w, fee)}).` : ''} ${bookedLink.hired(g, w)}` };
     const s = nextShift(g, w, o);
     return { ok: true, text: `You got the job! ${r.text}${fee ? ` You paid the fee (${money(w, fee)}).` : ''}${systemOn(w, 'jobs') ? ` Your week: ${weekText(g, w, o)}.${wait ? ` You start in ${wait} day${wait === 1 ? '' : 's'}.` : ''}${s ? ` First shift: ${whenText(g, s)}.` : ''}` : ''}` };
 }
@@ -746,7 +776,7 @@ function namedEvent(g: Save, e: WorkEvent, who: string | undefined): WorkEvent {
 const choiceOk = (g: Save, w: WorldDef, o: Occupation, c: WorkChoice, i: number) => choiceOpen(g, w, c, jobPlace(g, o), `workc|${o.id}|${i}`);
 // After a shift, now and then (as often as the work rules say): one of the job's events whose condition holds, or the
 // boss asking for overtime. It waits for your choice on the work screen.
-function rollWorkEvent(g: Save, w: WorldDef, o: Occupation) {
+export function rollWorkEvent(g: Save, w: WorldDef, o: Occupation) {
     const j = jobOf(g)!; const chance = workRules(g, w).events;
     delete j.event;
     if (Math.random() >= chance) return;
@@ -1035,6 +1065,7 @@ export function workLine(g: Save, w: WorldDef, present: Resident[]): string {
     const boss = bossOf(g, w, o);
     const free = freelancePath(g, w);
     if (free) return `{{user}} is a freelance ${(o.name || 'worker').toLowerCase()} (${free.name}: ${rankOf(g, o).name}).`;
+    if (bookedJob(g, w, o)) return bookedLink.line(g, w) || `{{user}} works as ${rankOf(g, o).name} (${o.name}), title by title: no shifts, a booking for each title.`;
     return `{{user}} works as ${rankOf(g, o).name} (${o.name}, rank ${j.rank + 1} of ${c.ranks.length + (c.open ? 1 : 0)}).${seniors.length ? ` At work, ${seniors.map(r => r.name).join(' and ')} ${seniors.length > 1 ? 'are' : 'is'} senior to {{user}} (senpai)${boss && seniors.includes(boss) ? `; ${boss.name} is the boss` : ''}.` : ''}${juniors.length ? ` ${juniors.map(r => r.name).join(' and ')} ${juniors.length > 1 ? 'are' : 'is'} junior to {{user}} (kōhai).` : ''}`;
 }
 
