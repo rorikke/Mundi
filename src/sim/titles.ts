@@ -549,6 +549,10 @@ export function releases(g: Save, w: WorldDef): string[] {
         if (t.out || t.cancelled || t.q === undefined || !t.release || t.release > g.day) continue;
         t.out = true;
         if (t.edited === undefined) { t.edited = g.day; t.cut = 0; }
+        // (out, it keeps its scenes' grades, not their rolls' parts or the shoot's bookkeeping: most of a title's bytes, and
+        // a label head has thirty titles on the way at once)
+        for (const s of t.scenes) delete s.parts;
+        delete t.plans; delete t.warned; delete t.started;
         const fans = releaseFans(g, w, t);
         // (fewer new fans as the base nears its ceiling: a fan meeting's pay is held)
         if (fans) { const s = (st.seats.perform ??= { titles: 0 }), f = s.fans ?? 0; s.fans = Math.round(f + fans * Math.max(0, 1 - f / BOOKINGS.fanCap)); }
