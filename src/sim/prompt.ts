@@ -67,6 +67,7 @@ import { digLine } from './dig.js';
 import { royaltyLine } from './royalties.js';   // (R-b) what the museum's name has come to
 import { industryLine } from './industry.js';   // (adult industry) your seats, today's shoot, the stances of those present
 import './titles.js';   // (adult industry) titles and bookings: their hooks, loaded with the engine
+import './stance.js';   // (adult industry) fame, recognition and stances (stance.ts loads fame.ts)
 import { sightingLine } from './sightings.js';
 import './exec.js';   // (business) the executive's division and bonuses
 import { afflictionLine } from './afflictions.js';
