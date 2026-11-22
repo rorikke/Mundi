@@ -708,7 +708,7 @@ function zoneOf(g: Save, place: string, depth = 0): string {
 // don't matter). A full name wins over a first name.
 const plain = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
 export function personNamed(g: Save, name: string): Resident | undefined {
-    const n = plain(name), all = Object.values(g.cast ?? {});
+    const n = plain(name), all = Object.values(g.cast ?? {}).filter(r => !r.onset);   // ((adult industry) never a performer on a set)
     return all.find(r => plain(r.name ?? '') === n) ?? all.find(r => plain(r.name ?? '').split(/\s+/)[0] === n);
 }
 /** Is someone toward you at this level or closer (a friendship tier, a romance tier, a couple status)? Below Stranger,
