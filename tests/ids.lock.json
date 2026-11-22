@@ -288,7 +288,8 @@
   "rewards": [],
   "degrees": [],
   "collection": [],
-  "homeRooms": []
+  "homeRooms": [],
+  "roster": []
  },
  "modern": {
   "maps": [
@@ -540,7 +541,8 @@
   "rewards": [],
   "degrees": [],
   "collection": [],
-  "homeRooms": []
+  "homeRooms": [],
+  "roster": []
  },
  "urban": {
   "maps": [
@@ -785,7 +787,8 @@
   "rewards": [],
   "degrees": [],
   "collection": [],
-  "homeRooms": []
+  "homeRooms": [],
+  "roster": []
  },
  "house": {
   "maps": [
@@ -932,7 +935,8 @@
   "rewards": [],
   "degrees": [],
   "collection": [],
-  "homeRooms": []
+  "homeRooms": [],
+  "roster": []
  },
  "manor": {
   "maps": [
@@ -1021,7 +1025,8 @@
   "rewards": [],
   "degrees": [],
   "collection": [],
-  "homeRooms": []
+  "homeRooms": [],
+  "roster": []
  },
  "tokyo": {
   "maps": [
@@ -1157,7 +1162,9 @@
    "ws_mikage",
    "sb_studio_mizu",
    "rp_nightpool",
-   "hk_spapark"
+   "hk_spapark",
+   "ws_kurobara",
+   "ws_rental_house"
   ],
   "zones": [
    "hz_sharehouse",
@@ -1931,7 +1938,8 @@
    "bizhotel_night",
    "kura",
    "photographer",
-   "mizu_owner"
+   "mizu_owner",
+   "kurobara_director"
   ],
   "courses": [
    "japanese",
@@ -2040,7 +2048,8 @@
    "Tamaki",
    "Ayame",
    "Kaede",
-   "Erika"
+   "Erika",
+   "Naomi"
   ],
   "apps": [],
   "ranks": {
@@ -2094,7 +2103,8 @@
    "bizhotel_night": 1,
    "kura": 1,
    "photographer": 3,
-   "mizu_owner": 1
+   "mizu_owner": 1,
+   "kurobara_director": 1
   },
   "goals": [
    "tk_makeit",
@@ -2134,7 +2144,9 @@
    "tk_naturalhistory",
    "tk_curator",
    "tk_nightcollector",
-   "tk_photographer"
+   "tk_photographer",
+   "tk_director",
+   "tk_label"
   ],
   "rewards": [
    "omikuji",
@@ -2560,12 +2572,30 @@
    "mem_sl_priv_shiori_private_show",
    "mem_sl_priv_shiori_in_person",
    "mem_sl_priv_shiori_requests",
-   "mem_sl_priv_shiori_duo"
+   "mem_sl_priv_shiori_duo",
+   "mem_fe_av_expo",
+   "mem_fe_av_awards",
+   "mem_sl_naomi_story",
+   "mem_sl_kanon_script"
   ],
   "homeRooms": [
    "zone:hz_sharehouse/common",
    "zone:hz_sharehouse/kitchen",
    "zone:hz_sharehouse/bath"
+  ],
+  "roster": [
+   "rs_glam",
+   "rs_rookie",
+   "rs_mature",
+   "rs_gyaru",
+   "rs_athlete",
+   "rs_cosplay",
+   "rs_office",
+   "rs_gravure",
+   "rs_idol",
+   "rs_kyoto",
+   "rs_actor1",
+   "rs_actor2"
   ]
  }
 }
