@@ -43,8 +43,9 @@ import { note } from './facts.js';
 
 /** The rules' numbers (first guesses, tuned by the long run). */
 export const TITLES = {
-    /** offers kept, titles kept (older ones folded into the totals), days an offer is kept */
-    offers: 6, keep: 80, offerDays: 7,
+    /** offers kept, titles kept (older ones folded into the totals; L: 80 made a label head's record 52 KB), days an
+     *  offer is kept */
+    offers: 6, keep: 60, offerDays: 7,
     /** the call time and the latest the shoot can begin (hours), a shoot day's length (minutes, for the `set` plan) */
     call: 9, lastCall: 18, shootMinutes: 9 * 60,
     /** a label's tier as a multiple of sales (tier 2 is 1) */
@@ -618,7 +619,11 @@ function fold(g: Save) {
     const old = (st.titles as Title[]).filter(t => done(t) && g.day - (t.release || t.contract) > year);
     const over = Math.max(0, st.titles.length - old.length - TITLES.keep);
     const gone = new Set([...old, ...(st.titles as Title[]).filter(t => done(t) && !old.includes(t)).slice(0, over)]);
-    for (const t of gone) { st.totals.titles++; st.totals.sales += t.sold; if (t.sold > (st.totals.bestSold ?? 0)) { st.totals.bestSold = t.sold; st.totals.best = t.name; } }
+    for (const t of gone) {
+        st.totals.titles++; st.totals.sales += t.sold; if (t.sold > (st.totals.bestSold ?? 0)) { st.totals.bestSold = t.sold; st.totals.best = t.name; }
+        // (its best chart place stays, for `chart: top N`, by each seat you held on it)
+        if (t.peak) { const p = (st.totals.peaks ??= {}); for (const k of ['any', ...t.you] as const) p[k] = Math.min(p[k] ?? 99, t.peak); }
+    }
     if (gone.size) st.titles = st.titles.filter(t => !gone.has(t as Title));
     // a title done selling keeps its scenes' grades, not their rolls' parts or the shoot day's bookkeeping (most of a
     // title's bytes: 80 kept stay well under 40 KB)
@@ -709,7 +714,8 @@ function chartHolds(g: Save, v: string): { ok: boolean; n: number; seat?: string
     const m = /^\s*(?:(\S+)\s+)?top\s+(\d+)\s*$/i.exec(v);
     if (!m) return null;
     const seat = m[1]?.toLowerCase(), n = Number(m[2]);
-    return { ok: (peekIndustry(g).titles as Title[]).some(t => (t.peak ?? 99) <= n && (!seat || t.you.includes(seat as Seat))), n, seat };
+    const st = peekIndustry(g), folded = st.totals.peaks?.[(seat as Seat | undefined) ?? 'any'] ?? 99;
+    return { ok: folded <= n || (st.titles as Title[]).some(t => (t.peak ?? 99) <= n && (!seat || t.you.includes(seat as Seat))), n, seat };
 }
 {
     const prev = { holds: industryLink.holds, words: industryLink.words, count: industryLink.count };
