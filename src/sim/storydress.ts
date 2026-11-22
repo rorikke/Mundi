@@ -6,7 +6,8 @@
 // (sim/dress.ts) still call for what they did when it was asked, and a settle (leaving, sleeping, a verdict) ends it.
 // What someone can be in: what they have on and their own clothes, always; in a private place with adult content on,
 // naked, a half-undressed state of what they have on (kind `undressed`, or any outfit whose WearDef.from names it),
-// dressing back into what that's a state of, and lingerie (worn under their clothes); in public too, a `from` that
+// dressing back into what that's a state of, and lingerie (worn under their clothes, or under the outfits its `from`
+// names); in public too, a `from` that
 // isn't adult and stays within how bold they go in public (a beach shirt taken off); any other outfit only where they
 // can change (their own home, or anywhere in a Home). Nothing here changes
 // a number; asked only when someone in the reply has a real choice, and never with "Outfits follow the story" off.
@@ -117,10 +118,11 @@ export function optionsFor(g: Save, w: WorldDef, r: Resident, current: string, h
         // (from naked or underwear, only back into a state of their own clothes: what they took off isn't known)
         // Any outfit with a `from` (a sheer robe over a bikini taken off, a rope harness under a robe) is also a state
         // of those outfits, whatever its kind: in private, or anywhere when it isn't adult and stays within how bold
-        // they go in public (a beach shirt taken off); and they can dress back into what it's a state of.
+        // they go in public (a beach shirt taken off); and they can dress back into what it's a state of. Lingerie is
+        // worn under their own clothes, and also under the outfits its `from` names (long sleeves that could hide it).
         const mild = !ad && (d ? levelOf(d) : outfitLevel(g, w, a, o)) <= publicLevel;
         const ok = kind === 'undressed' ? privateHere && fromOf(d).some(f => same(f, current) || (bare && f === OWN))
-            : kind === 'lingerie' ? privateHere && (current === OWN || bare)
+            : kind === 'lingerie' ? privateHere && (current === OWN || bare || !!fromSet(d)?.some(f => same(f, current)))
             : canChange || ((privateHere || mild) && !!fromSet(d)?.some(f => same(f, current)));
         if (!ok && (privateHere || !ad) && back.some(f => f && same(f, o))) { add(o, String(d?.look ?? '').trim(), ad); continue; }
         if (ok) add(o, String(d?.look ?? '').trim(), ad);
