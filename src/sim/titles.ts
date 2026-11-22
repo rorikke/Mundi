@@ -217,13 +217,22 @@ export function titleFee(g: Save, w: WorldDef, label: string, genre: string, sea
     return Math.min(INDUSTRY_PAY_MAX, payOf(g, rankOf(g, o).pay * (t.shift || 8) * (genreOf(w, genre)?.pay ?? 1) * (labelOf(w, label)?.pay ?? 1) * ex * payMul(g, w, o, 'wage')));
 }
 const NAMES = ['Midnight', 'Lessons', 'Secret', 'Summer', 'Heat', 'Velvet', 'Afterhours', 'Desire', 'Weekend', 'Close', 'Neon', 'Diary', 'Rain', 'Hotel', 'Sweet', 'Temptation'];
-/** A made-up title's name: two of the chart's words (the world's list, else plain ones); a list of whole titles is
- *  used as it is. */
+/** A made-up title's name: two of the chart's words (the world's list, else plain ones); a list of whole titles (any
+ *  entry with a space: "Housewarming" beside "Late Checkout" is a whole title too) is used as it is. */
 export function madeUpName(w: WorldDef, salt: string): string {
     const list = w.industry?.chart?.names?.length ? w.industry.chart.names : NAMES;
-    if (list.some(x => /\s/.test(x)) && list.every(x => /\s/.test(x))) return list[Math.floor(H(salt) * list.length)];
+    if (list.some(x => /\s/.test(x))) return list[Math.floor(H(salt) * list.length)];
     const a = list[Math.floor(H(`${salt}|a`) * list.length)], b = list[Math.floor(H(`${salt}|b`) * list.length)];
     return a === b ? a : `${a} ${b}`;
+}
+/** A new title's name: a made-up one, numbered as a sequel when one of your titles or offers has it already ("Late
+ *  Checkout 2"). */
+export function titleName(g: Save, w: WorldDef, salt: string): string {
+    const name = madeUpName(w, salt), st = peekIndustry(g);
+    const taken = new Set([...st.titles.map(t => t.name), ...st.offers.map(o => o.name ?? '')]);
+    if (!taken.has(name)) return name;
+    for (let n = 2; n < 100; n++) if (!taken.has(`${name} ${n}`)) return `${name} ${n}`;
+    return name;
 }
 /** Offers a week: your rank's days (fewer with a low performance: offers dry up to one a week instead of a sack); an
  *  exclusive's titles a month. */
@@ -243,7 +252,7 @@ export function drawOffer(g: Save, w: WorldDef, kind: 'title' | 'brief', label: 
     const genre = genreFor(g, w, label, `${salt}|g`);
     if (!genre) return null;
     const set = setFor(w, label, genre), st = industryOf(g);
-    const name = madeUpName(w, `${salt}|name`);
+    const name = titleName(g, w, `${salt}|name`);
     if (kind === 'brief') {
         const star = own ? undefined : H(`${salt}|star`) < 1 / 3 ? rosterNow(g, w).filter(p => (p.genres ?? []).includes(genre.id) || !p.genres?.length)[0]?.id : undefined;
         return { id: st.nextId++, kind: 'brief', day: g.day, until: g.day + TITLES.offerDays, label: label.id, genre: genre.id, name, set: set?.id, fee: titleFee(g, w, label.id, genre.id, 'direct'), ...(star ? { star } : {}), ...(own ? { own: true as const } : {}) };
@@ -330,7 +339,7 @@ export function setShootDay(g: Save, w: WorldDef, id: string, day: number): { ok
 const dayWords = (g: Save, day: number) => (day === g.day ? 'today' : day === g.day + 1 ? 'tomorrow' : `in ${day - g.day} days`);
 function newTitle(g: Save, w: WorldDef, o: Offer, you: Seat[], cast: string[], scenes: TitleScene[], fee: number, extra: Partial<Title> = {}): Title {
     const st = industryOf(g);
-    const t: Title = { id: `t${st.nextId++}`, name: o.name ?? madeUpName(w, `${g.day}|${o.id}`), genre: o.genre ?? '', label: o.label ?? '', you, cast, scenes, set: o.set ?? '',
+    const t: Title = { id: `t${st.nextId++}`, name: o.name ?? titleName(g, w, `${g.day}|${o.id}`), genre: o.genre ?? '', label: o.label ?? '', you, cast, scenes, set: o.set ?? '',
         contract: g.day, shoot: 0, release: 0, sold: 0, weeks: 0, adult: true, ...(fee ? { fee } : {}), ...extra };
     st.titles.push(t);
     return t;
@@ -585,7 +594,10 @@ export function chartWeek(g: Save, w: WorldDef) {
     const [lo, hi] = TITLES.madeUp, n = lo + Math.floor(H(`${g.world}|chart|${week}`) * (hi - lo + 1));
     for (let i = 0; i < n; i++) {
         const r = H(`${g.world}|chart|${week}|${i}`);
-        rows.push({ name: madeUpName(w, `${g.world}|c|${week}|${i}`), label: labs[Math.floor(H(`${g.world}|cl|${week}|${i}`) * labs.length)]?.id ?? '', sales: Math.round(base * (0.35 + 1.9 * r * r)) });
+        // (a name once a chart: drawn again when this week's rows have it already)
+        let name = madeUpName(w, `${g.world}|c|${week}|${i}`);
+        for (let k = 1; k < 6 && rows.some(x => x.name === name); k++) name = madeUpName(w, `${g.world}|c|${week}|${i}|${k}`);
+        rows.push({ name, label: labs[Math.floor(H(`${g.world}|cl|${week}|${i}`) * labs.length)]?.id ?? '', sales: Math.round(base * (0.35 + 1.9 * r * r)) });
     }
     rows.sort((a, b) => b.sales - a.sales);
     st.chart = { week, rows: rows.slice(0, TITLES.rows) };
@@ -775,7 +787,7 @@ export const titleSales = (g: Save, id: string) => { const t = titleById(g, id) 
 export function makeTitle(g: Save, w: WorldDef, x: { label: string; genre: string; q: number; cast?: string[]; name?: string; you?: Seat[] }): Title | null {
     if (!industryOn(g, w) || !labelOf(w, x.label) && !x.you?.includes('label')) return null;
     const st = industryOf(g);
-    const t: Title = { id: `t${st.nextId++}`, name: x.name ?? madeUpName(w, `${g.world}|make|${st.nextId}`), genre: x.genre, label: x.label, you: x.you ?? ['label'], cast: x.cast ?? [], scenes: [], set: '',
+    const t: Title = { id: `t${st.nextId++}`, name: x.name ?? titleName(g, w, `${g.world}|make|${st.nextId}`), genre: x.genre, label: x.label, you: x.you ?? ['label'], cast: x.cast ?? [], scenes: [], set: '',
         contract: g.day, shoot: g.day, release: g.day + releaseDays(g), q: Math.max(0, Math.min(100, Math.round(x.q))), edited: g.day, sold: 0, weeks: 0, adult: true };
     st.titles.push(t);
     return t;

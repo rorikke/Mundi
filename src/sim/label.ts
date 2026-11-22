@@ -16,7 +16,7 @@ import {
     peekIndustry, industryOf, industryOn, inIndustry, genresOf, genreOf, setsOf, setOf, rosterPerson, monthDays, monthOf, seasonIndex, isMonday, fameOf,
     titleWords, type Title,
 } from './industry.js';
-import { TITLES, weekSales, trendOf, rosterNow, tokyoCast, castChoices, buildScenes, shootDays, setShootDay, setPlace, setFor, madeUpName, makeTitle, cancelLink, performerName } from './titles.js';
+import { TITLES, weekSales, trendOf, rosterNow, tokyoCast, castChoices, buildScenes, shootDays, setShootDay, setPlace, setFor, titleName, makeTitle, cancelLink, performerName } from './titles.js';
 import { testDue } from './bookings.js';
 import { venturesOf, ventureDefs, ventureDef, ventureName, kindOf, tierOf, upgradesOf, buyUpgrade, ventureReport, type VentureState } from './ventures.js';
 import { whenHolds, threadOwner } from './when.js';
@@ -293,7 +293,7 @@ export function planLabelTitle(g: Save, w: WorldDef, plan: { genre: string; cast
     const built = buildScenes(g, w, genre, cast, salt);
     if (!built.scenes.length) return { ok: false, text: 'Nothing in this genre fits everyone\'s limits.' };
     const you: Seat[] = cast.includes(YOU) ? ['perform', 'direct', 'label'] : ['direct', 'label'];
-    const name = plan.name?.replace(/\s+/g, ' ').trim().slice(0, 60) || madeUpName(w, `${salt}|name`);
+    const name = plan.name?.replace(/\s+/g, ' ').trim().slice(0, 60) || titleName(g, w, `${salt}|name`);
     const t: Title = { id: `t${st.nextId++}`, name, genre: genre.id, label: s.id, you, cast, scenes: built.scenes, set: set?.id ?? '', contract: g.day, shoot: 0, release: 0, sold: 0, weeks: 0, adult: true, brief: true };
     st.titles.push(t);
     const days = shootDays(g, w, t.id).filter(d => (L.shut ?? 0) <= d || setPlace(w, set) !== s.place);
