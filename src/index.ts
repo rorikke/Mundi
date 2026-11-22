@@ -36,6 +36,7 @@ import './ui/newgame.js';
 import './ui/settings.js';
 import './ui/map.js';
 import './ui/tools.js';
+import './sim/onset.js';   // (adult industry) the set, loaded after everything it reads (its actions reach sim/actions.ts through hooks)
 
 function addLauncher() {
     const menu = document.getElementById('extensionsMenu');
