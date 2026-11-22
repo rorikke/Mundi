@@ -600,6 +600,9 @@ function fold(g: Save) {
     const gone = new Set([...old, ...(st.titles as Title[]).filter(t => done(t) && !old.includes(t)).slice(0, over)]);
     for (const t of gone) { st.totals.titles++; st.totals.sales += t.sold; if (t.sold > (st.totals.bestSold ?? 0)) { st.totals.bestSold = t.sold; st.totals.best = t.name; } }
     if (gone.size) st.titles = st.titles.filter(t => !gone.has(t as Title));
+    // a title done selling keeps its scenes' grades, not their rolls' parts or the shoot day's bookkeeping (most of a
+    // title's bytes: 80 kept stay well under 40 KB)
+    for (const t of st.titles as Title[]) if (done(t)) { for (const s of t.scenes) delete s.parts; delete t.plans; delete t.warned; delete t.started; }
 }
 // the `industry` royalty source: your shares, paid Mondays (computed then, once)
 ROYALTY_SOURCES.push({
