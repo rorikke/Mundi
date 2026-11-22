@@ -50924,6 +50924,24 @@
    "pic": "items/tk_shunga_fan.avif"
   },
   {
+   "id": "tk_director_chair",
+   "name": "Your director's chair",
+   "icon": "🎬",
+   "gift": false,
+   "adult": true,
+   "desc": "A canvas director's chair from the set, your name stencilled across the back: the crew had it made the week the covers began to print your name above the title.",
+   "pic": "items/tk_director_chair.avif"
+  },
+  {
+   "id": "tk_label_jacket",
+   "name": "Your label's first jacket, framed",
+   "icon": "📀",
+   "gift": false,
+   "adult": true,
+   "desc": "The jacket of the first title your label ever put out, its little swallow in the corner, framed on the office wall the day the label became a major.",
+   "pic": "items/tk_label_jacket.avif"
+  },
+  {
    "id": "gk_my_photobook",
    "name": "your photobook",
    "icon": "📕",
@@ -74704,7 +74722,8 @@
       "name": "Name director",
       "when": "job: avactress; path: director; rank: top",
       "reward": {
-       "mood": 10
+       "mood": 10,
+       "keepsake": "tk_director_chair"
       }
      }
     ],
@@ -74759,7 +74778,8 @@
       "name": "A major",
       "when": "venture: label tier top",
       "reward": {
-       "mood": 10
+       "mood": 10,
+       "keepsake": "tk_label_jacket"
       }
      }
     ],
