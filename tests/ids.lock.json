@@ -2588,14 +2588,14 @@
    "rs_rookie",
    "rs_mature",
    "rs_gyaru",
-   "rs_athlete",
    "rs_cosplay",
-   "rs_office",
    "rs_gravure",
    "rs_idol",
    "rs_kyoto",
    "rs_actor1",
-   "rs_actor2"
+   "rs_actor2",
+   "rs_nordic",
+   "rs_shy"
   ]
  }
 }
