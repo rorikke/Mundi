@@ -12292,5 +12292,9 @@ const DICT: Record<string, string> = {
  "Call at {0}": "Citación a las {0}",
  "Last day to edit: {0}": "Último día para montar: {0}",
  "Release: {0}": "Estreno: {0}",
+ // a risky set at the call (sim/onset.ts)
+ "Someone saw the crew setting up at {0}: the shoot for \"{1}\" is stopped.": "Alguien vio al equipo montando en {0}: el rodaje de \"{1}\" se suspende.",
+ "{0} is closed to shoots for {1} days.": "{0} queda cerrado a los rodajes durante {1} días.",
+ "{0} is closed to shoots this week: the shoot for \"{1}\" is called off.": "{0} está cerrado a los rodajes esta semana: el rodaje de \"{1}\" se cancela.",
 };
 export default DICT;

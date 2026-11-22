@@ -11,13 +11,15 @@
 // it stops a private moment. *Wait for your call* passes the time to the next one, *Skip to the result* rolls the
 // rest. When the last scene is shot, or you leave the set, it wraps: the performers leave (their `rel` data stays, as
 // Home mode's guests' does) and `onWrap` runs. The AI is told about the shoot while it's live (`sceneLines`) and plays
-// each scene the engine rolled; it never sets a result. With the `industry` system or adult content off nothing here
-// happens and nobody is ever on set.
+// each scene the engine rolled; it never sets a result. A set with a `risk` (a beach after dark, a mixed bath after
+// closing) rolls once at the call, by the caught rules (sim/caught.ts): caught, the shoot is stopped, word may get
+// around, the place is closed for a week and the label warns you; not caught, performing there is a little thrill. With
+// the `industry` system or adult content off nothing here happens and nobody is ever on set.
 import { nowAbs, adultOn, game, type Save, type Resident } from '../core/store.js';
 import { systemOn, exampleTag, type WorldDef, type ActionDef, type RosterPerson, type GenreDef, type LabelDef } from '../core/world.js';
 import type { TitleRec, TitleScene, SceneGrade, ShotPart, SetCall } from '../core/industry.js';
 import { setLink, onWrap, industryLink, engineActions, sceneLines, onLook, onHour, onDay, roomRules, onRoll } from './hooks.js';
-import { characters, charOf } from '../st/bridge.js';
+import { characters, charOf, personaName } from '../st/bridge.js';
 import { presentAt } from './people.js';
 import { rollBonus, rollD20 } from './dice.js';
 import { levelOf, skillDef, skillName, trainSkill } from './hobbies.js';
@@ -33,6 +35,11 @@ import { cleanPerson, applyPerson } from './gender.js';
 import { ensureProfile } from './profiles.js';
 import { tallyEvent } from './tally.js';
 import { dressRules } from './dress.js';
+import { riskRoll } from './dice.js';
+import { CAUGHT, banPlace, bannedUntil, workWarning } from './caught.js';
+import { startCaughtRumor } from './living.js';
+import { social } from './social.js';
+import { addStatus, statusDef } from './needs.js';
 
 /** The set's numbers (minutes, roll parts, quality). First guesses, tuned by the long run (L). */
 export const SET = {
@@ -217,6 +224,8 @@ export function startShoot(g: Save, w: WorldDef, call: SetCall): string[] {
     const o = onsetOf(g);
     if (o.live && o.live.title !== call.title.id) out.push(...wrapShoot(g, w, 'late'));
     if (o.live?.title === call.title.id) return out;
+    const stopped = setRisk(g, w, call.title, call.place);
+    if (stopped) return [...out, ...stopped];
     const inStore = titlesOf(g).some(t => t.id === call.title.id);
     const s: ShootState = { title: call.title.id, place: call.place, call: call.call, roster: [...new Set((call.roster ?? []).map(rosterId))].filter(id => !!rosterOf(w, id)), next: 0,
         ready: Math.max(nowAbs(g), call.call) + SET.makeup, ...(inStore ? {} : { rec: call.title }) };
@@ -226,6 +235,42 @@ export function startShoot(g: Save, w: WorldDef, call: SetCall): string[] {
     const t = titleOfShoot(g, s)!;
     const names = s.roster.map(id => rosterOf(w, id)!.name);
     out.push(`Call time for "${t.name}" at ${placeName(g, w, s.place)}${names.length ? `: ${listed(names)} ${names.length > 1 ? 'are' : 'is'} on set` : ''}. Hair and make-up first.`);
+    return out;
+}
+
+/* ---------- a risky set ---------- */
+
+/** A set's `risk` at the call, rolled once as a risky private action's is (riskRoll: the `risk` effects count). Caught, or
+ *  the place still closed from last time: the shoot is stopped (the title dropped, nobody's fault but the set's: no
+ *  standing lost, no fee), and caught, word may get around (an adult rumor about you and the city's people in it), the
+ *  place closed for a week (sim/caught.ts's ban) and a warning at work. Returns those lines; null when the shoot goes on
+ *  (not caught: performing there is the thrill, mood and Desire full, as a risky private action gives). */
+export function setRisk(g: Save, w: WorldDef, t: TitleRec, place: string, rnd: () => number = Math.random): string[] | null {
+    const set = w.industry?.sets?.find(x => x.id === t.set), risk = Number(set?.risk) || 0;
+    if (!setOn(g, w) || !set || !(risk > 0) || !place) return null;
+    const where = placeName(g, w, place), out: string[] = [];
+    const drop = () => {
+        const st = (g as any).industry, plans = new Set((t as any).plans ?? []);
+        if (st?.titles) st.titles = st.titles.filter((x: TitleRec) => x.id !== t.id);
+        for (const a of social(g).appts) if (plans.has(a.id) && a.state === 'set') a.state = 'cancelled';
+    };
+    if (bannedUntil(g, place)) { drop(); return [`${where} is closed to shoots this week: the shoot for "${t.name}" is called off.`]; }
+    if (!riskRoll(g, w, { id: set.id, tags: ['set', 'work', t.genre], risk }, rnd).caught) {
+        if (!t.you?.includes('perform')) return null;
+        tallyEvent(g, 'risky');
+        addStatus(g, w, 'mood', CAUGHT.thrillMood);
+        const d = statusDef(w, 'desire'); if (d) addStatus(g, w, 'desire', d.max);
+        return null;
+    }
+    drop();
+    tallyEvent(g, 'caught');
+    addStatus(g, w, 'mood', CAUGHT.mood);
+    out.push(`Someone saw the crew setting up at ${where}: the shoot for "${t.name}" is stopped.`);
+    const city = (t.cast ?? []).filter(x => x !== YOU && !!g.cast[x]);
+    if (startCaughtRumor(g, w, `${personaName()} was caught shooting an adult video at ${where}.`, place, { with: city, id: `caught:set:${t.id}:${nowAbs(g)}`, caught: place })) out.push('Word may get around.');
+    banPlace(g, place);
+    out.push(`${where} is closed to shoots for ${CAUGHT.days} days.`);
+    out.push(...workWarning(g, w, CAUGHT.atWork));
     return out;
 }
 
