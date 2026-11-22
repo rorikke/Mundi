@@ -562,7 +562,7 @@ export function salesWeek(g: Save, w: WorldDef) {
     const st = industryOf(g);
     if (st.week.day === g.day) return;
     const labels: Record<string, number> = {}, pay: { name: string; amount: number }[] = [];
-    const share = directorShare(g, w);
+    const share = directorShare(g, w), c = st.seats.perform?.contract;
     let shares = 0;
     for (const t of st.titles as Title[]) {
         const n = weekSales(g, w, t);
@@ -572,6 +572,8 @@ export function salesWeek(g: Save, w: WorldDef) {
         (t.hist ??= []).push(n);   // (Take's sparkline: a title sells a season's weeks at most)
         labels[t.label] = (labels[t.label] ?? 0) + n;
         if (share && t.you.includes('direct')) shares += Math.round(n * share);
+        // (an exclusive's renewal reads what her titles for its label sold since the last one: sim/bookings.ts)
+        if (c && t.label === c.label && t.you.includes('perform')) { c.from ??= g.day; c.sold = (c.sold ?? 0) + n; }
     }
     if (shares) pay.push({ name: 'Your share as a name director', amount: payOf(g, shares) });
     const club = fanClubWeek(g, w);

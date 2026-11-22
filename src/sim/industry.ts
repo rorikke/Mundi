@@ -11,8 +11,9 @@ import { seasonDays } from './time.js';
 import { myJob, jobDef, bookedJob, careerOf, rankOf, trackOf } from './work.js';
 
 /** A contract you're under (the actress's exclusive: its ContractDef's id, the label, since when, the fee multiple with
- *  its raises, the season it was last renewed in). */
-export interface ContractState { id: string; label: string; since: number; fee: number; season: number }
+ *  its raises, the season it was last renewed in; her titles' sales for it counted each Monday since the first one, or
+ *  the last renewal, `from`). */
+export interface ContractState { id: string; label: string; since: number; fee: number; season: number; sold?: number; from?: number }
 /** A seat you have held: titles made in it, the last one's shoot day, the fan base (the performer's: grows with each
  *  release), the contract (the actress's exclusive; none: freelance), `lens`: a director who came from the lens. (Fame
  *  is sim/fame.ts's, in `IndustryState.fame`.) */
