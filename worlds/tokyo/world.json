@@ -66217,7 +66217,8 @@
      "swim-denim": {
       "kind": "swim",
       "level": 2,
-      "look": "a white bikini top with low denim cut-off shorts, a red bandana at her neck"
+      "look": "a white bikini top with low denim cut-off shorts, a red bandana at her neck",
+      "from": "roadtrip"
      },
      "roadtrip": {
       "kind": "van",
