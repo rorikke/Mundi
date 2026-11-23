@@ -93127,13 +93127,19 @@
     "avatar": "cast/rs_glam/portrait.webp",
     "sprites": "cast/rs_glam/sprites",
     "outfits": {
-     "robe": "cast/rs_glam/robe"
+     "robe": "cast/rs_glam/robe",
+     "swim-wine": "cast/rs_glam/swim-wine"
     },
     "wear": {
      "robe": {
       "kind": "robe",
       "level": 2,
       "look": "a short white cotton bathrobe from the set, tied at the waist"
+     },
+     "swim-wine": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a wine-red one-piece swimsuit with a deep V neckline and thin straps, cut high at the hips, her diamond drop earrings, red nails, her curls swept over one shoulder"
      }
     }
    },
@@ -93238,13 +93244,19 @@
     "avatar": "cast/rs_mature/portrait.webp",
     "sprites": "cast/rs_mature/sprites",
     "outfits": {
-     "robe": "cast/rs_mature/robe"
+     "robe": "cast/rs_mature/robe",
+     "swim-navy": "cast/rs_mature/swim-navy"
     },
     "wear": {
      "robe": {
       "kind": "robe",
       "level": 2,
       "look": "a short white cotton bathrobe from the set, tied at the waist"
+     },
+     "swim-navy": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a navy satin one-piece swimsuit with a deep V neckline and a sash tied in a bow at one hip, bare shoulders, her pearl drop earrings, her dark-brown hair in its low chignon"
      }
     }
    },
@@ -93346,13 +93358,19 @@
     "avatar": "cast/rs_nordic/portrait.webp",
     "sprites": "cast/rs_nordic/sprites",
     "outfits": {
-     "robe": "cast/rs_nordic/robe"
+     "robe": "cast/rs_nordic/robe",
+     "swim-white": "cast/rs_nordic/swim-white"
     },
     "wear": {
      "robe": {
       "kind": "robe",
       "level": 2,
       "look": "a short white cotton bathrobe from the set, tied at the waist"
+     },
+     "swim-white": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a simple white triangle bikini with thin ties at the hips and neck, her small silver hoop earrings, her pale-golden hair loose"
      }
     }
    },
@@ -93506,13 +93524,19 @@
     "avatar": "cast/rs_gravure/portrait.webp",
     "sprites": "cast/rs_gravure/sprites",
     "outfits": {
-     "robe": "cast/rs_gravure/robe"
+     "robe": "cast/rs_gravure/robe",
+     "swim-yellow": "cast/rs_gravure/swim-yellow"
     },
     "wear": {
      "robe": {
       "kind": "robe",
       "level": 2,
       "look": "a short white cotton bathrobe from the set, tied at the waist"
+     },
+     "swim-yellow": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a bright sunny-yellow triangle bikini with thin ties at the hips, her small gold hoop earrings, her black waves loose"
      }
     }
    },
