@@ -39330,7 +39330,7 @@
    "sound": [
     "office"
    ],
-   "bg": "bg/bay_tv.avif"
+   "bg": "bg/ws_kurobara.avif"
   },
   {
    "id": "ws_rental_house",
@@ -39358,7 +39358,11 @@
    "sound": [
     "birds"
    ],
-   "bg": "bg/home-family.avif"
+   "bg": "bg/ws_rental_house.avif",
+   "bgs": {
+    "afternoon": "bg/ws_rental_house-afternoon.avif",
+    "night": "bg/ws_rental_house-night.avif"
+   }
   },
   {
    "id": "ak_electric",
