@@ -1,6 +1,6 @@
 // Holdings on screen: the market here (buy, sell, a hidden compartment, where your goods sell best), what you carry,
 // tonight's auction, your houses, businesses, garden, loans and bounties; HUD buttons for the till and the harvest.
-import { esc, game, notify, saveGame, toast } from '../core/store.js';
+import { esc, game, notify, saveGame, toast, residentsOf } from '../core/store.js';
 import { getWorld, systemOn } from '../core/world.js';
 import { ACT } from './reg.js';
 import { thumb, setPrompt } from '../st/bridge.js';
@@ -72,7 +72,7 @@ export function holdingsApp(g, w, head) {
     }
     return `${head}<div class="mu-ph-body mu-lp">${parts.join('') || '<p class="mu-muted">Nothing here in this world.</p>'}</div>`;
 }
-const friendsFor = (g) => Object.values(g.cast).filter(r => r.met && bondOf(g, r.avatar) >= 40 && !holdingsOf(g).biz.some(b => b.friends.includes(r.avatar))).slice(0, 4);
+const friendsFor = (g) => residentsOf(g).filter(r => r.met && bondOf(g, r.avatar) >= 40 && !holdingsOf(g).biz.some(b => b.friends.includes(r.avatar))).slice(0, 4);
 export function holdingsActs(g, w) {
     const h = holdingsOf(g);
     const out = [];

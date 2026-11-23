@@ -10,7 +10,7 @@ import { doAction, playsInScene, isPrivateAct } from '../sim/actions.js';
 import { bansNow, BAN_WORDS } from '../sim/caught.js';
 import { startInScene, finishFirst } from './sceneact.js';
 import { sleepHere, bookNight, bookedHere, nightMinutes, wakeUpAt, restAfterNight } from '../sim/stays.js';
-import { state, notify, esc, game, toast, saveGame, ROOT_ID, nowAbs, uiZoom, UI } from '../core/store.js';
+import { state, notify, esc, game, toast, saveGame, ROOT_ID, nowAbs, uiZoom, UI, residentsOf } from '../core/store.js';
 import { runPlans } from './plans.js';
 import { maybeBump, dropBump, BUMP } from './bump.js';
 import { withYou } from '../sim/social.js';
@@ -177,7 +177,7 @@ function hidePop(delay = 160) {
 }
 // Who you know is on a map right now (their faces under its name).
 function knownHtml(g, w, mapId) {
-    const list = Object.values(g.cast).filter(r => r.met && placeOf(g, w, whereNow(g, w, r))?.map === mapId);
+    const list = residentsOf(g).filter(r => r.met && placeOf(g, w, whereNow(g, w, r))?.map === mapId);
     if (!list.length)
         return '';
     return `<span class="mu-world-known" title="${esc(list.map(r => r.name).join(', '))}">${list.slice(0, 4).map(r => `<img src="${esc(thumb(r.avatar))}" alt="">`).join('')}${list.length > 4 ? `<em>+${list.length - 4}</em>` : ''}</span>`;
@@ -259,7 +259,7 @@ function planHtml(g, w) {
         return `<button data-act="go" data-loc="${esc(p.id)}" class="${p.id === g.player.loc ? 'is-you' : ''}" title="${esc(name)}: where this room is on the floor plan is not set yet (World creator › Maps › Floor plan). Click to go there."><b class="mu-plan-bang">!</b><span data-notr>${esc(name)}</span></button>`;
     }).join('')}</div>` : ''}
             ${plan.floors.length > 1 ? `<nav class="mu-plan-floors" aria-label="Floors">${plan.floors.map(f => {
-        const who = Object.values(g.cast).filter(r => r.met && floorOf(g, w, whereNow(g, w, r)) === f.id);
+        const who = residentsOf(g).filter(r => r.met && floorOf(g, w, whereNow(g, w, r)) === f.id);
         return `<button class="${f.id === floor.id ? 'is-on' : ''}" data-act="plan-floor" data-id="${esc(f.id)}">${who.length ? `<span class="mu-floor-faces">${who.slice(0, 5).map(r => `<img src="${esc(thumb(r.avatar))}" alt="" title="${esc(r.name)}">`).join('')}${who.length > 5 ? `<i>+${who.length - 5}</i>` : ''}</span>` : ''}${floorOf(g, w, g.player.loc) === f.id ? icon('pin') : ''}<span ${/^Floor \d+$/.test(f.name) ? '' : 'data-notr'}>${esc(f.name)}</span></button>`;
     }).join('')}</nav>` : ''}</div>
         ${toolsHtml()}</div>`;
@@ -612,7 +612,7 @@ export async function travelTo(loc, road, late) {
     // (E11) who is where as you leave: someone you know may be on the same train
     const train = !fare && !drive && byTrain(g, w, from, loc) && systemOn(w, 'living');
     const departed = g.minutes;
-    const before = train ? new Map(Object.values(g.cast).filter(r => r.met).map(r => [r.avatar, whereNow(g, w, r)])) : null;
+    const before = train ? new Map(residentsOf(g).filter(r => r.met).map(r => [r.avatar, whereNow(g, w, r)])) : null;
     g.traveling = true; // the trip itself costs no energy (only what you do does)
     const msgs = [...waited, ...(road ? travelRoad(g, w, mins, road === 'camp') : advance(g, w, mins))];
     delete g.traveling;
@@ -641,7 +641,7 @@ export async function travelTo(loc, road, late) {
 // (E11) Someone you know made the same trip (or, at rush hour, left from the same station): now and then you run into
 // them on the way, and they can come along for a while (the encounter's own choices, ui/bump.ts).
 function meetOnTrain(g, w, before, from, to, departed) {
-    const after = new Map(Object.values(g.cast).filter(r => r.met).map(r => [r.avatar, whereNow(g, w, r)]));
+    const after = new Map(residentsOf(g).filter(r => r.met).map(r => [r.avatar, whereNow(g, w, r)]));
     const list = fellowTravelers(g, w, before, after, from, to, departed);
     if (!list.length)
         return;

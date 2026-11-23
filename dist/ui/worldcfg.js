@@ -2,7 +2,7 @@
 // the lorebooks the world uses, and the world's rules. "Advanced" shows the finer settings.
 import { castLevel, neighbors, NEIGHBORS_MIN, FRIEND_BOND } from '../sim/happenings.js';
 import { bondOf } from '../sim/social.js';
-import { state, notify, esc, game, toast, saveGame, cfg, adultOn } from '../core/store.js';
+import { state, notify, esc, game, toast, saveGame, cfg, adultOn, residentsOf, residentIds } from '../core/store.js';
 import { DIFFICULTIES, difficultyOf } from '../sim/bills.js';
 import { isCustom, getWorld, activeStatuses, gameMode, GAME_MODES, systemOn, isScenario, homeNeedsOn } from '../core/world.js';
 import { dressHtml, storyDressHtml } from './dressui.js';
@@ -103,7 +103,7 @@ SCOPES.save = {
     genders: () => gendersOf(getWorld(game()?.world ?? '')),
     romance: () => systemOn(getWorld(game()?.world ?? ''), 'romance'),
     adult: () => adultOn(game()),
-    cards: () => { const g = game(); return g ? Object.values(g.cast).filter(r => idOf(g, r.avatar) !== YOU && charOf(r.avatar)).map(r => ({ id: r.avatar, avatar: r.avatar, name: r.name })) : []; },
+    cards: () => { const g = game(); return g ? residentsOf(g).filter(r => idOf(g, r.avatar) !== YOU && charOf(r.avatar)).map(r => ({ id: r.avatar, avatar: r.avatar, name: r.name })) : []; },
 };
 // A minor is left out of every romance: a child born in the game, an age under 18 from the world, or this box.
 function minorHtml(g, avatar) {
@@ -117,7 +117,7 @@ const PAIR = { other: YOU };
 function pairHtml(g, w, a) {
     if (idOf(g, a) === YOU)
         return '';
-    const others = Object.values(g.cast).filter(x => x.avatar !== a && idOf(g, x.avatar) !== YOU).sort((x, y) => x.name.localeCompare(y.name));
+    const others = residentsOf(g).filter(x => x.avatar !== a && idOf(g, x.avatar) !== YOU).sort((x, y) => x.name.localeCompare(y.name));
     const b = PAIR.other === YOU || others.some(x => x.avatar === PAIR.other) ? PAIR.other : YOU;
     const you = b === YOU;
     const who = (x) => (x === YOU ? '<span>you</span>' : `<span data-notr>${esc(g.cast[x]?.name ?? x)}</span>`); // names never translated
@@ -208,8 +208,8 @@ function workSection(g, w) {
 // Opens a person's page in People (from Households).
 // How alive this world is with the people in it, and which social systems are working (they need cards).
 function lifeSection(g, w) {
-    const n = Object.keys(g.cast).length, c = castLevel(n, gameMode(w)), nb = neighbors(g).length;
-    const friends = Object.values(g.cast).filter(r => r.met && bondOf(g, r.avatar) >= FRIEND_BOND).length;
+    const n = residentIds(g).length, c = castLevel(n, gameMode(w)), nb = neighbors(g).length;
+    const friends = residentsOf(g).filter(r => r.met && bondOf(g, r.avatar) >= FRIEND_BOND).length;
     const row = (on, name, why) => `<li class="${on ? 'is-on' : 'is-off'}"><b>${on ? '●' : '○'} ${esc(name)}</b> <small>${esc(why)}</small></li>`;
     return `<section class="mu-wc-sec"><h4>Life in the world</h4>
         <p><b>${n} ${n === 1 ? 'person' : 'people'}</b> · ${esc(c.level)}. <span class="mu-muted">${esc(c.tip)}</span></p>
@@ -219,7 +219,7 @@ function lifeSection(g, w) {
 }
 export function editPerson(avatar) { WC.tab = 'people'; WC.who = avatar; notify(); }
 function tabPeople(g, w) {
-    const list = Object.values(g.cast).sort((a, b) => a.name.localeCompare(b.name));
+    const list = residentsOf(g).sort((a, b) => a.name.localeCompare(b.name));
     if (!g.cast[WC.who] && WC.who !== YOU)
         WC.who = list[0]?.avatar ?? '';
     // grouped by address: people who live together are listed together
@@ -360,7 +360,7 @@ function viewTie(t, avatar) {
 }
 function tiesHtml(g, avatar) {
     const nm = (id) => (id === '__you' ? 'You' : g.cast[id]?.name ?? id);
-    const others = [['__you', 'You'], ...Object.values(g.cast).filter(x => x.avatar !== avatar).map(x => [x.avatar, x.name])];
+    const others = [['__you', 'You'], ...residentsOf(g).filter(x => x.avatar !== avatar).map(x => [x.avatar, x.name])];
     const list = tiesOf(g, avatar);
     return `<section class="mu-ties"><h4>Family</h4>
         ${list.length ? `<ul>${list.map(t => {

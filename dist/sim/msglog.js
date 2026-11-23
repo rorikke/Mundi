@@ -102,7 +102,7 @@ function undo(g, r) {
 function judgeLine(g, fp, speakers) {
     const w = getWorld(g.world);
     const solo = String(g.social?.solo ?? '');
-    const hearers = w ? sceneHere(g, w).filter(r => r.met && (solo ? r.avatar === solo : speakers.has(r.avatar))) : [];
+    const hearers = w ? sceneHere(g, w).filter(r => r.met && !r.onset && (solo ? r.avatar === solo : speakers.has(r.avatar))) : [];
     const ch = hearers.map(r => gain(g, r.avatar, SOURCES.talk)).filter((c) => !!c);
     return { fp, who: YOU, kind: 'line', at: nowAbs(g), why: 'talk', ch };
 }
@@ -110,7 +110,7 @@ function judgeLine(g, fp, speakers) {
 // nobody else has spoken since the last verdict), desire or love also raise their romance.
 function judgeReply(g, m, fp, ex, speakers) {
     const who = speakerOf(m) ?? '';
-    const met = !!who && !!g.cast[who]?.met;
+    const met = !!who && !!g.cast[who]?.met && !g.cast[who].onset; // ((adult industry) a performer on a set is no one you've met)
     if (met) {
         touch(g, who);
         sawYou(g, who);

@@ -50,7 +50,7 @@ const rnd = (g, salt) => H(`${g.world}|${g.day}|${salt}`);
 const fIdx = (v) => FRIEND_TIERS.indexOf(friendTier(v));
 const rIdx = (v) => { const i = ROMANCE_TIERS.findIndex(t => v >= t.lo && v < t.hi); return i < 0 ? 0 : i; };
 const F = Object.fromEntries(FRIEND_TIERS.map((t, i) => [t.id, i]));
-const isMine = (g, a) => !!g.cast[a] && idOf(g, a) !== YOU;
+const isMine = (g, a) => !!g.cast[a] && !g.cast[a].onset && idOf(g, a) !== YOU; // ((adult industry) never a performer on a set)
 const partnered = (g, a) => romOf(g, a).status !== 'none' && romOf(g, a).status !== 'casual';
 // Romance may come from them: the system on, no family or minor block, attracted to you, not hating you, and not an
 // exclusive person with a partner of their own (R-9).

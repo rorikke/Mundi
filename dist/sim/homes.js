@@ -1,7 +1,9 @@
+// Homes: who lives where. Kept apart from the rest of the game so anything can use it without import cycles.
+import { residentsOf } from '../core/store.js';
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
 // Where people live: `${zone}:${x},${y}` (and `#unit` for a second flat at the same address).
 export const spotKey = (zone, x, y, unit) => `${zone}:${x},${y}${unit ? `#${unit}` : ''}`;
-export const takenHomes = (g, except) => new Set([g.player.home, ...Object.values(g.cast).filter(r => r !== except).map(r => r.home)].map(h => spotKey(h.zone, h.x, h.y, h.unit)));
+export const takenHomes = (g, except) => new Set([g.player.home, ...residentsOf(g).filter(r => r !== except).map(r => r.home)].map(h => spotKey(h.zone, h.x, h.y, h.unit)));
 // A free home in a zone (else a free one in another zone). Nobody is put in someone else's home by chance: only a
 // household shares one. When every home is taken, a new flat opens at an address in the zone (House 3B…), never `avoid`'s.
 export function homeSpot(w, zoneId, taken, avoid) {
@@ -29,7 +31,7 @@ export function homeSpot(w, zoneId, taken, avoid) {
 export const homeKey = (h) => `${h.zone}:${h.x},${h.y}${h.unit ? `#${h.unit}` : ''}`;
 export function normalizeHomes(g) {
     const groups = new Map();
-    for (const r of Object.values(g.cast)) {
+    for (const r of residentsOf(g)) {
         const k = homeKey(r.home);
         groups.set(k, [...(groups.get(k) ?? []), r.avatar]);
     }

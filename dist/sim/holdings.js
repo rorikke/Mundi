@@ -1,3 +1,15 @@
+// Holdings: houses to rent out, businesses, a garden at home, loans, and the taxes on all of it.
+//   Property: buy an empty home anywhere (about 30 times its weekly rent); list it and a tenant pays rent each week
+//   (most weeks), minus upkeep.
+//   Businesses: open one at a public place that suits it (a tavern where people eat and drink, a stall at a market…);
+//   it earns each day by the place's crowds and mood, more with staff (hired hands or friends), minus wages; collect
+//   the till when you pass by.
+//   Garden: plant seeds at home; they are ready on a fixed day and give goods to sell or use.
+//   Loans: the bank lends against what you own (5% a week); a moneylender lends anyone (20% a week, two weeks): late
+//   with the moneylender and their thugs come for you; late with the bank and your reputation suffers.
+//   Taxes: every week, a share of what your property is worth and what your businesses earned, by the realm's rate
+//   (higher when towns are tense). Unpaid, it becomes a bounty.
+import { residentsOf } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { onDay } from './hooks.js';
 import { book } from './ledger.js';
@@ -24,7 +36,7 @@ const week = (g) => Math.floor((g.day - 1) / 7);
 export function freeHomes(g, w) {
     if (!systemOn(w, 'property'))
         return [];
-    const taken = new Set([g.player.home, ...Object.values(g.cast).map(r => r.home), ...holdingsOf(g).estates, ...ownedHomes(g)].map(h => `${h.zone}:${h.x},${h.y}`)); // (and homes owned through housing)
+    const taken = new Set([g.player.home, ...residentsOf(g).map(r => r.home), ...holdingsOf(g).estates, ...ownedHomes(g)].map(h => `${h.zone}:${h.x},${h.y}`)); // (and homes owned through housing)
     return w.homes.zones.flatMap(z => z.spots.map((s, i) => ({ zone: z.id, x: s[0], y: s[1], n: i + 1, price: (z.rent ?? 40) * 30, rent: z.rent ?? 40, name: homeAddress(w, { zone: z.id, x: s[0], y: s[1], n: i + 1 }) })))
         .filter(h => !taken.has(`${h.zone}:${h.x},${h.y}`));
 }

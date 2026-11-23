@@ -4,7 +4,7 @@
 // · Places remember you: how often you come (a regular, a first time), who works there and who comes often, and
 //   where each person last saw you.
 // · Why each person is here, for the AI: a break, a shift, a standing appointment, a part in a festival, a date.
-import { nowAbs } from '../core/store.js';
+import { nowAbs, residentIds } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { onHour } from './hooks.js';
 import { isWeekend, hm } from './time.js';
@@ -68,11 +68,11 @@ function work(g, w, r, day, tense) {
     if (roll < 0.21) {
         const pairs = couples(g);
         const ties = g.living?.ties ?? []; // family
-        const friends = Object.keys(g.cast).filter(a => fr(g, r.avatar, a) >= FRIEND);
+        const friends = residentIds(g).filter(a => fr(g, r.avatar, a) >= FRIEND);
         const exes = new Set(exesOf(g, r.avatar, false)); // exes (not old flings) don't drop by
         const close = [...pairs.filter(p => p.includes(r.avatar)).flat(), ...ties.filter(t => t.a === r.avatar || t.b === r.avatar).flatMap(t => [t.a, t.b]), ...friends]
             .filter(a => a !== r.avatar && a !== '__you' && g.cast[a] && homeOf(g.cast[a]) !== home && !exes.has(a));
-        const pool = close.length ? close : Object.keys(g.cast).filter(a => a !== r.avatar && homeOf(g.cast[a]) !== home && !isKid(g, a) && !exes.has(a));
+        const pool = close.length ? close : residentIds(g).filter(a => a !== r.avatar && homeOf(g.cast[a]) !== home && !isKid(g, a) && !exes.has(a));
         const h = 18 + Math.floor(H(`${k}|when`) * 3);
         if (pool.length && !onJob(at(h), at(h) + 120)) {
             const o = g.cast[pool[Math.floor(H(`${k}|whom`) * pool.length)]];
@@ -116,8 +116,8 @@ export function notice(g, w, present) {
         }
     }
     for (const r of present)
-        if (r.met)
-            m.seen[r.avatar] = { place: loc, at: now };
+        if (r.met && !r.onset)
+            m.seen[r.avatar] = { place: loc, at: now }; // ((adult industry) not a performer on a set)
 }
 onHour.push((g, w) => {
     if (g.asleep)

@@ -4,7 +4,7 @@
 // a few limits, a role and a drive. It is drawn from a seed made of the world and the person, so the same person gets
 // the same profile in every game and in every run, and only fills what a card or the player hasn't already said.
 // Also the repair that gives world characters of games started earlier the `role` and `drive` their world holds.
-import { adultOn } from '../core/store.js';
+import { adultOn, residentIds } from '../core/store.js';
 import { systemOn, exampleTag, INTIMATE_ROLES, INTIMATE_DRIVES } from '../core/world.js';
 import { relOf, idOf, YOU } from './rel.js';
 import { isMinor } from './family.js';
@@ -104,7 +104,7 @@ export function ensureProfile(g, w, avatar) {
 /** Everyone in the game (the player's own cards and the people made in it). True when anyone changed. */
 export function ensureProfiles(g, w) {
     let did = false;
-    for (const a of Object.keys(g.cast))
+    for (const a of residentIds(g))
         if (ensureProfile(g, w, a))
             did = true;
     return did;
@@ -113,7 +113,7 @@ export function ensureProfiles(g, w) {
  *  world's example cast, never over a value already in the save. True when anyone changed. */
 export function fillWorldRoles(g, w) {
     let did = false;
-    for (const a of Object.keys(g.cast)) {
+    for (const a of residentIds(g)) {
         const ex = exampleOf(w, a)?.intimate;
         if (!ex)
             continue;

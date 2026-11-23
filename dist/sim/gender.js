@@ -5,7 +5,7 @@
 // cleaned of anything a hand-edited file might hold; suggestions read from a card by the AI; and the AI's line about
 // the gender, pronouns and attraction of the people in the scene. Someone whose romance isn't set follows your gender
 // when you are drawn to theirs, and is straight when you aren't (`fitToYou`): "everyone" is only ever chosen.
-import { adultOn, game } from '../core/store.js';
+import { adultOn, game, residentIds } from '../core/store.js';
 import { getWorld, systemOn, INTIMATE_ROLES, INTIMATE_DRIVES } from '../core/world.js';
 import { DEFAULT_GENDERS } from '../core/presets.js';
 import { CAMERA_RULES } from '../core/photo.js';
@@ -141,7 +141,7 @@ const draw = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
 export function fitToYou(g, w, only) {
     const people = relOf(g).people, me = people[YOU], mine = me?.gender, gs = gendersOf(w), seed = saveSeed(g, w);
     const share = (gid) => { const v = me?.att?.[gid]?.r; return typeof v === 'number' && Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 1; };
-    const all = Object.keys(g.cast).map(a => idOf(g, a)).filter(id => id !== YOU);
+    const all = residentIds(g).map(a => idOf(g, a)).filter(id => id !== YOU);
     for (const x of only ? only.map(a => idOf(g, a)).filter(id => id !== YOU && g.cast[id]) : all) {
         const p = people[x];
         if (!followsYou(p)) {

@@ -1,3 +1,10 @@
+// Opinions spread through friends (requirement A-6). Someone who feels strongly about you (Best friend, Infatuated, or
+// Dislikes and worse) talks about you to the people who see them as a good friend or closer, and nudges how those
+// people feel about you and what they think of you: a little each day, at most one point per person a day, never
+// below Wary by talk alone (losses need real evidence, S-15) and never up to Good friend (that takes time with you). When one person's talk has moved someone by 5 points, you
+// hear of it ("Saya has been talking about you"). Needs "Relationships between people"; its own setting
+// (`cfg.rel.spread`, on by default), and off with "Characters take the initiative" off.
+import { residentIds } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { onDay } from './hooks.js';
 import { fr, ro, gain, lose, relCfg, idOf, YOU } from './rel.js';
@@ -21,7 +28,7 @@ export function spreadOpinions(g, w) {
     const moved = (seat(g).spread ??= {});
     const used = {};
     const out = [];
-    const ids = Object.keys(g.cast).filter(a => idOf(g, a) !== YOU);
+    const ids = residentIds(g).filter(a => idOf(g, a) !== YOU);
     for (const s of ids) {
         const o = opinion(g, w, s);
         if (!o)

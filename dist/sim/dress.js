@@ -60,6 +60,9 @@ export function wearOf(g, w, avatar) {
     const ex = exOf(g, w, avatar);
     return Object.entries(ex?.wear ?? {}).filter(([o, d]) => d && typeof d.kind === 'string' && typeof ex?.outfits?.[o] === 'string');
 }
+/** Codes other parts of the game set for someone in the scene, before any other (outside a Home): (adult industry) the
+ *  performers of a shoot (sim/onset.ts: undressed for the scene just shot, a robe between takes). Null: no say. */
+export const dressRules = [];
 const named = (g, names, avatar) => !!names?.some(n => personNamed(g, n)?.avatar === avatar);
 const closeToYou = (g, w, avatar) => !!statusOf(g, avatar, YOU) || levelHolds(g, w, avatar, 'good') || (systemOn(w, 'romance') && levelHolds(g, w, avatar, 'crush'));
 // a room of your own, a home, a private place: where someone close goes a level bolder
@@ -100,6 +103,11 @@ export function codeNeed(g, w, avatar) {
     if (isScenario(w)) {
         const c = dressAt(g, g.player.loc);
         return c ? { code: c, room: true, bump: closeToYou(g, w, avatar) } : null;
+    }
+    for (const f of dressRules) {
+        const n = f(g, w, avatar);
+        if (n)
+            return n;
     }
     const on = systemOn(w, 'dress');
     const act = g.act;

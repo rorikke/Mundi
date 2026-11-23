@@ -1,6 +1,6 @@
 import { systemOn } from '../core/world.js';
 import { personaName } from '../st/bridge.js';
-import { onDay, onHour, onLook, tierLink } from './hooks.js';
+import { onDay, onHour, onLook, tierLink, stageGives } from './hooks.js';
 import { exampleOf, adultOn } from './dayplan.js';
 import { residents } from './people.js';
 import { whenHolds, levelHolds, parseWhen, calendarOnly, missingWords, threadOwner, withHere } from './when.js';
@@ -149,6 +149,8 @@ function enterStage(g, w, t, r, i) {
     }
     if (s.fact)
         note(g, s.fact, [r.name], [r.avatar], `home:${r.avatar}`, 'thread');
+    for (const f of stageGives)
+        f(g, w, s, t.id, r.avatar); // (adult industry) an offer, a title cancelled
 }
 // A moment written about them ("A collector phones Nanami…"): told as theirs to bring up, in this scene.
 const momentText = (r, text) => `${text.replace(/[.\s]+$/, '')}: ${r.name} brings it up with {{user}} in this scene, in their own way.`;
