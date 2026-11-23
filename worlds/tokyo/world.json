@@ -93109,7 +93109,17 @@
      "drive": "average"
     },
     "avatar": "cast/rs_glam/portrait.webp",
-    "sprites": "cast/rs_glam/sprites"
+    "sprites": "cast/rs_glam/sprites",
+    "outfits": {
+     "robe": "cast/rs_glam/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93155,7 +93165,17 @@
      "drive": "average"
     },
     "avatar": "cast/rs_rookie/portrait.webp",
-    "sprites": "cast/rs_rookie/sprites"
+    "sprites": "cast/rs_rookie/sprites",
+    "outfits": {
+     "robe": "cast/rs_rookie/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93200,7 +93220,17 @@
      "drive": "high"
     },
     "avatar": "cast/rs_mature/portrait.webp",
-    "sprites": "cast/rs_mature/sprites"
+    "sprites": "cast/rs_mature/sprites",
+    "outfits": {
+     "robe": "cast/rs_mature/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93242,7 +93272,17 @@
      "drive": "high"
     },
     "avatar": "cast/rs_gyaru/portrait.webp",
-    "sprites": "cast/rs_gyaru/sprites"
+    "sprites": "cast/rs_gyaru/sprites",
+    "outfits": {
+     "robe": "cast/rs_gyaru/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93288,7 +93328,17 @@
      "drive": "high"
     },
     "avatar": "cast/rs_nordic/portrait.webp",
-    "sprites": "cast/rs_nordic/sprites"
+    "sprites": "cast/rs_nordic/sprites",
+    "outfits": {
+     "robe": "cast/rs_nordic/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93330,7 +93380,17 @@
      "drive": "average"
     },
     "avatar": "cast/rs_cosplay/portrait.webp",
-    "sprites": "cast/rs_cosplay/sprites"
+    "sprites": "cast/rs_cosplay/sprites",
+    "outfits": {
+     "robe": "cast/rs_cosplay/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93373,7 +93433,17 @@
      "drive": "high"
     },
     "avatar": "cast/rs_shy/portrait.webp",
-    "sprites": "cast/rs_shy/sprites"
+    "sprites": "cast/rs_shy/sprites",
+    "outfits": {
+     "robe": "cast/rs_shy/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93418,7 +93488,17 @@
      "drive": "average"
     },
     "avatar": "cast/rs_gravure/portrait.webp",
-    "sprites": "cast/rs_gravure/sprites"
+    "sprites": "cast/rs_gravure/sprites",
+    "outfits": {
+     "robe": "cast/rs_gravure/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93461,7 +93541,17 @@
      "drive": "average"
     },
     "avatar": "cast/rs_idol/portrait.webp",
-    "sprites": "cast/rs_idol/sprites"
+    "sprites": "cast/rs_idol/sprites",
+    "outfits": {
+     "robe": "cast/rs_idol/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93508,7 +93598,17 @@
      "drive": "high"
     },
     "avatar": "cast/rs_queen/portrait.webp",
-    "sprites": "cast/rs_queen/sprites"
+    "sprites": "cast/rs_queen/sprites",
+    "outfits": {
+     "robe": "cast/rs_queen/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "man",
