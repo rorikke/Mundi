@@ -8,7 +8,7 @@
 // (sim/private.ts).
 // Capture, settle, then ask: the scene is read and its messages settled at once (so swiping or hiding lines later
 // can't race with it), and the answer is applied when it comes back. A failure applies nothing and isn't retried.
-import { saveGame, nowAbs, notify, TUT, adultOn } from '../core/store.js';
+import { saveGame, nowAbs, notify, TUT, adultOn, residentIds } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { quiet, personaName, speakerOf } from '../st/bridge.js';
 import { openMessages, openTotals, openSince, readyToSettle, settleNow, addSettled, textOf } from './msglog.js';
@@ -51,7 +51,7 @@ export async function verdictNow(g, w, reason, { end = false } = {}) {
             return NONE;
         // capture what the scene was
         const me = personaName();
-        const spoke = [...new Set(msgs.filter(m => !m.is_user).map(m => speakerOf(m) ?? ''))].filter(a => g.cast[a]?.met);
+        const spoke = [...new Set(msgs.filter(m => !m.is_user).map(m => speakerOf(m) ?? ''))].filter(a => g.cast[a]?.met && !g.cast[a].onset); // ((adult industry) a performer on a set: never judged)
         const people = spoke.map(a => ({ avatar: a, name: g.cast[a].name }));
         const counted = openTotals(g);
         const since = openSince(g);
@@ -177,7 +177,7 @@ export function dayChanges(g, start, last) {
     if (!start)
         return last?.changes ?? [];
     const why = (a) => [...(start.why[a] ?? []), ...(last?.changes.filter(c => c.avatar === a).map(c => c.why) ?? [])];
-    const ids = new Set([...Object.keys(start.snap), ...Object.keys(g.cast)]);
+    const ids = new Set([...Object.keys(start.snap), ...residentIds(g)]);
     const out = [];
     for (const a of ids) {
         if (!g.cast[a] || a === YOU)

@@ -1,3 +1,10 @@
+// Homes you own (the `housing` system, track 3 of end-game spending): buying a home outright, selling it back at a
+// loss, its weekly upkeep, a second home, and the rooms and fixtures bought for a house (a sauna, a grand piano, a
+// rooftop terrace), which work as the shop's things do (they join `thingsOwned`, so the shop's effects source, the AI
+// line and `needsItem` read them). The world's housing fields are read here with their defaults, never written into
+// the world; the save keeps what you own in `g.houses`, created by the first purchase. `property` (sim/holdings.ts,
+// houses to rent out, loans) is another system and isn't used here.
+import { residentsOf } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { homeKey } from './homes.js';
 /* ---------- what the world says (read with defaults) ---------- */
@@ -87,7 +94,7 @@ export const SECOND_HOME_ID = 'home:second';
  *  be rented or bought. */
 export function takenSpots(g) {
     const k = (h) => `${h.zone}:${h.x},${h.y}`;
-    return new Set([g.player.home, ...Object.values(g.cast).map(r => r.home), ...ownedHomes(g)].filter(Boolean).map(k));
+    return new Set([g.player.home, ...residentsOf(g).map(r => r.home), ...ownedHomes(g)].filter(Boolean).map(k));
 }
 /* ---------- hooks ---------- */
 // (the rooms and fixtures of the homes you own join `thingsOwned` in sim/fixtures.ts)

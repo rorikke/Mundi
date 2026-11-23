@@ -1,3 +1,6 @@
+// A scenario's floor plan (optional): floors, and where each room of the house is on them. A plan room is a place
+// of the world, or a bedroom spot (`spot:<area>:<n>`) that belongs to whoever lives there in this game.
+import { residentsOf } from '../core/store.js';
 import { isScenario } from '../core/world.js';
 import { pins, playerHomeId } from './places.js';
 export const spotId = (zone, k) => `spot:${zone}:${k}`;
@@ -27,7 +30,7 @@ export function planTarget(g, w, r) {
         return pins(g, w).some(p => p.id === r.id) ? { loc: r.id, known: true } : null;
     if (spotOf(w, g.player.home) === r.id)
         return { loc: playerHomeId, known: true };
-    const there = Object.values(g.cast).filter(c => spotOf(w, c.home) === r.id && !c.homeWith);
+    const there = residentsOf(g).filter(c => spotOf(w, c.home) === r.id && !c.homeWith);
     const who = there.find(c => c.met) ?? there[0];
     return who ? { loc: `home:${who.avatar}`, owner: who.avatar, known: !!who.met } : null;
 }

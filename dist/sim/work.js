@@ -20,13 +20,13 @@ import '../core/traits.js';
 import '../core/goals.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
 import { note } from './facts.js';
-import { cfg, nowAbs, adultOn } from '../core/store.js';
+import { cfg, nowAbs, adultOn, residentsOf } from '../core/store.js';
 import { career, systemOn, getWorld, offScreenWork, isScenario, WEEKDAY_IDS } from '../core/world.js';
 import { scheduleOf } from '../core/presets.js';
 import { advance, hour, hm, seasonDays, WEEKDAYS } from './time.js';
 import { addStatus, money } from './needs.js';
 import { book } from './ledger.js';
-import { onHour, onDay, onLook, studentLink, ventureLink } from './hooks.js';
+import { onHour, onDay, onLook, onQuit, studentLink, ventureLink } from './hooks.js';
 import { queueMoment } from './moments.js';
 import { shiftOn as npcShiftOn, slotAt, placeOk, bringTo } from './dayplan.js';
 import { festivalsOn } from './festivals.js';
@@ -160,8 +160,8 @@ export function shiftHours(g, o) {
 }
 const span = (from, to) => (((to - from) % 24) + 24) % 24 || 24;
 export function shiftOn(g, w, o, day) {
-    if (freelanceIn(g, w, o))
-        return null; // (photography: a freelancer has briefs, not shifts)
+    if (noShiftsIn(g, w, o))
+        return null; // (photography: a freelancer has briefs, not shifts; adult industry: bookings)
     o = trackOf(g, o);
     if (!workdays(g, w, o).includes(wdOf(day)))
         return null;
@@ -213,8 +213,8 @@ export function canWork(g, w, o) {
     if (s)
         return { kind: 'shift', shift: s, early: now < s.start, late: grace !== null && now > s.latest + grace };
     const j = jobOf(g);
-    if (freelanceIn(g, w, o))
-        return { kind: 'none', why: 'You work brief by brief now: your briefs are in Lens.' };
+    if (noShiftsIn(g, w, o))
+        return { kind: 'none', why: shiftlessApp(g, w).text };
     if (o.overtime && isOpen(g, o) && j?.extraDay !== g.day && !(j?.start !== undefined && g.day < j.start))
         return { kind: 'overtime' }; // one overtime shift a day
     const n = nextShift(g, w, o);
@@ -311,9 +311,51 @@ export function freelancePath(g, w) {
 }
 /** (photography) Are you a freelancer in your job (no shifts, no warnings, no vacation or bonus)? */
 export const isFreelance = (g, w) => !!freelancePath(g, w);
-/** (photography) Is this job, for you, a freelance one (it's your job and you're on its freelance path)? */
-const freelanceIn = (g, w, o) => g.player.job?.id === o.id && isFreelance(g, w);
 export const FREELANCE_NO = 'You set your own hours now: there are no shifts to take off.';
+/** (adult industry) Is this job worked by bookings for you (Occupation.bookings on the job or your track, the world's
+ *  industry job, the `industry` system and adult content on)? Offers of a title each, no shifts (sim/bookings.ts). */
+export const bookedJob = (g, w, o) => !!o && !!trackOf(g, o).bookings && w.industry?.job === o.id && systemOn(w, 'industry') && adultOn(g);
+/** No shifts in your job: a freelance path (photography) or a booked job (adult industry). Every guard a freelancer
+ *  has (no shifts, warnings, sack, vacation, sick days or seasonal bonus) reads this. */
+export const noShifts = (g, w) => isFreelance(g, w) || bookedJob(g, w, myJob(g, w));
+const noShiftsIn = (g, w, o) => g.player.job?.id === o.id && noShifts(g, w);
+/** Where a job without shifts sends you: the app its work is in (Lens for a freelancer, Take for bookings). */
+export const shiftlessApp = (g, w) => isFreelance(g, w) ? { app: 'photos', text: 'You work brief by brief now: your briefs are in Lens.' }
+    : bookedJob(g, w, myJob(g, w)) ? { app: 'take', text: 'You work title by title: your offers are in Take.' } : null;
+/** (adult industry) What a booked job says (sim/bookings.ts fills these in): `hired`, the sentence after "You got the
+ *  job!" in place of the week of shifts; `line`, the AI's work line (empty: the plain one). */
+export const bookedLink = {
+    hired: () => 'Your offers will come to Take, one title at a time.', line: () => ''
+};
+/** (adult industry) Hired straight onto a branch path's first rank through one of the job's `entries` (EntryDef: the lens,
+ *  a photographer made assistant director): no interview and no fee, the job you held left first, your track your
+ *  gender's (else the first that has the entry). The caller checks the entry's `when` and that it was offered. */
+export function hireEntry(g, w, jobId, entryId) {
+    const job = jobDef(w, jobId);
+    if (!job || (job.adult && !adultOn(g)))
+        return { ok: false, text: '' };
+    const keys = job.tracks && Object.keys(job.tracks).length ? [playerTrack(g, job), ...Object.keys(job.tracks)].filter((k, i, l) => k !== undefined && l.indexOf(k) === i) : [undefined];
+    for (const key of keys) {
+        const o = key !== undefined ? layTrack(job, key) : job;
+        const e = (o.entries ?? []).find(x => x.id === entryId);
+        const b = e && (o.branches ?? []).find(x => x.options?.some(opt => opt.id === e.path));
+        if (!e || !b)
+            continue;
+        const rank = career(o, [e.path]).ranks.findIndex(r => b.options.find(opt => opt.id === e.path).ranks.includes(r));
+        if (rank < 0)
+            continue;
+        if (g.player.job)
+            quitJob(g, w);
+        const j = { id: jobId, rank, shifts: 0, perf: 50, since: nowAbs(g), checked: g.day, vac: 0, vacAt: g.day, path: [e.path] };
+        if (key !== undefined)
+            j.track = key;
+        g.player.job = j;
+        const name = career(o, [e.path]).ranks[rank].name;
+        note(g, '{u} got hired: {0} at {1}.', [name, o.name], [], o.place, 'work');
+        return { ok: true, text: `You are now ${name} (${o.name}). ${bookedJob(g, w, job) ? bookedLink.hired(g, w) : ''}`.trim() };
+    }
+    return { ok: false, text: 'That way in is not open.' };
+}
 // With the save: the path the world gave them (a rank named in a branch, see `pathTo`), kept in `living.paths`; and
 // their own track (their gender's).
 export function npcCareer(o, avatar, g) {
@@ -577,6 +619,9 @@ export function hire(g, w, id, track) {
     }
     headStart(g, w, o, j);
     note(g, '{u} got hired: {0} at {1}.', [o.ranks[rank].name, o.name], [], o.place, 'work');
+    // (adult industry) a booked job has no week of shifts: its offers come to Take
+    if (bookedJob(g, w, job))
+        return { ok: true, text: `You got the job! ${r.text}${fee ? ` You paid the fee (${money(w, fee)}).` : ''} ${bookedLink.hired(g, w)}` };
     const s = nextShift(g, w, o);
     return { ok: true, text: `You got the job! ${r.text}${fee ? ` You paid the fee (${money(w, fee)}).` : ''}${systemOn(w, 'jobs') ? ` Your week: ${weekText(g, w, o)}.${wait ? ` You start in ${wait} day${wait === 1 ? '' : 's'}.` : ''}${s ? ` First shift: ${whenText(g, s)}.` : ''}` : ''}` };
 }
@@ -602,8 +647,15 @@ function headStart(g, w, o, j) {
     j.shifts = Math.round(p.shifts * share * 100) / 100;
     j.since = nowAbs(g) - Math.round(p.days * share * 1440);
 }
-export function quitJob(g, w) { const o = w && jobDef(w, g.player.job?.id); if (o)
-    note(g, '{u} quit the job ({0}).', [o.name], [], g.player.loc, 'work'); g.player.job = null; }
+export function quitJob(g, w) {
+    const id = g.player.job?.id, o = w && jobDef(w, id);
+    if (o)
+        note(g, '{u} quit the job ({0}).', [o.name], [], g.player.loc, 'work');
+    g.player.job = null;
+    if (w && id)
+        for (const f of onQuit)
+            f(g, w, id);
+}
 // Round the clock: the shift you'd rather work (from your next one on).
 export function chooseShift(g, w, id) {
     const j = jobOf(g);
@@ -625,10 +677,10 @@ export function addPerf(g, w, n) {
     if (n > 0)
         n *= effectMul(g, w, 'perf', ['gain', o.id, ...jobTags(g, o)]);
     j.perf = Math.max(0, Math.min(100, (j.perf ?? 50) + n));
-    if (isFreelance(g, w)) {
+    if (noShifts(g, w)) {
         delete j.warn;
         return [];
-    } // (photography: clients don't warn, they stop calling)
+    } // (photography: clients don't warn, they stop calling; bookings: offers dry up)
     const low = workRules(g, w).low, out = [];
     if (j.perf >= 60)
         delete j.warn;
@@ -703,7 +755,7 @@ function shiftPerf(g, w, o, mode, part) {
 /** The world's people with your job (or working at your place), by rank. */
 export const colleaguesOf = (g, w, o) => {
     o = trackOf(g, o);
-    return Object.values(g.cast).filter(r => r.occupation && (r.occupation === o.id || jobDef(w, r.occupation)?.place === o.place)).sort((a, b) => npcRank(g, b.avatar) - npcRank(g, a.avatar));
+    return residentsOf(g).filter(r => r.occupation && (r.occupation === o.id || jobDef(w, r.occupation)?.place === o.place)).sort((a, b) => npcRank(g, b.avatar) - npcRank(g, a.avatar));
 };
 /** Colleagues on shift with you: here, at the place you work, now (an off-screen job has none you can see). */
 export const onShiftWith = (g, w, o) => (offScreen(w, trackOf(g, o)) ? [] : presentAt(g, w, jobPlace(g, o)).filter(r => colleaguesOf(g, w, o).includes(r)));
@@ -825,7 +877,7 @@ export function colleagueFor(g, w, o, e) {
     if (!e.from)
         return null;
     const lvl = e.from.level || 'friend', self = g.swap?.avatar;
-    return Object.values(g.cast).filter(r => r.occupation === o.id && r.met && !r.gone && r.avatar !== self && levelHolds(g, w, r.avatar, lvl))
+    return residentsOf(g).filter(r => r.occupation === o.id && r.met && !r.gone && r.avatar !== self && levelHolds(g, w, r.avatar, lvl))
         .sort((a, b) => fr(g, b.avatar, YOU) - fr(g, a.avatar, YOU))[0] ?? null;
 }
 // A work event as it is told: {who} is the colleague it comes from (or the unnamed one); a `feels` key "{who}" is them.
@@ -856,7 +908,7 @@ function namedEvent(g, e, who) {
 const choiceOk = (g, w, o, c, i) => choiceOpen(g, w, c, jobPlace(g, o), `workc|${o.id}|${i}`);
 // After a shift, now and then (as often as the work rules say): one of the job's events whose condition holds, or the
 // boss asking for overtime. It waits for your choice on the work screen.
-function rollWorkEvent(g, w, o) {
+export function rollWorkEvent(g, w, o) {
     const j = jobOf(g);
     const chance = workRules(g, w).events;
     delete j.event;
@@ -968,7 +1020,7 @@ export function bookOff(g, w, day) {
     const o = myJob(g, w);
     if (!j || !o)
         return '';
-    if (isFreelance(g, w))
+    if (noShifts(g, w))
         return FREELANCE_NO;
     const off = (j.off ??= {});
     if (off[day] === 'vacation') {
@@ -1010,7 +1062,7 @@ export function sickNo(g, w) {
 export function sickLeave(g, w, until) {
     const j = jobOf(g);
     const o = myJob(g, w);
-    if (!j || !o || isFreelance(g, w))
+    if (!j || !o || noShifts(g, w))
         return;
     for (let d = g.day - 1; d * 1440 < until; d++) {
         const s = shiftOn(g, w, o, d);
@@ -1023,7 +1075,7 @@ export function callSick(g, w) {
     const o = myJob(g, w);
     if (!j || !o)
         return '';
-    if (isFreelance(g, w))
+    if (noShifts(g, w))
         return FREELANCE_NO;
     const why = sickNo(g, w);
     if (why)
@@ -1085,10 +1137,10 @@ export function workDay(g, w) {
     if (!j || !o || !systemOn(w, 'jobs'))
         return [];
     const rules = workRules(g, w), out = [];
-    if (isFreelance(g, w)) {
+    if (noShifts(g, w)) {
         j.vacAt = g.day;
         return out;
-    } // (photography: no vacation days and no seasonal bonus)
+    } // (photography, bookings: no vacation days and no seasonal bonus)
     if (rules.vacation) {
         while (g.day - (j.vacAt ?? g.day) >= rules.vacation) {
             j.vacAt = (j.vacAt ?? g.day) + rules.vacation;
@@ -1237,6 +1289,8 @@ export function workLine(g, w, present) {
     const free = freelancePath(g, w);
     if (free)
         return `{{user}} is a freelance ${(o.name || 'worker').toLowerCase()} (${free.name}: ${rankOf(g, o).name}).`;
+    if (bookedJob(g, w, o))
+        return bookedLink.line(g, w) || `{{user}} works as ${rankOf(g, o).name} (${o.name}), title by title: no shifts, a booking for each title.`;
     return `{{user}} works as ${rankOf(g, o).name} (${o.name}, rank ${j.rank + 1} of ${c.ranks.length + (c.open ? 1 : 0)}).${seniors.length ? ` At work, ${seniors.map(r => r.name).join(' and ')} ${seniors.length > 1 ? 'are' : 'is'} senior to {{user}} (senpai)${boss && seniors.includes(boss) ? `; ${boss.name} is the boss` : ''}.` : ''}${juniors.length ? ` ${juniors.map(r => r.name).join(' and ')} ${juniors.length > 1 ? 'are' : 'is'} junior to {{user}} (kōhai).` : ''}`;
 }
 /* ---------- moving ---------- */

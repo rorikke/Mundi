@@ -2,7 +2,7 @@
 // what happened in the lives of the people you know (new jobs, promotions, couples, weddings, moves: the engine's
 // facts), and what people post (written by the AI, sim/feed.ts). Read-only: no likes, replies or posts of yours. A
 // strip of the newest at the top of Messages, all of it a tap away. With the `social` system off, none of it.
-import { esc, game, notify, saveGame, toast, nowAbs } from '../core/store.js';
+import { esc, game, notify, saveGame, toast, nowAbs, adultOn } from '../core/store.js';
 import { systemOn, getWorld } from '../core/world.js';
 import { lex } from '../core/lexicon.js';
 import { thumb } from '../st/bridge.js';
@@ -29,7 +29,7 @@ export const newsOn = (w) => !!w && systemOn(w, 'social');
 export function comingNews(g, w) {
     const ev = comingEvents(g, w, DAYS_AHEAD).filter(x => !x.off).map(x => ({ at: x.from, kind: 'city', icon: 'star',
         text: fmt('{0} at {1}, {2}', x.ev.name, w.places.find(p => p.id === x.ev.place)?.name ?? '', whenText(g, x.from)), notr: false }));
-    const fe = festivalsAhead(g, w, DAYS_AHEAD).map(x => ({ at: x.day * 1440, kind: 'city', icon: 'sparkles',
+    const fe = festivalsAhead(g, w, DAYS_AHEAD).filter(x => !x.f.adult || adultOn(g)).map(x => ({ at: x.day * 1440, kind: 'city', icon: 'sparkles',
         text: x.day === g.day ? fmt('{0}: today', x.f.name) : fmt('{0}: {1}', x.f.name, x.day === g.day + 1 ? tr('tomorrow') : tr(weekday(x.day))), notr: false }));
     return [...fe, ...ev].sort((a, b) => a.at - b.at);
 }

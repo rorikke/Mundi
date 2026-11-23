@@ -15,7 +15,7 @@
 // price. A second chance begins again one of someone's storylines that didn't end well (`redoThread()` in
 // sim/threads.ts). What the AI hears is a fact, as for anything else that happens.
 // All of it belongs to the `goals` system: with it off the shop is empty.
-import { nowAbs, adultOk, adultOn } from '../core/store.js';
+import { nowAbs, adultOk, adultOn, residentsOf } from '../core/store.js';
 import { systemOn, activeStatuses, placeIs } from '../core/world.js';
 import { rewardsOf, isOwnReward, isSystemNeed, PERSON_KINDS, PIECE_KINDS } from '../core/goals.js';
 import { goalLink } from './hooks.js';
@@ -155,7 +155,7 @@ export function shopItems(g, w) {
 }
 const togetherWith = (g, a) => !!statusOf(g, a, YOU);
 // People you know (not the one you play).
-const known = (g) => Object.values(g.cast).filter(r => r.met && idOf(g, r.avatar) !== YOU);
+const known = (g) => residentsOf(g).filter(r => r.met && idOf(g, r.avatar) !== YOU);
 /** Why the Nudge can't raise this meter for them (null: it can): never past the rules (attraction zero means never,
  *  no romance with family, not while they need some time). */
 export function nudgeWhy(g, w, a, m) {
@@ -282,7 +282,7 @@ function secretAnswer(g, w, a) {
         if (st && !st.known && !st.ended && st.stage >= 0)
             return { key: `thread:${t.id}`, t: '{u} found out {0}\'s secret: {1}.', a: [r.name, trimEnd(t.hidden)], thread: t.id };
     }
-    for (const b of Object.values(g.cast)) {
+    for (const b of residentsOf(g)) {
         if (b.avatar === a || !statusOf(g, a, b.avatar) || !secretCouple(g, w, a, b.avatar) || told(g, a).includes(`couple:${b.avatar}`))
             continue;
         if (levelHolds(g, w, a, 'good') || levelHolds(g, w, b.avatar, 'good'))

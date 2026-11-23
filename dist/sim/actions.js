@@ -22,7 +22,7 @@ import { whenHolds, markDone, doneToday } from './when.js';
 import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef, talkedWith } from './social.js';
 import { playerHomeId } from './places.js';
 import { startRumor } from './living.js';
-import { onLook, privateChecks, privateResults, museumHooks, photoLink } from './hooks.js';
+import { onLook, privateChecks, privateResults, museumHooks, photoLink, industryLink } from './hooks.js';
 import { earn } from './points.js';
 import { sceneAt } from './homerooms.js';
 import { noteActionPic } from './actionbg.js';
@@ -133,8 +133,9 @@ function results(g, w, a, o) {
     practice(g, w, a, ok, roll?.grade === 'critical-success').forEach(m => lines.push({ text: m, kind: 'success' }));
     museumHooks.found(g, w, a, ok, mates, o.began).forEach(m => lines.push({ text: m, kind: 'success' })); // (museum) a piece found
     museumHooks.dug(g, w, a, ok, mates, o.began).forEach(m => lines.push({ text: m, kind: 'success' })); // (nature) a day at a dig
-    // (photography) the engine's photo actions (a shoot for a brief, an edit) and an action that takes a photo
-    const shoot = photoLink.act(g, w, a, mates, o.began);
+    // (photography) the engine's photo actions (a shoot for a brief, an edit) and an action that takes a photo; (adult
+    // industry) the set's (a scene, waiting for your call, skipping to the result: sim/onset.ts)
+    const shoot = photoLink.act(g, w, a, mates, o.began) ?? industryLink.act(g, w, a, mates);
     shoot?.lines.forEach(m => lines.push({ text: m, kind: 'success' }));
     if (a.photo)
         photoLink.photo(g, w, { action: a, ok, mates, ...(roll ? { roll: { total: roll.total, dc: roll.dc } } : {}) }).forEach(m => lines.push({ text: m, kind: 'success' }));

@@ -7,7 +7,7 @@
 // turned down, nothing lost), wanting you (casual partners and partners: they text more, roll +1, the AI is told),
 // frustrated (partners who see you and go too long without a night: romance −1 a day, a want). You learn someone's drive
 // after three nights together. Characters making the move in a scene (X23) live in sim/initiative.ts, with the budget.
-import { nowAbs, adultOn, cfg } from '../core/store.js';
+import { nowAbs, adultOn, cfg, residentIds } from '../core/store.js';
 import { systemOn, activeStatuses } from '../core/world.js';
 import { onHour, onDay, privateChecks, privateResults, intimateLines, zeroDrainMods, gainMods } from './hooks.js';
 import { addStatus, statusDef } from './needs.js';
@@ -146,13 +146,13 @@ onHour.push((g, w) => {
     if (!adultOn(g))
         return [];
     glowHour(g, w);
-    return systemOn(w, 'romance') ? learnDrives(g, Object.keys(g.cast)) : [];
+    return systemOn(w, 'romance') ? learnDrives(g, residentIds(g)) : [];
 });
 // Each day: a frustrated partner's romance toward you drops a point (never below the fading floor).
 onDay.push((g, w) => {
     if (!adultOn(g) || !systemOn(w, 'romance'))
         return [];
-    for (const a of Object.keys(g.cast)) {
+    for (const a of residentIds(g)) {
         if (!frustrated(g, w, a))
             continue;
         const v = ro(g, a, YOU);

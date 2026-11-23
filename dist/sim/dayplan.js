@@ -10,7 +10,7 @@
 // It all comes from the day itself (nothing stored but a story's placement), worked out once per day for everyone and
 // kept until anything it reads changes (who works where, a click, the rules). A job without a schedule, a world
 // without rituals, roles or audiences: nothing here changes, the routine templates play as before.
-import { nowAbs, changes, adultOn } from '../core/store.js';
+import { nowAbs, changes, adultOn, residentsOf } from '../core/store.js';
 import { systemOn, isScenario, offScreenWork, exampleTag, WEEKDAY_IDS } from '../core/world.js';
 import { charOf } from '../st/bridge.js';
 import { onDay, ventureLink } from './hooks.js';
@@ -45,7 +45,10 @@ export function exampleOf(w, r) {
     if (have !== undefined)
         return have;
     const tag = charOf(r.avatar)?.data?.extensions?.mundi?.example;
-    const ex = (tag ? w.cast.examples.find(e => exampleTag(w, e) === tag) : undefined) ?? w.cast.examples.find(e => e.name === r.name) ?? null;
+    const ex = (tag ? w.cast.examples.find(e => exampleTag(w, e) === tag) : undefined) ?? w.cast.examples.find(e => e.name === r.name)
+        // (adult industry) a job-only performer on a set is no example of the world's, but her roster entry has the same
+        // shape (her outfits, `wear` and its `from`), so what she wears follows the same rules
+        ?? (r.onset ? (w.industry?.roster ?? []).find(p => p.name === r.name) : undefined) ?? null;
     m.set(k, ex);
     return ex;
 }
@@ -135,7 +138,7 @@ export function stampOf(g, w) {
         if (same && i === s.sig.length)
             return s;
     }
-    const list = Object.values(g.cast), sig = [];
+    const list = residentsOf(g), sig = [];
     list.forEach((r, i) => sigOf(r, sig, i * SIG));
     const made = { id: ++stamps, w, code, sd, adult, swap, list, sig, rit, vis };
     kept.set(g, made);
@@ -402,7 +405,7 @@ export function seedRanks(g, w) {
     const l = (g.living ??= {});
     l.ranks ??= {};
     l.ranked ??= [];
-    for (const r of Object.values(g.cast)) {
+    for (const r of residentsOf(g)) {
         if (l.ranked.includes(r.avatar))
             continue;
         const ex = exampleOf(w, r), o = jobOf(g, w, r);
