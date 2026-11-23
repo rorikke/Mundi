@@ -72738,7 +72738,23 @@
      }
     ],
     "avatar": "cast/naomi/portrait.webp",
-    "sprites": "cast/naomi/sprites"
+    "sprites": "cast/naomi/sprites",
+    "outfits": {
+     "swim-red": "cast/naomi/swim-red",
+     "home": "cast/naomi/home"
+    },
+    "wear": {
+     "swim-red": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a deep red halter bikini, the top tied behind her neck with a small gold ring between her breasts, matching deep red bikini briefs with gold rings at the hips, her small gold hoop earrings and thin gold chain, her caramel waves loose"
+     },
+     "home": {
+      "kind": "loungewear",
+      "level": 1,
+      "look": "an oversized soft heather-grey knit sweater slipping off one shoulder, its sleeves pushed up, black silk sleep shorts just showing under its hem, her small gold hoop earrings, her caramel waves loose and a little tousled"
+     }
+    }
    }
   ]
  },
