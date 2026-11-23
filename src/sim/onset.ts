@@ -181,7 +181,8 @@ function bringIn(g: Save, w: WorldDef, id: string) {
         const avatar = found ?? (await G.exampleCards(w, [p]))[0];
         if (!avatar) return;
         if (found) await G.examplePictures(w, p, avatar);
-        for (const o of ['robe', 'naked']) if (typeof p.outfits?.[o] === 'string' && (o !== 'naked' || adultOn(g))) await G.uploadOutfit(w, p, avatar, o).catch(() => false);
+        // every outfit her entry names (the robe, a swimsuit, lingerie, the naked set), the adult ones only with adult content on
+        for (const [o, f] of Object.entries(p.outfits ?? {})) if (typeof f === 'string' && (adultOn(g) || (o !== 'naked' && !(p.wear as Record<string, { adult?: boolean }> | undefined)?.[o]?.adult))) await G.uploadOutfit(w, p, avatar, o).catch(() => false);
         const s = liveOf(g);
         brought.add(k);
         if (s && s.roster.includes(id) && setOn(g, w)) { arrive(g, w, s, p, avatar); if (game() === g) await G.syncScene(); }

@@ -42,7 +42,10 @@ export function exampleOf(w: WorldDef, r: Resident): ExampleCharacter | null {
     const have = m.get(k);
     if (have !== undefined) return have;
     const tag = charOf(r.avatar)?.data?.extensions?.mundi?.example;
-    const ex = (tag ? w.cast.examples.find(e => exampleTag(w, e) === tag) : undefined) ?? w.cast.examples.find(e => e.name === r.name) ?? null;
+    const ex = (tag ? w.cast.examples.find(e => exampleTag(w, e) === tag) : undefined) ?? w.cast.examples.find(e => e.name === r.name)
+        // (adult industry) a job-only performer on a set is no example of the world's, but her roster entry has the same
+        // shape (her outfits, `wear` and its `from`), so what she wears follows the same rules
+        ?? (r.onset ? (w.industry?.roster ?? []).find(p => p.name === r.name) : undefined) ?? null;
     m.set(k, ex);
     return ex;
 }
