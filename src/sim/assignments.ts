@@ -148,20 +148,22 @@ export function outfitOk(g: Save, w: WorldDef, name: string, b: BriefDef): boole
     if (adultOutfit(ex, o) && !adultOn(g)) return false;
     return o === 'naked' || typeof ex?.outfits?.[o] === 'string';
 }
-/** Is a brief a promo for one of her titles (Part 4, IQL-3): a brief of the industry's label (its client is a label)
- *  naming one of Tokyo's people who's in the cast of that label's title, not cancelled? Then her agreeing to be
- *  filmed is agreeing to it: her camera rule and private limits don't block it (sim/camera.ts `filmedFor`). */
-const promoFor = (g: Save, w: WorldDef, avatar: string, b: BriefDef) => !!b.subject && !SUBJECT_KINDS.includes(b.subject.who) && !rosterSubject(b.subject.who) && filmedFor(g, w, avatar, { client: b.client });
+/** Is a promo brief (`subject.title`, Part 4, IQL-3) one she can be in now: an adult brief naming one of the world's
+ *  people who's in the cast of one of your titles (that label's, when the client is a label), up to two weeks after
+ *  its release (sim/camera.ts `filmedFor`)? Then her agreeing to be filmed is agreeing to it: her camera rule and
+ *  private limits don't block it. Out of that window the brief isn't offered at all. */
+const promoFor = (g: Save, w: WorldDef, avatar: string, b: BriefDef) => !!b.adult && adultOn(g) && !!b.subject && !SUBJECT_KINDS.includes(b.subject.who) && !rosterSubject(b.subject.who) && filmedFor(g, w, avatar, { client: b.client });
 /** Can this person be in front of the camera for this brief: in the game and not gone, their `camera` rule allowing it
  *  (`never` no; `noface` only from behind; `work` never an adult brief), someone you've met who doesn't shut you out;
  *  for an adult brief also never a minor, nobody you can't have romance with, nobody whose limits rule out photos; the
- *  brief's outfit one they have. A label's promo brief naming someone in the cast of its title (Part 4) isn't held by
- *  their camera rule or limits: being filmed was work they agreed to. */
+ *  brief's outfit one they have. A promo brief (`subject.title`, Part 4) only while they're in the cast of one of your
+ *  titles, and then not held by their camera rule or limits: being filmed was work they agreed to. */
 export function subjectOk(g: Save, w: WorldDef, avatar: string, b: BriefDef): boolean {
     const r = g.cast[avatar];
     if (!r || (r as any).gone || !r.met || shutOut(g, avatar) || r.onset) return false;
     if (!outfitOk(g, w, r.name, b)) return false;
-    const work = b.adult && adultOn(g) && promoFor(g, w, avatar, b);
+    const work = b.subject?.title === true;
+    if (work && !promoFor(g, w, avatar, b)) return false;
     if (!work && !cameraAllows(cameraOf(g, w, avatar), b)) return false;
     if (b.adult && (!adultOn(g) || isMinor(g, avatar) || romanceBlocked(g, avatar) || (!work && !!matchIn(g, PHOTO_LIMITS, limitsOf(g, avatar))))) return false;
     return true;
@@ -188,6 +190,9 @@ export function rosterOk(g: Save, w: WorldDef, p: RosterPerson | undefined, b: B
     if ((p.rank ?? 0) < rankFor(w, b)) return false;
     if (!cameraAllows(p.camera, b)) return false;
     if ((b.adult || clientOf(w, b.client)?.adult) && matchIn(g, PHOTO_LIMITS, (p.intimate?.limits ?? []).filter(s => typeof s === 'string'))) return false;
+    // (a performer only in an outfit she has, her naked set too: the actors have none)
+    const o = b.subject?.outfit;
+    if (o && o !== 'clothes' && typeof p.outfits?.[o] !== 'string') return false;
     return outfitOk(g, w, p.name, b);
 }
 // How well a performer's genres fit a brief: a genre whose name, id or own words (not the camera's) are in the brief's

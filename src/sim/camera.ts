@@ -105,15 +105,21 @@ export const lensWord = (s: string): boolean => same(s).split(' ').some(x => LEN
 export const workWords = (words: string[]): string[] => words.filter(x => !lensWord(x));
 /** Did they agree to be filmed for this title: in its cast (an avatar, or `roster:<id>`), the title not cancelled? */
 export const agreedToFilm = (t: TitleRec | null | undefined, who: string): boolean => !!t && !t.cancelled && (t.cast ?? []).includes(who);
+/** How long after a title's release its promo briefs are still offered (days). */
+export const PROMO_DAYS = 14;
 const titlesHere = (g: Save): TitleRec[] => (((g as any).industry?.titles ?? []) as TitleRec[]);
 /** Is a photo of them work they agreed to, so their camera rule and private limits don't hold it (the industry in play:
  *  its system and adult content)? `title`: the stills of that title (its id or record), when they're in its cast.
- *  `client`: a brief from a label (a photo client whose id is one of the industry's labels), when they're in the cast
- *  of one of that label's titles. Neither: never (Lens briefs and private photos keep their rule). */
+ *  `client`: a promo brief (`subject.title`), when they're in the cast of one of your titles (that label's, when the
+ *  client is one of the industry's labels) from the offer to `PROMO_DAYS` after its release. Neither: never (Lens
+ *  briefs and private photos keep their rule). */
 export function filmedFor(g: Save, w: WorldDef, who: string, x: { title?: string | TitleRec; client?: string }): boolean {
     if (!who || who === YOU || !w.industry || !systemOn(w, 'industry') || !adultOn(g)) return false;
     if (x.title) { const t = typeof x.title === 'string' ? titlesHere(g).find(r => r.id === x.title) : x.title; if (agreedToFilm(t, who)) return true; }
-    if (x.client && (w.industry.labels ?? []).some(l => l.id === x.client)) return titlesHere(g).some(t => t.label === x.client && agreedToFilm(t, who));
+    if (x.client !== undefined) {
+        const label = (w.industry.labels ?? []).some(l => l.id === x.client);
+        return titlesHere(g).some(t => (!label || t.label === x.client) && agreedToFilm(t, who) && (t.q === undefined || g.day <= t.release + PROMO_DAYS));
+    }
     return false;
 }
 
