@@ -79,7 +79,7 @@ function pic(x: any): ScenePic | null {
     const p = obj(x); const who = id(p?.who), file = str(p?.file);
     if (!who || !file) return null;
     const out: ScenePic = { who, file };
-    set(out, 'genre', id(p.genre)); set(out, 'words', strs(p.words));
+    set(out, 'with', ids(p.with)); set(out, 'genre', id(p.genre)); set(out, 'words', strs(p.words));
     return out;
 }
 

@@ -1618,8 +1618,9 @@ export interface SetDef { id: string; name: string; place?: string; zone?: strin
 /** (adult industry) A job-only performer: an ExampleCharacter's art and profile, never one of the world's people (in
  *  the cast only on a set), with a rank of their own (0–4), genres, the day they debut and the job stories about them. */
 export interface RosterPerson extends ExampleCharacter { id: string; rank?: number; genres?: string[]; debut?: number; stories?: string[] }
-/** (adult industry) A drawn picture of a scene: whose, for which genre or scene words, and the file. */
-export interface ScenePic { who: string; genre?: string; words?: string[]; file: string }
+/** (adult industry) A drawn picture of a scene: whose, for which genre or scene words, and the file. `with`: everyone
+ *  drawn in it (the same ids as `who`), all of whom must be in the scene for it to show. */
+export interface ScenePic { who: string; with?: string[]; genre?: string; words?: string[]; file: string }
 /** (adult industry) The AV job as a system of its own (sim/industry.ts and beside it; core/industry.ts cleans it). */
 export interface IndustryDef {
     /** the occupation on bookings */

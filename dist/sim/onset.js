@@ -457,16 +457,16 @@ function picIds(g, w, x) {
     const name = castName(g, w, x).toLowerCase();
     return [...new Set([name, name.split(/\s+/)[0], name.replace(/\s+/g, '')])].filter(Boolean);
 }
-/** The drawn picture a scene shows: one of `w.industry.pictures` of a co-star in it (never you) for the title's genre
- *  or matching the scene's words (a picture naming neither fits any scene of theirs), the least shown first. Undefined:
- *  none (the cover only). */
+/** The drawn picture a scene shows: one of `w.industry.pictures` of a co-star in it (never you), with everyone else it
+ *  draws (`with`) in the scene too, for the title's genre or matching the scene's words (a picture naming neither fits
+ *  any scene of theirs), the least shown first. Undefined: none (the cover only). */
 export function pickPicture(g, w, t, sc) {
     const pics = w.industry?.pictures ?? [];
     if (!pics.length || !adultOn(g))
         return undefined;
     const ids = new Set(others(sc).flatMap(x => picIds(g, w, x)));
     const words = wordsOf(w, t, sc);
-    const fit = pics.filter(p => ids.has(p.who.toLowerCase()) && ((!p.genre && !p.words?.length) || p.genre === t.genre || (!!p.words?.length && !!matchIn(g, words, p.words))));
+    const fit = pics.filter(p => ids.has(p.who.toLowerCase()) && (p.with ?? []).every(x => ids.has(x.toLowerCase())) && ((!p.genre && !p.words?.length) || p.genre === t.genre || (!!p.words?.length && !!matchIn(g, words, p.words))));
     if (!fit.length)
         return undefined;
     const shown = peekOnset(g)?.shown ?? {};

@@ -99,6 +99,7 @@ function pic(x) {
     if (!who || !file)
         return null;
     const out = { who, file };
+    set(out, 'with', ids(p.with));
     set(out, 'genre', id(p.genre));
     set(out, 'words', strs(p.words));
     return out;
