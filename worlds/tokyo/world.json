@@ -39330,7 +39330,7 @@
    "sound": [
     "office"
    ],
-   "bg": "bg/bay_tv.avif"
+   "bg": "bg/ws_kurobara.avif"
   },
   {
    "id": "ws_rental_house",
@@ -39358,7 +39358,11 @@
    "sound": [
     "birds"
    ],
-   "bg": "bg/home-family.avif"
+   "bg": "bg/ws_rental_house.avif",
+   "bgs": {
+    "afternoon": "bg/ws_rental_house-afternoon.avif",
+    "night": "bg/ws_rental_house-night.avif"
+   }
   },
   {
    "id": "ak_electric",
@@ -72734,7 +72738,23 @@
      }
     ],
     "avatar": "cast/naomi/portrait.webp",
-    "sprites": "cast/naomi/sprites"
+    "sprites": "cast/naomi/sprites",
+    "outfits": {
+     "swim-red": "cast/naomi/swim-red",
+     "home": "cast/naomi/home"
+    },
+    "wear": {
+     "swim-red": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a deep red halter bikini, the top tied behind her neck with a small gold ring at its centre, matching deep red bikini briefs with gold rings at the hips, her small gold hoop earrings and thin gold chain, her caramel waves loose"
+     },
+     "home": {
+      "kind": "loungewear",
+      "level": 1,
+      "look": "an oversized soft heather-grey knit sweater slipping off one shoulder, its sleeves pushed up, black silk sleep shorts just showing under its hem, her small gold hoop earrings, her caramel waves loose and a little tousled"
+     }
+    }
    }
   ]
  },
@@ -93105,7 +93125,23 @@
      "drive": "average"
     },
     "avatar": "cast/rs_glam/portrait.webp",
-    "sprites": "cast/rs_glam/sprites"
+    "sprites": "cast/rs_glam/sprites",
+    "outfits": {
+     "robe": "cast/rs_glam/robe",
+     "swim-wine": "cast/rs_glam/swim-wine"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     },
+     "swim-wine": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a wine-red one-piece swimsuit with a deep V neckline and thin straps, cut high at the hips, her diamond drop earrings, red nails, her curls swept over one shoulder"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93151,7 +93187,17 @@
      "drive": "average"
     },
     "avatar": "cast/rs_rookie/portrait.webp",
-    "sprites": "cast/rs_rookie/sprites"
+    "sprites": "cast/rs_rookie/sprites",
+    "outfits": {
+     "robe": "cast/rs_rookie/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93196,7 +93242,23 @@
      "drive": "high"
     },
     "avatar": "cast/rs_mature/portrait.webp",
-    "sprites": "cast/rs_mature/sprites"
+    "sprites": "cast/rs_mature/sprites",
+    "outfits": {
+     "robe": "cast/rs_mature/robe",
+     "swim-navy": "cast/rs_mature/swim-navy"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     },
+     "swim-navy": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a navy satin one-piece swimsuit with a deep V neckline and a sash tied in a bow at one hip, bare shoulders, her pearl drop earrings, her dark-brown hair in its low chignon"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93238,7 +93300,17 @@
      "drive": "high"
     },
     "avatar": "cast/rs_gyaru/portrait.webp",
-    "sprites": "cast/rs_gyaru/sprites"
+    "sprites": "cast/rs_gyaru/sprites",
+    "outfits": {
+     "robe": "cast/rs_gyaru/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93284,7 +93356,23 @@
      "drive": "high"
     },
     "avatar": "cast/rs_nordic/portrait.webp",
-    "sprites": "cast/rs_nordic/sprites"
+    "sprites": "cast/rs_nordic/sprites",
+    "outfits": {
+     "robe": "cast/rs_nordic/robe",
+     "swim-white": "cast/rs_nordic/swim-white"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     },
+     "swim-white": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a simple white triangle bikini with thin ties at the hips and neck, her small silver hoop earrings, her pale-golden hair loose"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93326,7 +93414,17 @@
      "drive": "average"
     },
     "avatar": "cast/rs_cosplay/portrait.webp",
-    "sprites": "cast/rs_cosplay/sprites"
+    "sprites": "cast/rs_cosplay/sprites",
+    "outfits": {
+     "robe": "cast/rs_cosplay/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93369,7 +93467,17 @@
      "drive": "high"
     },
     "avatar": "cast/rs_shy/portrait.webp",
-    "sprites": "cast/rs_shy/sprites"
+    "sprites": "cast/rs_shy/sprites",
+    "outfits": {
+     "robe": "cast/rs_shy/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93414,7 +93522,23 @@
      "drive": "average"
     },
     "avatar": "cast/rs_gravure/portrait.webp",
-    "sprites": "cast/rs_gravure/sprites"
+    "sprites": "cast/rs_gravure/sprites",
+    "outfits": {
+     "robe": "cast/rs_gravure/robe",
+     "swim-yellow": "cast/rs_gravure/swim-yellow"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     },
+     "swim-yellow": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a bright sunny-yellow triangle bikini with thin ties at the hips, her small gold hoop earrings, her black waves loose"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93457,7 +93581,17 @@
      "drive": "average"
     },
     "avatar": "cast/rs_idol/portrait.webp",
-    "sprites": "cast/rs_idol/sprites"
+    "sprites": "cast/rs_idol/sprites",
+    "outfits": {
+     "robe": "cast/rs_idol/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "woman",
@@ -93504,7 +93638,17 @@
      "drive": "high"
     },
     "avatar": "cast/rs_queen/portrait.webp",
-    "sprites": "cast/rs_queen/sprites"
+    "sprites": "cast/rs_queen/sprites",
+    "outfits": {
+     "robe": "cast/rs_queen/robe"
+    },
+    "wear": {
+     "robe": {
+      "kind": "robe",
+      "level": 2,
+      "look": "a short white cotton bathrobe from the set, tied at the waist"
+     }
+    }
    },
    {
     "gender": "man",
