@@ -5318,6 +5318,9 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-pf-tabs button.is-on { background: var(--accent) !important; color: #fff; }
 /* in a section (Profile, Goals, Collection…) the header is taller: its tabs sit under it */
 #mundi-root .mu-ph-screen:has(.mu-sec-tabs) .mu-pf-tabs { top: 96px; }
+/* unfolded, a section's open app scrolls in its own pane with the header outside it: an offset there would push the
+   tabs down over the content (Jobs' Your job / Openings) */
+#mundi-root .mu-ph-screen .mu-sec-split .mu-pf-tabs { top: 0; }
 /* the medieval journal: paper */
 #mundi-root .mu-book .mu-pf-tabs { position: static; background: transparent; border-color: rgba(90, 60, 30, .35); -webkit-backdrop-filter: none; backdrop-filter: none; }
 #mundi-root .mu-book .mu-pf-tabs button { color: #4a3322 !important; font-family: inherit; }
