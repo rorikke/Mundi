@@ -16,6 +16,7 @@
 #mundi-root .mu-take-line { display: grid; gap: 1px; margin: 0 2px; }
 #mundi-root .mu-take-line small { opacity: .8; }
 #mundi-root .mu-take-why { color: var(--warn, #e0a040); }
+#mundi-root .mu-take-risk { color: var(--warn, #e0a040); }
 #mundi-root .mu-take-btns { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 #mundi-root .mu-take-btns:empty { display: none; }
 #mundi-root .mu-take-btns button small { display: block; font-size: 11px; font-weight: 400; opacity: .75; }

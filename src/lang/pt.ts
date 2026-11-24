@@ -12285,6 +12285,8 @@ const DICT: Record<string, string> = {
  "Someone saw the crew setting up at {0}: the shoot for \"{1}\" is stopped.": "Alguém viu a equipe montando o set em {0}: a filmagem de \"{1}\" foi interrompida.",
  "{0} is closed to shoots for {1} days.": "{0} está fechado para filmagens por {1} dias.",
  "{0} is closed to shoots this week: the shoot for \"{1}\" is called off.": "{0} está fechado para filmagens esta semana: a filmagem de \"{1}\" foi cancelada.",
+ // a risky set on an offer (ui/takeui.ts)
+ "A risky set: a {0}% chance of being caught at the call, and the shoot stopped": "Um set arriscado: {0}% de chance de você ser flagrado na chamada, e a filmagem interrompida",
  // the label's commissioned titles apart in Take (ui/takeui.ts)
  "Made for your label": "Feitos para o seu selo",
  "1 title your label commissioned, shot without you": "1 título encomendado pelo seu selo, filmado sem você",

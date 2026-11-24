@@ -33,7 +33,7 @@ import { fr, YOU } from './rel.js';
 import { FRIEND_TIERS, shutOut } from './romance.js';
 import { isMinor } from './family.js';
 import { genderOf } from './gender.js';
-import { rollBonus, rollD20 } from './dice.js';
+import { rollBonus, rollD20, riskRoll } from './dice.js';
 import { npcRank } from './longlife.js';
 import { placeOf } from './places.js';
 import { atHomeNow, photoOn, peekPhoto, briefOf, photoById, type Taken } from './photo.js';
@@ -70,6 +70,9 @@ export const TITLES = {
     search: 10, choices: 3,
     /** the star-producer's own brief: one every this many weeks (L: every week put her branch above a name director's) */
     ownEvery: 2,
+    /** the chance an offer or brief names a risky set (one with a `risk`) instead of the label's: one suiting its genre
+     *  (the beach after dark for On location), any other */
+    risky: { fits: 0.15, other: 0.02 },
 };
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15; return (h >>> 0) / 4294967296; };
 function pickW<T>(list: T[], weight: (x: T) => number, r: number): T | undefined {
@@ -176,11 +179,21 @@ function genreFor(g: Save, w: WorldDef, label: LabelDef, salt: string): GenreDef
     const pool = own.length ? own : genresOf(w), mine = topGenres(g), t = peekIndustry(g).trend, now = t.month === monthOf(g);
     return pickW(pool, x => (now && t.hot.includes(x.id) ? TITLES.hotPick : now && t.cold === x.id ? TITLES.coldPick : 1) * (mine.includes(x.id) ? TITLES.minePick : 1), H(salt));
 }
-/** Where a label shoots a genre: its own set, else one suiting the genre, else the first; one with a place first. */
+/** Where a label shoots a genre: its own set, else one suiting the genre, else the first; one with a place first, never
+ *  a risky one unless it's all there is (those come only by `offerSet`'s roll or a brief planned there). */
 export function setFor(w: WorldDef, label: LabelDef | undefined, genre: GenreDef | undefined): SetDef | undefined {
-    const sets = setsOf(w), placed = sets.filter(s => s.place);
+    const sets = setsOf(w), placed0 = sets.filter(s => s.place), safe = placed0.filter(s => !((Number(s.risk) || 0) > 0)), placed = safe.length ? safe : placed0;
     const own = label?.set ? setOf(w, label.set) : undefined;
     return (own?.place ? own : undefined) ?? placed.find(s => !!genre && (s.genres ?? []).includes(genre.id)) ?? placed[0] ?? own ?? sets[0];
+}
+/** The set an offer or brief names: where its label shoots the genre (`setFor`), or now and then a risky set at a place
+ *  (one with a `risk`: caught there, the shoot is stopped), more often one suiting the genre. */
+export function offerSet(w: WorldDef, label: LabelDef | undefined, genre: GenreDef | undefined, salt: string): SetDef | undefined {
+    const base = setFor(w, label, genre);
+    const risky = setsOf(w).filter(s => (Number(s.risk) || 0) > 0 && setPlace(w, s) && s.id !== base?.id);
+    if (!risky.length) return base;
+    const fits = risky.filter(s => !!genre && (s.genres ?? []).includes(genre.id)), pool = fits.length ? fits : risky;
+    return H(`${salt}|risky`) < (fits.length ? TITLES.risky.fits : TITLES.risky.other) ? pool[Math.floor(H(`${salt}|risky|set`) * pool.length)] : base;
 }
 /** The place a set's shoot is at ('' none: an off-screen shoot, begun wherever you are). */
 export const setPlace = (w: WorldDef, set: SetDef | undefined) => (set?.place && w.places.some(p => p.id === set.place) ? set.place : '');
@@ -261,7 +274,7 @@ export function offersAWeek(g: Save, w: WorldDef): number {
 export function drawOffer(g: Save, w: WorldDef, kind: 'title' | 'brief', label: LabelDef, salt: string, own = false): Offer | null {
     const genre = genreFor(g, w, label, `${salt}|g`);
     if (!genre) return null;
-    const set = setFor(w, label, genre), st = industryOf(g);
+    const set = offerSet(w, label, genre, salt), st = industryOf(g);
     const name = titleName(g, w, `${salt}|name`);
     if (kind === 'brief') {
         const star = own ? undefined : H(`${salt}|star`) < 1 / 3 ? rosterNow(g, w).filter(p => (p.genres ?? []).includes(genre.id) || !p.genres?.length)[0]?.id : undefined;
@@ -864,7 +877,7 @@ function chartHolds(g: Save, v: string): { ok: boolean; n: number; seat?: string
 /* ---------- views for the Take app ---------- */
 
 export interface SceneView { kind: string; with: string[]; grade?: string; q?: number; parts?: { name: string; add: number }[]; pic?: string }
-export interface OfferCard { id: number; kind: Offer['kind']; label: string; genre: string; name: string; set: string; fee: number; until: number; days: number; scenes: SceneView[]; cast: string[]; dropped: string[]; star?: string; own?: boolean; result?: string; amount?: number; can: boolean; why?: string }
+export interface OfferCard { id: number; kind: Offer['kind']; label: string; genre: string; name: string; set: string; fee: number; until: number; days: number; scenes: SceneView[]; cast: string[]; dropped: string[]; star?: string; own?: boolean; result?: string; amount?: number; can: boolean; why?: string; /** a risky set: the chance of being caught at the call (0–1, its `risk` effects counted) */ risk?: number }
 export interface OffersView { on: boolean; seat: Seat | null; offers: OfferCard[]; testDue: boolean; testNext: number; limits: string[]; hot: string[]; cold: string; perWeek: number; contract?: { label: string; since: number; fee: number }; fans: number }
 export interface TitleCard { id: string; name: string; label: string; genre: string; you: Seat[]; cast: string[]; set: string; place: string; scenes: SceneView[]; contract: number; shoot: number; release: number; q?: number; edited?: number; cut?: number; sold: number; weeks: number; lastWeek: number; peak?: number; charts: number; fee: number; cancelled: boolean;
     state: 'waiting' | 'shoot' | 'edit' | 'coming' | 'out' | 'done' | 'cancelled'; days: number[]; canEdit: boolean; canCancel: boolean }
@@ -880,11 +893,12 @@ const scenesView = (g: Save, w: WorldDef, list: TitleScene[]): SceneView[] => li
 export function offersView(g: Save, w: WorldDef): OffersView {
     const st = peekIndustry(g), seats = seatsNow(g, w), seat = seats.find(s => s !== 'label') ?? (seats.includes('label') ? 'label' : null);
     const t = st.trend, now = t.month === monthOf(g), c = st.seats.perform?.contract;
+    const riskOf = (o: Offer) => { const set = setOf(w, o.set), risk = Number(set?.risk) || 0; return set && risk > 0 ? { risk: riskRoll(g, w, { id: set.id, tags: ['set', 'work', o.genre ?? ''], risk }, () => 1).chance } : {}; };
     const offers = industryOn(g, w) ? st.offers.map((o): OfferCard => {
         const why = o.kind === 'title' && testDue(g) ? 'Your monthly test is overdue.' : o.kind === 'title' && !inIndustry(g, w) ? 'Not while you are out of the job.' : '';
         return { id: o.id, kind: o.kind, label: labelOf(w, o.label)?.name ?? '', genre: genreOf(w, o.genre)?.name ?? '', name: o.name ?? '', set: setOf(w, o.set)?.name ?? '', fee: o.fee ?? 0, until: o.until, days: Math.max(0, o.until - g.day),
             scenes: scenesView(g, w, o.scenes ?? []), cast: (o.cast ?? []).map(x => performerName(g, w, x)), dropped: o.dropped ?? [], ...(o.star ? { star: rosterPerson(w, o.star)?.name ?? '' } : {}), ...(o.own ? { own: true } : {}),
-            ...(o.result ? { result: o.result } : {}), ...(o.amount !== undefined ? { amount: o.amount } : {}), can: !why, ...(why ? { why } : {}) };
+            ...(o.result ? { result: o.result } : {}), ...(o.amount !== undefined ? { amount: o.amount } : {}), can: !why, ...(why ? { why } : {}), ...riskOf(o) };
     }) : [];
     return { on: industryOn(g, w), seat, offers, testDue: inIndustry(g, w) && testDue(g), testNext: testNext(g), limits: [...st.limits], hot: now ? t.hot.map(id => genreOf(w, id)?.name ?? id) : [], cold: now ? genreOf(w, t.cold)?.name ?? '' : '',
         perWeek: offersAWeek(g, w), ...(c ? { contract: { label: labelOf(w, c.label)?.name ?? c.label, since: c.since, fee: c.fee } } : {}), fans: st.seats.perform?.fans ?? 0 };

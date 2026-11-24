@@ -114,6 +114,7 @@ const rawOffer = (g: Save, id: number): Offer | undefined => peekIndustry(g).off
 function offerTop(w: WorldDef, c: OfferCard, what: string): string {
     return `<header class="mu-take-label"><b data-notr>${esc(c.label)}</b>${c.genre ? `<small data-notr>${esc(c.genre)}</small>` : ''}</header>
         <b class="mu-take-name" data-notr>${esc(c.name)}</b>${c.set ? `<small>${W(c.set)}</small>` : ''}
+        ${c.risk ? `<small class="mu-take-risk">${esc(`A risky set: a ${n(Math.max(1, num(c.risk) * 100))}% chance of being caught at the call, and the shoot stopped`)}</small>` : ''}
         <small class="mu-take-pay">${esc(what.replace('{0}', money(w, num(c.fee))))} · ${esc(c.days <= 0 ? 'Last day to answer' : plural(c.days, 'Kept 1 more day', 'Kept {0} more days'))}</small>`;
 }
 function titleOffer(g: Save, w: WorldDef, c: OfferCard): string {
