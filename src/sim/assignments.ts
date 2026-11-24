@@ -8,7 +8,7 @@
 // comes from the views at the end. Freelance work (sim/freelance.ts) and photobooks (sim/photobooks.ts) hook in through
 // `afterDelivery`/`afterMissed`/`youParts`, so this file imports neither.
 import { adultOn, nowAbs, type Save, type Resident, residentsOf } from '../core/store.js';
-import { systemOn, WEEKDAY_IDS, type WorldDef, type BriefDef, type PhotoClient, type ActionDef } from '../core/world.js';
+import { systemOn, WEEKDAY_IDS, personPictures, type WorldDef, type BriefDef, type PhotoClient, type ActionDef } from '../core/world.js';
 import { cameraAllows, BRIEF_DAYS, BRIEF_DC, BRIEF_HOURS, BRIEF_REP, ANY_STUDIO } from '../core/photo.js';
 import { onDay, onHour, onAction, photoLink, sceneLines, engineActions } from './hooks.js';
 import {
@@ -413,6 +413,7 @@ const windowHolds = (g: Save, w: WorldDef, b: BriefDef, at = nowAbs(g)) => !b.wi
 export function shootWhy(g: Save, w: WorldDef, t: Taken, at = nowAbs(g)): string {
     const b = briefOf(w, t.brief);
     if (!b || !photoOn(w)) return 'Gone.';
+    if (bookedOnSet(g, t)) return 'Shot on set: take the stills during the shoot.';
     const day = Math.floor(at / 1440);
     if (t.shot?.redo) return 'Already shot twice.';
     if (t.shot && (day > t.due || t.shot.day !== day && !windowHolds(g, w, b, at))) return 'The window for a second try is gone.';
@@ -505,6 +506,52 @@ export function shootNow(g: Save, w: WorldDef, id: number, began = nowAbs(g), rn
     const ai = `{{user}} spends ${HOURS_WORDS[b.hours ?? BRIEF_HOURS] ?? 'a while'} shooting ${subject} for ${c.name}'s "${b.name}" at ${placeName}${b.subject?.expr && b.subject.expr !== 'back' ? `; the brief wants ${b.subject.expr}` : ''}. It goes ${howWords(t.shot.q)}${best.length && t.shot.q >= 55 ? ` (${best.join(', ')} helping)` : ''}.${!ok && who.length ? ` ${who[0].name} looks ${expr === 'nervousness' ? 'nervous' : 'self-conscious'} in front of the camera.` : ''}`;
     p.last = { at: nowAbs(g), line: ai, place: placeId };
     return { lines, ai };
+}
+
+/* ---------- stills on set (plans/industry-lens.md Part 1) ---------- */
+
+// A brief that booked you onto a title's stills seat (sim/titles.ts: the title's `stills` is the taken brief's id; read
+// from the save as sim/onset.ts reads titles, so this file needs nothing of the industry's).
+const bookedOnSet = (g: Save, t: Taken) => ((g as any).industry?.titles ?? []).some((x: { stills?: number }) => x.stills === t.id);
+// Does a still show what a brief's subject asks for: the person (a name, `roster:<id>`, `roster`; anyone for `client`
+// or `cast`) in the outfit (none: anything; `clothes`: their own; else that outfit, or one of that kind)?
+function stillFits(w: WorldDef, b: BriefDef, rec: PhotoRec): boolean {
+    const sub = b.subject, who = rec.who ?? [];
+    if (!sub) return who.length > 0;
+    const roster = w.industry?.roster ?? [];
+    const person = (name: string) => {
+        if (sub.who === 'client' || sub.who === 'cast') return true;
+        if (sub.who === 'roster') return roster.some(p => p.name === name);
+        if (sub.who.startsWith('roster:')) return roster.find(p => p.id === sub.who.slice(7))?.name === name;
+        return sub.who.toLowerCase() === name.toLowerCase();
+    };
+    const dressed = (h: { name: string; outfit?: string }) => {
+        const o = sub.outfit;
+        if (!o) return true;
+        if (o === 'clothes') return !h.outfit;
+        return h.outfit === o || (!!h.outfit && personPictures(w, h.name)?.wear?.[h.outfit]?.kind === o);
+    };
+    return who.some(h => h.expr !== 'back' && person(h.name) && dressed(h));
+}
+/** A still taken on set (sim/onset.ts) shoots the briefs that want it: the brief that booked you onto this title, and
+ *  any other open brief of the title's label (its art department is the client) whose subject and outfit the still
+ *  shows (the add-on's back cover in the naked set, a cover in lingerie). The better shot is kept, as a second try
+ *  keeps it; a new one undoes the edit. Delivered from the phone as every brief. Lines. */
+export function stillsShot(g: Save, w: WorldDef, title: { id: string; label: string; stills?: number }, rec: PhotoRec, shot: Shot): string[] {
+    if (!photoOn(w)) return [];
+    const out: string[] = [], day = Math.floor(nowAbs(g) / 1440);
+    for (const t of peekPhoto(g).open) {
+        const b = briefOf(w, t.brief), c = b && clientOf(w, b.client);
+        if (!b || !c || ((b.adult || c.adult) && !adultOn(g)) || day > t.due + PHOTO_RULES.grace) continue;
+        const booked = title.stills === t.id;
+        if (!booked && (b.client !== title.label || bookedOnSet(g, t) || t.lane === 'wedding' || !stillFits(w, b, rec))) continue;
+        if (t.shot && t.shot.q >= shot.q) continue;
+        t.shot = { ...shot, parts: [...shot.parts] };
+        delete t.edited; delete t.editParts;
+        out.push(`${c.name}'s "${b.name}": a still to deliver (quality ${shot.q}).`);
+    }
+    if (out.length) trimPhotos(g);
+    return out;
 }
 
 /* ---------- editing ---------- */
