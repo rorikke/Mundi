@@ -288,16 +288,19 @@ export const ventureReport = report;
 
 /* ---------- tiers, milestones and styles ---------- */
 
-/** What the next tier asks (its milestone, on the current tier): an upgrade owned, a story seen, a condition; null at
+/** What the next tier asks (its milestone, on the current tier): an upgrade owned, a story seen, a condition, or its
+ *  `or` alone; null at
  *  the last tier, or for an executive's division (its tiers are ranks). */
-export function milestoneOf(g: Save, w: WorldDef, s: VentureState): { next: TierDef; upgrade?: { u: UpgradeDef; owned: boolean }; story?: { id: string; seen: boolean }; when?: boolean; ready: boolean } | null {
+export function milestoneOf(g: Save, w: WorldDef, s: VentureState): { next: TierDef; upgrade?: { u: UpgradeDef; owned: boolean }; story?: { id: string; seen: boolean }; when?: boolean; or?: boolean; ready: boolean } | null {
     const d = live(g, w, s); if (!d || d.track === 'exec' || s.tier >= d.tiers.length) return null;
     const m = tierOf(d, s.tier).milestone ?? {}, next = d.tiers[s.tier];
     const u = m.upgrade ? d.upgrades?.find(x => x.id === m.upgrade) : undefined;
     const upgrade = u ? { u, owned: s.owned.includes(u.id) } : undefined;
     const story = m.story ? { id: m.story, seen: whenHolds(g, w, `seen: ${m.story}`) } : undefined;
     const when = m.when ? whenHolds(g, w, m.when, { place: s.place, key: `milestone|${s.id}|${s.tier}` }) : undefined;
-    return { next, upgrade, story, when, ready: (!upgrade || upgrade.owned) && (!story || story.seen) && when !== false };
+    // (`or`: another way there, holding alone: a label's titles of your own for it instead of the upgrade)
+    const or = m.or ? whenHolds(g, w, m.or, { place: s.place, key: `milestone-or|${s.id}|${s.tier}` }) : undefined;
+    return { next, upgrade, story, when, ...(or !== undefined ? { or } : {}), ready: or === true || ((!upgrade || upgrade.owned) && (!story || story.seen) && when !== false) };
 }
 /** A new tier set from outside (an executive's division follows your rank): what upgrades held back counts now. */
 export function retier(g: Save, w: WorldDef, s: VentureState, tier: number) { if (s.tier === tier) return; s.tier = tier; catchUp(g, w, s); }

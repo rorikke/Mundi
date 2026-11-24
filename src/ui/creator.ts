@@ -801,7 +801,7 @@ function tierRows(w: WorldDef, p: string, v: VentureDef) {
     const job = v.job ? w.occupations.find(o => o.id === v.job) : undefined;
     const ranks = (job?.ranks ?? []).filter(r => r.beyond).map(r => [r.name, r.name] as Opt);
     const ups = upgradeOpts(w, v), stories = storyOpts(w), sym = esc(w.currency.symbol), hotel = hotelish(v);
-    return `<h4>Tiers</h4><p class="mu-muted">Each tier holds its numbers under a ceiling; its milestone (an upgrade owned, a story seen, a condition: all that are set) opens the next.</p>
+    return `<h4>Tiers</h4><p class="mu-muted">Each tier holds its numbers under a ceiling; its milestone (an upgrade owned, a story seen, a condition: all that are set, or its other way alone) opens the next.</p>
         ${v.tiers.map((t, k) => { const q = `${p}.tiers.${k}`, share = !!v.ways?.partner || t.share != null;
             return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">Tier ${k + 1}</b>${idTag(t.id)}<span class="mu-cw-spacer"></span>
                     ${v.tiers.length > 1 ? `<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove this tier">${icon('x')}</button>` : ''}</div>
@@ -814,7 +814,7 @@ function tierRows(w: WorldDef, p: string, v: VentureDef) {
                 ${area('What it is (told to the AI)', `${q}.desc`, 2)}
                 ${k < v.tiers.length - 1 || t.milestone ? `<span class="mu-cw-sub">The milestone to the next tier</span>
                     <div class="mu-row2">${sel('An upgrade owned', `${q}.milestone.upgrade`, withCur([['', '(none)'], ...ups], t.milestone?.upgrade), 'opt')}${sel('A story seen', `${q}.milestone.story`, withCur([['', '(none)'], ...stories], t.milestone?.story), 'opt')}</div>
-                    ${cond('A condition', `${q}.milestone.when`, 'season: winter')}` : ''}</div>`; }).join('')}
+                    ${cond('A condition', `${q}.milestone.when`, 'season: winter')}${cond('Or instead (optional): a condition that opens the next tier alone', `${q}.milestone.or`, 'titles: label 8; chart: label top 10')}` : ''}</div>`; }).join('')}
         ${addBtn('vtier', `${p}.tiers`, 'Add a tier')}`;
 }
 function styleRows(w: WorldDef, p: string, v: VentureDef) {
