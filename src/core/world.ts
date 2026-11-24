@@ -800,6 +800,10 @@ export interface IntimatePool { prefs?: string[]; limits?: string[] }
 /** One of a world's genders: `pronouns` and the `plural` ("women") are what the AI is told. */
 export interface GenderDef { id: string; name: string; plural?: string; pronouns?: string }
 export const exampleTag = (w: WorldDef, ex: ExampleCharacter) => `${ex.from ?? w.id}:${ex.name}`;
+/** Whose pictures (sprites, outfits) to draw for someone by name: one of the world's people, else a performer of the
+ *  adult industry's roster (not one of the world's people, drawn the same way: photos, covers). */
+export const personPictures = (w: WorldDef, name: string): ExampleCharacter | undefined =>
+    (w.cast?.examples ?? []).find(e => e.name === name) ?? (w.industry?.roster ?? []).find(p => p.name === name);
 /** A phone app: which one (`id`), and how it is called and looks in this world. */
 export interface AppDef { id: string; name: string; icon: string; color: string; on: boolean; rpg?: boolean; /** shown only with adult content on (the phone checks) */ adult?: boolean }
 /** A lore entry: keyed (in the lorebook, sent when a key word comes up), or with `when` (sent with the scene while the
@@ -1110,9 +1114,11 @@ export interface BriefDef {
     when?: When; book?: string; adult?: boolean;
 }
 /** (photography) Who is in front of the camera: a person by name, `couple` (a wedding's two), `cast` (someone the
- *  board picks among the people you know), `client` (an anonymous one); the expression wanted (one of the 28, `back`:
- *  from behind), the outfit, whether they're asked first, and the scene's words for the AI. */
-export interface SubjectDef { who: string; expr?: string; outfit?: 'clothes' | 'naked'; consent?: boolean; scene?: string }
+ *  board picks among the people you know), `client` (an anonymous one), `roster:<id>` (a performer of the adult
+ *  industry's roster) or `roster` (one whose genres and rank fit the brief); the expression wanted (one of the 28,
+ *  `back`: from behind), the outfit (`clothes`, `naked` or any outfit the person has: `robe`, `lingerie`, `swim-red`…),
+ *  whether they're asked first, and the scene's words for the AI. */
+export interface SubjectDef { who: string; expr?: string; outfit?: string; consent?: boolean; scene?: string }
 /** (photography) A photobook a publisher can offer: a city, a person (`who`) or a season; `briefs` to shoot (3–5);
  *  `pay`: weekly royalties by sales at the start, fading to nothing over `weeks`; `ai`: what the AI is told once out;
  *  `when`: only offered while this holds (a season book's season, an idol's book through her storyline's hook). */
