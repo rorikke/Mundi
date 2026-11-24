@@ -339,7 +339,7 @@ onAction.push((g, w, a) => {
 
 /* ---------- what the AI is told ---------- */
 
-const SEAT_WORDS: Record<Seat, string> = { perform: 'work in adult video', direct: 'directing adult video', label: 'adult video label' };
+const SEAT_WORDS: Record<Seat, string> = { perform: 'work in adult video', direct: 'directing adult video', label: 'adult video label', stills: 'stills photography for adult video' };   // (stills: never a stance's seat, activeSeat)
 /** For each person here who knows: their stance in words ("Kaho is uneasy about {{user}}'s work in adult video"), and
  *  an ex who left over it once it has lifted. */
 export function stanceLines(g: Save, w: WorldDef, present: Resident[]): string[] {

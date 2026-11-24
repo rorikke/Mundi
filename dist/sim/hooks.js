@@ -134,8 +134,10 @@ export const kindEarn = [];
 // (adult industry) The set (sim/onset.ts fills `setLink` in; sim/titles.ts calls it on a shoot day). `start`: the call
 // time has come: the roster performers arrive on set, and the scenes can be played; its lines. `current`: the shoot
 // being played now, or null. `wrap`: the shoot ends (all scenes played or skipped, or you left the set): performers
-// leave, its lines; the title's scenes then hold their `q`, `grade`, `parts` and `pic`.
-export const setLink = { start: () => [], current: () => null, wrap: () => [] };
+// leave, its lines; the title's scenes then hold their `q`, `grade`, `parts` and `pic`. `visit`: a photo call (a
+// brief's roster subject, plans/industry-lens.md Part 2) brings a roster performer to a place for a window, the way
+// she comes on set; nobody comes until sim/onset.ts fills it in.
+export const setLink = { start: () => [], current: () => null, wrap: () => [], visit: () => ({ avatar: null, lines: [] }) };
 // (adult industry) After a shoot wraps (sim/onset.ts calls these; sim/titles.ts counts the title as a shift, sets its
 // quality and release): lines.
 export const onWrap = [];

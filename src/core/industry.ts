@@ -143,8 +143,10 @@ export function upgradeIndustry(w: WorldDef) {
 
 /* ---------- the contract between the sessions (A: titles and bookings, S: the set, R: life outside, U, V) ---------- */
 
-/** A seat on a title: performing, directing, or the label above it. */
-export type Seat = 'perform' | 'direct' | 'label';
+/** A seat on a title: performing, directing, the label above it, or taking its stills (a photographer on the set of
+ *  someone else's title, plans/industry-lens.md Part 1: no share of the sales, no fame as a performer, no stance
+ *  about performing). */
+export type Seat = 'perform' | 'direct' | 'label' | 'stills';
 /** How a scene went (the private moments' three results). */
 export type SceneGrade = 'great' | 'good' | 'poor';
 /** One part of a scene's roll, by name, as the photo shoot's parts (shown in a scene's result). */
@@ -153,13 +155,23 @@ export interface ShotPart { name: string; add: number }
  *  its quality (0–100), grade, the roll's parts and the drawn picture shown (a ScenePic's file). */
 export interface TitleScene { kind: string; with: string[]; q?: number; grade?: SceneGrade; parts?: ShotPart[]; pic?: string }
 /** A title (the save's record, sim/titles.ts writes it; sim/onset.ts plays its scenes; the Take app shows it). Days are
- *  game days; `you` the seats the player holds on it; `cast` avatars (Tokyo's people and roster performers' cards). */
+ *  game days; `you` the seats the player holds on it; `cast` avatars (Tokyo's people and roster performers' cards);
+ *  `cover`: the photo it's sold with (a still's id in the photo records, sim/photo.ts), drawn instead of the automatic
+ *  cover (sim/covers.ts). */
 export interface TitleRec {
     id: string; name: string; genre: string; label: string; you: Seat[]; cast: string[]; scenes: TitleScene[];
     set: string; contract: number; shoot: number; release: number;
     q?: number; edited?: number; sold: number; weeks: number; peak?: number; cancelled?: true; adult: true;
+    cover?: number;
 }
 /** What the set needs to know of a title to play its shoot day (sim/titles.ts hands it to sim/onset.ts through
  *  `setLink.start`): the title, the place the set is at, the call time (absolute minutes), and the roster performers to
  *  bring on set (their ids in `w.industry.roster`; Tokyo's people come by their `set` plan, not by this list). */
 export interface SetCall { title: TitleRec; place: string; call: number; roster: string[] }
+/** A photo call (plans/industry-lens.md Part 2): a roster performer (`who`: her id, bare or `roster:<id>`) comes to
+ *  `place` for a photo shoot from `from` to `to` (absolute minutes), the set's way: in the cast with `onset` for the
+ *  window and gone after, with no plan or routine of her own (sim/onset.ts through `setLink.visit`). */
+export interface PhotoCall { who: string; place: string; from: number; to: number }
+/** What a photo call gives: her avatar in the cast for the window (null: she can't come; `waiting`: her card is still
+ *  being made, ask again), and lines for the player. */
+export interface PhotoCallResult { avatar: string | null; waiting?: true; lines: string[] }

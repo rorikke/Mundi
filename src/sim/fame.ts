@@ -27,8 +27,9 @@ import { personaName } from '../st/bridge.js';
 
 /** The numbers (first guesses, tuned by the long run). */
 export const FAME = {
-    /** a release's fame (the world's `fame.titles`, at quality 60) times this per seat; the weekly fade too */
-    seat: { perform: 1, direct: 1 / 3, label: 0.1 } as Record<Seat, number>,
+    /** a release's fame (the world's `fame.titles`, at quality 60) times this per seat; the weekly fade too (the stills
+     *  photographer's none: no fame as a performer) */
+    seat: { perform: 1, direct: 1 / 3, label: 0.1, stills: 0 } as Record<Seat, number>,
     chart: 1,          // a week with a title of yours in the chart's top 10 (× the seat's share)
     top3: 2,           // …in its top 3, instead
     recognize: 0.08,   // a public place's chance: fame/100 × the place's weight × this (L: 0.25 recognized a famous player every other day)
@@ -163,7 +164,7 @@ export function recognizeChance(g: Save, w: WorldDef, loc = g.player.loc): numbe
     if (!industryOn(g, w) || !publicPlace(g, w, loc)) return 0;
     return Math.min(1, fameOf(g) / 100 * placeWeight(w, placeOf(g, w, loc)?.tags) * FAME.recognize);
 }
-const seatWords: Record<Seat, string> = { perform: 'from adult videos', direct: 'as an adult video director', label: 'as the head of an adult video label' };
+const seatWords: Record<Seat, string> = { perform: 'from adult videos', direct: 'as an adult video director', label: 'as the head of an adult video label', stills: 'as an adult video stills photographer' };
 
 /** Looking at the scene (`onLook`): at a public place not yet rolled today, and nobody has recognized you today, a roll;
  *  recognized, a fan's approach waits for its card, or a stranger tells the people around (a rumor about you, adult,

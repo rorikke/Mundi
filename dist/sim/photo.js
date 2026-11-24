@@ -5,7 +5,7 @@
 // photo studio sim/studio.ts. The save: `g.photo` (PhotoState), read with defaults (old saves have none). With the
 // system off, or a world without `photo`, nothing here writes anything.
 import { adultOn, nowAbs } from '../core/store.js';
-import { systemOn, worldFile } from '../core/world.js';
+import { systemOn, worldFile, personPictures } from '../core/world.js';
 import { stricter, looser, stepRule, cameraStepsOf } from '../core/photo.js';
 import { safeUrl } from '../core/safe.js';
 import { relOf, idOf } from './rel.js';
@@ -253,7 +253,7 @@ export function photoSpriteFolders(w, recs) {
     const out = new Set();
     for (const r of recs)
         for (const h of r.who ?? []) {
-            const ex = (w.cast?.examples ?? []).find(e => e.name === h.name);
+            const ex = personPictures(w, h.name);
             const f = h.outfit ? ex?.outfits?.[h.outfit] : ex?.sprites;
             if (f)
                 out.add(folderOf(f));
@@ -293,7 +293,7 @@ export function nearestExpr(want, have) {
 }
 /** The layers of a photo: the place's picture for its part of the day and its looks (a home's or the studio's from
  *  its kind or zone), each person's sprite (their outfit's set if they wore one; the nearest expression the set has),
- *  the camera's look, the frame. A card person (not one of the world's), an outfit the world doesn't have, or a naked
+ *  the camera's look, the frame. People are the world's or the industry's roster's (`personPictures`). A card person (not one of them), an outfit the world doesn't have, or a naked
  *  outfit with adult content off draws nobody and is named in `missing`. Pure: pictures go through `worldFile`. */
 export function photoLayers(g, w, rec) {
     const minute = SLOT_MINUTE[rec.slot] ?? 12 * 60;
@@ -313,7 +313,7 @@ export function photoLayers(g, w, rec) {
     const sprites = [], missing = [];
     const who = rec.who ?? [];
     who.forEach((h, i) => {
-        const ex = (w.cast?.examples ?? []).find(e => e.name === h.name);
+        const ex = personPictures(w, h.name);
         const naked = h.outfit === 'naked' && !adultOn(g);
         const folder = naked ? undefined : h.outfit ? ex?.outfits?.[h.outfit] : ex?.sprites;
         if (h.expr === 'back')
