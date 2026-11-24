@@ -10,8 +10,13 @@
 // right with its cards side by side. The engine owns every number (sim/photo.ts,
 // sim/assignments.ts, sim/freelance.ts, sim/photobooks.ts, sim/studio.ts); this file only draws and calls, and asks the
 // AI for a portfolio piece's caption (the engine keeps its own when the answer isn't clean).
-import { esc, game, toast, notify, saveGame, SAVE, type Save } from '../core/store.js';
-import { getWorld, type WorldDef } from '../core/world.js';
+// (plans/industry-lens.md, while the adult industry is in play) A brief names its performer and what she wears, and says
+// her agency sends her (the photo call); a label's on-set brief says it books you onto a shoot day, then which title and
+// when; the stills taken on set have their own heading in Photos, each opened large with its title (and whether it
+// became the cover) and a button to the title in Take; the performer's photobook and the actress's own (her sittings) in
+// You. sim/titles.ts loads with the engine, so reading it here changes no module's order; sim/onset.ts isn't read.
+import { esc, game, toast, notify, saveGame, adultOn, SAVE, type Save } from '../core/store.js';
+import { getWorld, personPictures, appsShown, type WorldDef, type WearDef } from '../core/world.js';
 import { PHOTO_WORDS } from '../core/photo.js';
 import { num, safeUrl } from '../core/safe.js';
 import { quiet, personaName } from '../st/bridge.js';
@@ -22,9 +27,11 @@ import { placeOf, playerHomeId } from '../sim/places.js';
 import { weekday, hm } from '../sim/time.js';
 import { earliest } from '../sim/plans.js';
 import { photoOn, peekPhoto, photoById, clientOf, briefOf, photoLayers, photoSpriteFolders, loadPhotoSprites, setCaption, starPhoto, type PhotoRec } from '../sim/photo.js';
-import { boardView, openView, youView, photosView, takeBrief, giveUpBrief, shootPlaces, setShoot, deliverBrief, PHOTO_RULES, type BriefCard, type OpenCard, type Need } from '../sim/assignments.js';
+import { boardView, openView, youView, photosView, takeBrief, giveUpBrief, shootPlaces, setShoot, deliverBrief, isRosterWho, PHOTO_RULES, type BriefCard, type OpenCard, type Need } from '../sim/assignments.js';
 import { retainerNow } from '../sim/freelance.js';
-import { acceptBook, declineBook, type BookView } from '../sim/photobooks.js';
+import { acceptBook, declineBook, booksView, sittingAt, OWN_BOOK, type BookView } from '../sim/photobooks.js';
+import { industryOn, setsOf } from '../sim/industry.js';
+import { stillsSet, TITLES } from '../sim/titles.js';
 import { myStudio, studioZones, rentalOpen, RENTAL_HOURS } from '../sim/studio.js';
 import { studioWeekNow } from '../sim/fixtures.js';
 import { ACT, INPUT } from './reg.js';
@@ -73,9 +80,14 @@ export function photoPic(g: Save, w: WorldDef, rec: PhotoRec, big = false): stri
 }
 const capOf = (r: PhotoRec) => r.ai || r.cap;
 function thumb(g: Save, w: WorldDef, r: PhotoRec): string {
-    return `<button class="mu-lens-thumb ${r.star ? 'is-starred' : ''}" data-act="lens-photo" data-id="${n(r.id)}">${photoPic(g, w, r)}
+    const tag = r.src === 'set' ? `<em class="mu-lens-tag">${esc(coverOf(g, r) ? 'Cover' : 'Still')}</em>` : '';
+    return `<button class="mu-lens-thumb ${r.star ? 'is-starred' : ''}" data-act="lens-photo" data-id="${n(r.id)}">${photoPic(g, w, r)}${tag}
         <small data-notr>${esc(capOf(r))}</small>${r.stars ? `<em class="mu-lens-stars">${starsText(r.stars)}</em>` : r.star ? '<em class="mu-lens-stars">★</em>' : ''}</button>`;
 }
+// A still's title (the save's record), and the title it's the cover of.
+const stillTitle = (g: Save, r: PhotoRec) => (r.src === 'set' && r.title ? titlesOf(g).find(t => t.id === r.title) : undefined);
+const coverOf = (g: Save, r: PhotoRec) => titlesOf(g).find(t => t.cover === r.id && !t.cancelled);
+const takeOpen = (g: Save, w: WorldDef) => industryOn(g, w) && appsShown(w).some(a => a.id === 'take');
 
 /* ---------- the Board ---------- */
 
@@ -89,7 +101,40 @@ function briefTop(g: Save, w: WorldDef, c: BriefCard): string {
     return `<header class="mu-lens-client"><i aria-hidden="true">${esc(c.client.icon ?? '📷')}</i><b data-notr>${esc(c.client.name)}</b><small>${esc(kindWord(c.brief.kind))}</small></header>
         <b class="mu-lens-name" data-notr>${esc(c.brief.name)}</b>${c.brief.text ? `<small class="mu-lens-text" data-notr>${esc(c.brief.text)}</small>` : ''}
         <small class="mu-lens-where"><span data-notr>${esc(c.place)}</span>${c.window ? ` · <span>${esc(c.window)}</span>` : ''} · <span>${esc(dueWords(c.due))}</span></small>
-        ${c.subject ? `<small>With <span data-notr>${esc(c.subject)}</span></small>` : ''}`;
+        ${c.subject ? `<small>With <span data-notr>${esc(c.subject)}</span>${wearing(g, w, c) ? ` · ${esc(wearing(g, w, c))}` : ''}</small>` : ''}${industryLines(g, w, c)}`;
+}
+// What the brief's subject wears (its `outfit`): their own clothes, nothing (the naked set), or one of their outfits by
+// its kind; an adult one only with adult content on (an adult brief isn't shown without it anyway).
+const WEAR_WORDS: Record<string, string> = { swim: 'Wearing: a swimsuit', lingerie: 'Wearing: lingerie', robe: 'Wearing: a robe', yukata: 'Wearing: a yukata', loungewear: 'Wearing: home clothes',
+    nightwear: 'Wearing: nightwear', undressed: 'Wearing: barely anything', sport: 'Wearing: sportswear', cosplay: 'Wearing: a costume', evening: 'Wearing: an evening outfit', formal: 'Wearing: formal wear',
+    casual: 'Wearing: casual clothes', stage: 'Wearing: a stage outfit' };
+function wearing(g: Save, w: WorldDef, c: BriefCard): string {
+    const o = c.brief.subject?.outfit; if (!o || !c.subject) return '';
+    if (o === 'clothes') return 'Wearing: their own clothes';
+    if (o === 'naked') return adultOn(g) ? 'Wearing: nothing at all' : '';
+    const wear = (personPictures(w, c.subject)?.wear as Record<string, WearDef> | undefined)?.[o];
+    if (wear?.adult && !adultOn(g)) return '';
+    return WEAR_WORDS[wear?.kind ?? ''] ?? 'Wearing: an outfit of their own';
+}
+// The industry's part of a brief (only while it's in play): a performer the agency sends; a label's on-set brief, which
+// books you onto one of its shoot days (then which title, when and where, until it's shot).
+type RawTitle = { id: string; name: string; set: string; shoot: number; q?: number; cancelled?: boolean; stills?: number; cover?: number };
+const titlesOf = (g: Save): RawTitle[] => (g as any).industry?.titles ?? [];
+function industryLines(g: Save, w: WorldDef, c: BriefCard): string {
+    if (!industryOn(g, w)) return '';
+    const out: string[] = [];
+    if (isRosterWho(c.offer.who)) out.push(`<small class="mu-muted">${esc('A performer: their agency sends them for the shoot.')}</small>`);
+    const set = stillsSet(w, c.brief);
+    if (set) {
+        const t = 'due' in c.offer ? titlesOf(g).find(x => x.stills === c.offer.id) : undefined;
+        if (!t) out.push(`<small>${esc('Stills on set: the label books you onto one of its shoot days at')} <span data-notr>${esc(set.name)}</span></small>`);
+        else if (t.q === undefined && !t.cancelled) {
+            const s = setsOf(w).find(x => x.id === t.set) ?? set, at = s.place ? placeName(g, w, s.place) : '', from = hm(TITLES.call * 60);
+            const day = t.shoot === g.day ? 'today' : t.shoot === g.day + 1 ? 'tomorrow' : weekday(t.shoot);
+            out.push(`<small class="mu-good">${esc(`Booked for the stills on "${t.name}": ${day} from ${from}`)}${at ? ` · <span data-notr>${esc(at)}</span>` : ''}</small>`);
+        }
+    }
+    return out.join('');
 }
 function boardCard(g: Save, w: WorldDef, c: BriefCard): string {
     const rep = c.capped ? 'No more reputation from small gigs' : `Reputation +${esc(String(Math.round(num(c.rep) * 10) / 10))} at five stars`;
@@ -143,7 +188,8 @@ function openCard(g: Save, w: WorldDef, c: OpenCard): string {
     const id = c.offer.id, shoot = actHere(g, w, `x-shoot-${id}`), edit = c.canEdit ? actHere(g, w, 'x-photo-edit') : undefined;
     const late = c.late > 0 ? `<small class="mu-lens-why">${esc(c.late === 1 ? 'A day late: paid less if you deliver now.' : `${n(c.late)} days late: paid less if you deliver now.`)}</small>` : '';
     const win = c.brief.window ? `<small class="${c.open ? 'mu-good' : 'mu-muted'}">${esc(c.open ? 'The window is open now.' : `Not now: ${c.window}.`)}</small>` : '';
-    const plan = c.plan ? `<small>${esc(`The shoot: ${c.plan}`)}</small>` : c.needsPlan ? shootForm(g, w, c) : '';
+    const called = 'due' in c.offer && c.offer.plan === 'call' && isRosterWho(c.offer.who);
+    const plan = c.plan ? `<small>${esc(`The shoot: ${c.plan}`)}</small>${called ? `<small class="mu-muted">${esc('Their agency booked them for it.')}</small>` : ''}` : c.needsPlan ? shootForm(g, w, c) : '';
     const shootBtn = shoot ? `<button data-act="lens-do" data-id="${esc(shoot.id)}">${esc(c.shot ? 'Shoot it again' : 'Shoot it now')}</button>` : '';
     // (a second try only while it's still allowed: once shot twice, or its window gone, nothing more is said)
     const shootWhy = !shoot && c.shootWhy && !(c.shot && /twice|second try/i.test(c.shootWhy)) ? `<small class="mu-lens-why">${esc(c.shot ? `To shoot it again: ${c.shootWhy}` : c.shootWhy)}</small>` : '';
@@ -173,8 +219,17 @@ function bigPhoto(g: Save, w: WorldDef, r: PhotoRec): string {
         ${c || b ? `<small>${c ? `<span data-notr>${esc(c.name)}</span>` : ''}${c && b ? ' · ' : ''}${b ? `<span data-notr>${esc(b.name)}</span>` : ''}</small>` : ''}
         <small><span data-notr>${esc(placeName(g, w, r.place))}</span> · ${esc(dayWords(r.day))}, ${esc(hm(r.min))}</small>
         ${r.stars ? `<small class="mu-lens-stars">${starsText(r.stars)}${r.q !== undefined ? ` · ${esc(`quality ${n(r.q)}`)}` : ''}</small>` : ''}
-        ${L.missing.map(m => `<small class="mu-muted">${esc(m)}</small>`).join('')}
+        ${L.missing.map(m => `<small class="mu-muted">${esc(m)}</small>`).join('')}${stillHtml(g, w, r)}
         <button class="mu-ghost" data-act="lens-star" data-id="${n(r.id)}" aria-pressed="${!!r.star}">${r.star ? '★ Starred' : '☆ Star it'}</button></section>`;
+}
+// A still opened large: the title it was taken on, whether it's that title's cover, the title in Take; a sitting for her
+// own photobook says so (she's never drawn: the words keep it).
+function stillHtml(g: Save, w: WorldDef, r: PhotoRec): string {
+    if (r.src === 'book' && !(r.who ?? []).length) return `<small class="mu-muted">${esc('A sitting for your own photobook: you are never drawn in a picture, the words keep it.')}</small>`;
+    const t = stillTitle(g, r); if (!t) return '';
+    const cover = coverOf(g, r)?.id === t.id;
+    return `<small>${esc(`On the set of "${t.name}"`)}</small>${cover ? `<small class="mu-good">${esc('The cover of this title')}</small>` : ''}
+        ${takeOpen(g, w) ? `<button class="mu-ghost" data-act="lens-title" data-id="${esc(t.id)}" data-app="take">${esc('The title in Take')}</button>` : ''}`;
 }
 function photosTab(g: Save, w: WorldDef): string {
     const v = photosView(g, w);
@@ -186,17 +241,24 @@ function photosTab(g: Save, w: WorldDef): string {
     const roll = v.undeveloped ? `<p class="mu-lens-line"><small>${esc(plural(v.undeveloped, '1 photo waits on an undeveloped roll.', '{0} photos wait on an undeveloped roll.'))}</small></p>` : '';
     const port = v.portfolio.length ? `<h4 class="mu-lens-sub">Portfolio</h4><p class="mu-lens-line"><small>${esc(`Strength ${n(v.strength)} of 100 · ${n(v.portfolio.length)} of 12 pieces`)}</small></p>
         <div class="mu-lens-grid is-portfolio">${v.portfolio.map(r => thumb(g, w, r)).join('')}</div>` : '';
-    const rest = v.rest.length ? `${v.portfolio.length ? '<h4 class="mu-lens-sub">Your photos</h4>' : ''}<div class="mu-lens-grid">${v.rest.map(r => thumb(g, w, r)).join('')}</div>` : '';
-    return `${roll}${port}${rest}${keep}`;
+    // (the stills taken on set under their own heading, after the portfolio)
+    const stills = v.rest.filter(r => r.src === 'set'), others = v.rest.filter(r => r.src !== 'set');
+    const set = stills.length ? `<h4 class="mu-lens-sub">${esc('Stills on set')}</h4><div class="mu-lens-grid is-stills">${stills.map(r => thumb(g, w, r)).join('')}</div>` : '';
+    const rest = others.length ? `${v.portfolio.length || stills.length ? '<h4 class="mu-lens-sub">Your photos</h4>' : ''}<div class="mu-lens-grid">${others.map(r => thumb(g, w, r)).join('')}</div>` : '';
+    return `${roll}${port}${set}${rest}${keep}`;
 }
 
 /* ---------- You ---------- */
 
-function bookRow(w: WorldDef, b: BookView): string {
-    const what = b.state === 'offered' ? 'Offered' : b.state === 'project' ? `${n(b.done)} of ${n(b.of)} pieces${b.missed ? ` · ${n(b.missed)} missed` : ''}`
+function bookRow(g: Save, w: WorldDef, b: BookView): string {
+    const own = b.def === OWN_BOOK, at = own && b.state === 'project' ? sittingAt(g, w) : '';
+    const what = b.state === 'offered' ? 'Offered' : b.state === 'project' ? (own ? `${n(b.done)} of ${n(b.of)} sittings` : `${n(b.done)} of ${n(b.of)} pieces${b.missed ? ` · ${n(b.missed)} missed` : ''}`)
         : b.state === 'published' ? `Published${b.last !== undefined ? ` · last week ${money(w, num(b.last))}` : ''}${b.weeksLeft !== undefined ? ` · ${plural(b.weeksLeft, '1 week left', '{0} weeks left')}` : ''}` : 'Ended';
     const btns = b.state === 'offered' ? `<span class="mu-lens-btns"><button data-act="lens-book-yes" data-id="${n(b.id)}">Accept</button><button class="mu-ghost" data-act="lens-book-no" data-id="${n(b.id)}">Decline</button></span>` : '';
-    return `<li class="mu-lens-row" data-book="${n(b.id)}"><span><b data-notr>${esc(b.name)}</b><small>${esc(what)}</small></span>${btns}</li>`;
+    // (whose book it is: her own, shot by the publisher's photographer; a performer's, its briefs naming her)
+    const whose = own ? `<small class="mu-muted">${esc('Your own photobook: the publisher\'s photographer shoots you.')}</small>${at ? `<small>${esc('Sit for it at')} <span data-notr>${esc(placeName(g, w, at))}</span>${esc(', once a day.')}</small>` : ''}`
+        : isRosterWho(b.def) ? `<small class="mu-muted">${esc('A performer\'s photobook: its briefs name them.')}</small>` : '';
+    return `<li class="mu-lens-row" data-book="${n(b.id)}"><span><b data-notr>${esc(b.name)}</b><small>${esc(what)}</small>${whose}</span>${btns}</li>`;
 }
 // The home action that sells your photos (a photography roll that pays): run from here when you're home.
 const sellAct = (g: Save, w: WorldDef) => actionsHere(g, w).find(a => a.roll?.skill === 'photography' && num(a.roll.success?.money) > 0 && !a.photo);
@@ -214,7 +276,7 @@ function youTab(g: Save, w: WorldDef): string {
         <small>${esc(`Portfolio: ${plural(v.pieces, '1 piece', '{0} pieces')} · strength ${n(v.strength)}`)}</small></section>`;
     const contacts = `<section class="mu-lens-card"><h4>Contacts</h4>${v.contacts.length ? `<ul class="mu-lens-list">${v.contacts.map(c => `<li class="mu-lens-row"><i aria-hidden="true">${esc(c.icon ?? '📇')}</i><span><b data-notr>${esc(c.name)}</b>${num(c.day) > 0 ? `<small>${esc(`Since day ${n(c.day)}`)}</small>` : ''}</span></li>`).join('')}</ul>` : '<small class="mu-muted">None yet: clients you work for through the job remember you.</small>'}</section>`;
     const books = (v.books ?? []) as BookView[];
-    const bk = books.length ? `<section class="mu-lens-card"><h4>Photobooks</h4><ul class="mu-lens-list">${books.map(b => bookRow(w, b)).join('')}</ul></section>` : '';
+    const bk = books.length ? `<section class="mu-lens-card"><h4>Photobooks</h4><ul class="mu-lens-list">${books.map(b => bookRow(g, w, b)).join('')}</ul></section>` : '';
     const sell = sellAct(g, w), sells = sellsAtHome(w);
     const sellRow = sell ? `<section class="mu-lens-card"><h4>Sell your photos</h4><button data-act="lens-do" data-id="${esc(sell.id)}">${esc(sell.label)}</button></section>`
         : sells ? '<section class="mu-lens-card"><h4>Sell your photos</h4><small class="mu-muted">From home, now and then: a stock agency buys a set.</small></section>' : '';
@@ -230,20 +292,22 @@ function studioCard(g: Save, w: WorldDef): string {
 
 /* ---------- the app ---------- */
 
-/** Something waits in Lens: a book offered, or a brief shot and ready to deliver (the home grid's badge). */
+/** Something waits in Lens: a book offered, or a brief shot and ready to deliver (the home grid's badge). Only what
+ *  the app shows counts: an adult book or brief not with adult content off. */
 export function lensBadge(g: Save, w: WorldDef): boolean {
     if (!photoOn(w) || !(g as any).photo) return false;
-    const p = peekPhoto(g);
-    return p.books.some(b => b.state === 'offered') || p.open.some(t => !!t.shot);
+    return booksView(g, w).some(b => b.state === 'offered') || shownOpen(g, w).some(t => !!t.shot);
 }
+// The briefs in progress the app shows (an adult one hides with adult content off, from its count too).
+const shownOpen = (g: Save, w: WorldDef) => { const ids = new Set(openView(g, w).cards.map(c => c.offer.id)); return peekPhoto(g).open.filter(t => ids.has(t.id)); };
 const TABS: [Tab, string][] = [['board', 'Board'], ['open', 'In progress'], ['photos', 'Photos'], ['you', 'You']];
 // Unfolded: your reputation, then a row per tab with how many it holds (the briefs on the board, those in progress
 // marked when one waits to be delivered, your photos); the open tab on the right, its key changing with the tab and the
 // photo opened, so each opens at its top.
 function lensWide(g: Save, w: WorldDef, head: string, body: string): string {
-    const v = youView(g, w), b = boardView(g, w), ph = photosView(g, w), p = peekPhoto(g);
-    const count: Record<Tab, string> = { board: b.kind === 'none' ? '' : n(b.cards.length), open: n(p.open.length), photos: n(ph.portfolio.length + ph.rest.length), you: '' };
-    const ready = p.open.some(t => !!t.shot);
+    const v = youView(g, w), b = boardView(g, w), ph = photosView(g, w), open = shownOpen(g, w);
+    const count: Record<Tab, string> = { board: b.kind === 'none' ? '' : n(b.cards.length), open: n(open.length), photos: n(ph.portfolio.length + ph.rest.length), you: '' };
+    const ready = open.some(t => !!t.shot);
     const rows = TABS.map(([id, name]) => `<button class="mu-lens-row-tab ${id === LS.tab ? 'is-on' : ''}" data-act="lens-tab" data-v="${id}" aria-pressed="${id === LS.tab}"><b>${esc(name)}</b>${id === 'open' && ready ? '<em class="mu-sec-badge">!</em>' : ''}<small>${esc(count[id])}</small></button>`).join('');
     const worldWords = !PHOTO_WORDS.some(x => x.text === v.words) ? ' data-notr' : '';
     const repCard = `<section class="mu-lens-card"><small>${esc('Reputation')}</small><div class="mu-lens-rep"><b class="mu-lens-big-n">${n(v.rep)}</b><span${worldWords}>${esc(v.words)}</span></div><span class="mu-bond"><i style="width:${Math.max(0, Math.min(100, num(v.rep)))}%"></i></span></section>`;
@@ -255,7 +319,7 @@ function lensWide(g: Save, w: WorldDef, head: string, body: string): string {
  *  `wide`: the unfolded phone (the tabs listed beside the open one). */
 export function lensApp(g: Save, w: WorldDef, head: string, wide = false): string {
     if (!photoOn(w)) return `${head}<div class="mu-ph-body mu-lens"><p class="mu-muted">No photography in this world.</p></div>`;
-    const open = peekPhoto(g).open.length;
+    const open = shownOpen(g, w).length;
     const body = LS.tab === 'open' ? openTab(g, w) : LS.tab === 'photos' ? photosTab(g, w) : LS.tab === 'you' ? youTab(g, w) : boardTab(g, w);
     if (wide) return lensWide(g, w, head, body);
     return `${head}<div class="mu-ph-body mu-lens">
@@ -287,6 +351,8 @@ Object.assign(ACT, {
     'lens-tab': (el) => { LS.tab = (TABS.find(t => t[0] === el.dataset.v)?.[0] ?? 'board'); LS.photo = 0; LS.back = 0; notify(); },
     'lens-photo': (el) => { LS.photo = Number(el.dataset.id) || 0; notify(); },
     'lens-photo-close': () => { LS.photo = 0; notify(); },
+    // (a still's title: Take opens on that title's page, through its own handler and the phone's)
+    'lens-title': (el, e) => { const x = ctxW(); if (!x || !takeOpen(x.g, x.w)) return; ACT['tk-title']?.(el, e); return ACT['ph-go']?.(el, e); },
     'lens-star': (el) => { const x = ctxW(); if (!x) return; starPhoto(x.g, Number(el.dataset.id)); saveGame(); notify(); },
     'lens-take': (el) => {
         const x = ctxW(); if (!x) return;

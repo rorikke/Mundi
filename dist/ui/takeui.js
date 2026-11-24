@@ -10,6 +10,10 @@
 // the tabs and their counts on the left, the open tab on the right. Also the HUD's cards for a fan who recognizes you
 // and the talk, the trend's line at Messages' top, and the badge. The engine owns every number (sim/titles.ts,
 // sim/bookings.ts, sim/onset.ts, sim/covers.ts, sim/fame.ts, sim/stance.ts); this file only draws and calls.
+// (plans/industry-lens.md) The stills: on set, *Take the stills* for the director or the stills photographer (the
+// set's engine action, run as Edit is) with the stills taken so far; a title's page shows its stills (Lens's pictures,
+// each opening in Lens) and its photo cover with the still's stars and the bonus it gives the first week; a title you
+// took the stills on shows that seat, has its own heading in Titles and a shoot day you don't move (the label's).
 import { esc, game, toast, notify, saveGame, state, adultOn, SAVE } from '../core/store.js';
 import { getWorld, worldFile, appsShown } from '../core/world.js';
 import { num, safeUrl } from '../core/safe.js';
@@ -19,13 +23,14 @@ import { weekday } from '../sim/time.js';
 import { myJob, trackOf, rankOf } from '../sim/work.js';
 import { peekIndustry, industryOn, inIndustry, seatsNow, fameOf, rankWords, industryJob, setsOf, labelOf, monthOf, } from '../sim/industry.js';
 import { fanBase, testNext, entriesOf } from '../sim/bookings.js';
-import { offersView, titlesView, chartView, rosterView, castChoices, takeOffer, declineOffer, askSceneOff, planBrief, setShootDay, cancelTitle, setLimits, salesWeeks, setPlace, isCommissioned, TITLES, EDIT_ID, } from '../sim/titles.js';
+import { offersView, titlesView, chartView, rosterView, castChoices, takeOffer, declineOffer, askSceneOff, planBrief, setShootDay, cancelTitle, setLimits, salesWeeks, setPlace, isCommissioned, holdsStills, coverBonus, TITLES, EDIT_ID, } from '../sim/titles.js';
 import { fanNow, answerFan } from '../sim/fame.js';
 import { talkNow, answerTalk } from '../sim/stance.js';
 import { venturesOf, ventureDef, ventureName, tierOf } from '../sim/ventures.js';
-import { photoSpriteFolders, loadPhotoSprites } from '../sim/photo.js';
+import { photoSpriteFolders, loadPhotoSprites, photoById, shownPhotos } from '../sim/photo.js';
 import { YOU } from '../sim/rel.js';
 import { ACT, INPUT } from './reg.js';
+import { photoPic, wantSprites, LS } from './photoui.js'; // (loaded before this file by phone.ts: no module moves)
 /** What the app shows (memory only): the tab, the title whose page is open, the brief being planned (its cast, set and
  *  script), the day picked to move a shoot to, the title about to be cancelled, the limits being typed. */
 export const TK = { tab: 'offers', title: '', plan: 0, cast: [], set: '', script: false, day: {}, cancel: '', limits: null };
@@ -66,12 +71,12 @@ function wantCoverSprites(g, w, list) {
     const m = mods();
     if (!m)
         return;
-    const roster = w.industry?.roster ?? [], wx = roster.length ? { ...w, cast: { ...w.cast, examples: [...w.cast.examples, ...roster] } } : w;
     const who = list.flatMap(t => (t?.cast ?? []).filter(x => x !== YOU).slice(0, 2)).map(x => {
         const ex = m.on.rosterOf(w, x) ?? m.on.rosterByCard(g, w, x) ?? w.cast.examples.find(e => e.name === g.cast[x]?.name);
         return ex ? { name: ex.name, ...(adultOn(g) && typeof ex.outfits?.naked === 'string' ? { outfit: 'naked' } : {}) } : null;
     }).filter((x) => !!x);
-    const folders = photoSpriteFolders(wx, [{ who }]).filter(f => !loadingSprites.has(f));
+    // (a roster performer's folders are found by name: sim/photo.ts reads the roster too)
+    const folders = photoSpriteFolders(w, [{ who }]).filter(f => !loadingSprites.has(f));
     if (!folders.length)
         return;
     folders.forEach(f => loadingSprites.add(f));
@@ -217,23 +222,40 @@ function liveShoot(g, w) {
     const m = mods(), s = m?.on.shootView(g, w);
     if (!s)
         return '';
-    const seat = s.seat === 'both' ? 'You direct and perform.' : s.seat === 'direct' ? 'You direct.' : s.seat === 'perform' ? 'You perform.' : 'You watch.';
+    const seat = s.seat === 'both' ? 'You direct and perform.' : s.seat === 'direct' ? 'You direct.' : s.seat === 'perform' ? 'You perform.' : s.seat === 'stills' ? 'You take the stills.' : 'You watch.';
     const played = s.scenes.filter(x => x.grade).map(x => `<li><span>${esc(`Scene ${n(x.n)}`)}: ${W(x.kind)}</span><b>${esc(GRADE_WORDS[x.grade] ?? '')}${x.q !== undefined ? ` · ${esc(n(x.q))}` : ''}</b></li>`).join('');
     const next = s.next ? `<small>${esc(`Next: scene ${n(s.next.n)}`)}, ${W(s.next.kind)}${s.next.with.length ? ` with ${listed(s.next.with)}` : ''} · ${s.next.waiting.length ? `waiting for ${listed(s.next.waiting)}` : s.next.ready > 0 ? esc(`ready in ${n(s.next.ready)} min`) : esc('ready now')}</small>` : '';
     return `<section class="mu-take-card is-live"><h4>On set now</h4><b data-notr>${esc(s.name)}</b><small>${W(s.label)} · ${W(s.genre)} · ${W(s.place)}</small><small>${esc(seat)}</small>
         ${played ? `<ul class="mu-take-list">${played}</ul>` : ''}${next}
         ${s.stopped.length ? `<small class="mu-muted">Dropped on set: ${s.stopped.map(x => `${W(x.kind)} (${W(x.who)})`).join(', ')}</small>` : ''}
-        ${s.at ? '' : `<small class="mu-take-why">Go to ${W(s.place)} to shoot.</small>`}
+        ${s.at ? '' : `<small class="mu-take-why">Go to ${W(s.place)} to shoot.</small>`}${stillsLive(g, w, s)}
         <button class="mu-ghost" data-act="tk-title" data-id="${esc(s.title)}">The title</button></section>`;
 }
+// The stills on set, for whoever takes them (the director, the stills seat): those taken so far as Lens draws them, then
+// *Take the stills* when the place offers the set's action now, else why not (where you are, every scene shot: nothing).
+function stillsLive(g, w, s) {
+    const m = mods();
+    if (!m || (s.seat !== 'direct' && s.seat !== 'both' && s.seat !== 'stills'))
+        return '';
+    const recs = s.stills.map(id => photoById(g, id)).filter((r) => !!r && (!r.adult || adultOn(g)));
+    if (recs.length)
+        wantSprites(w, recs);
+    const act = actHere(g, w, m.on.STILLS_ID);
+    const why = !act && s.at && s.stillsWhy && s.next ? `<small class="mu-muted"><i aria-hidden="true">📷</i> ${esc(s.stillsWhy)}</small>` : '';
+    return `${recs.length ? `<small>${esc(plural(recs.length, '1 still taken', '{0} stills taken'))}</small><div class="mu-take-stills">${recs.map(r => stillThumb(g, w, r)).join('')}</div>` : ''}
+        ${act ? `<button data-act="tk-do" data-id="${esc(act.id)}">${esc('Take the stills')}</button>` : why}`;
+}
+const stillThumb = (g, w, r) => `<button class="mu-take-still" data-act="tk-photo" data-id="${n(r.id)}" data-app="photos">${photoPic(g, w, r)}${r.stars ? `<em>${esc('★'.repeat(Math.max(0, Math.min(5, Math.round(num(r.stars))))))}</em>` : ''}</button>`;
 function scheduleRows(g, w, list) {
     const rows = [];
     const open = (t) => `<button class="mu-take-link" data-act="tk-title" data-id="${esc(t.id)}" data-notr>${esc(t.name)}</button>`;
     for (const t of list) {
         if (t.state === 'waiting' || t.state === 'shoot') {
-            const days = t.days.filter(d => d !== t.shoot), pick = days.includes(TK.day[t.id]) ? TK.day[t.id] : days[0];
+            // (the stills seat: the label's shoot day, not yours to move)
+            const stills = holdsStills(t), days = stills ? [] : t.days.filter(d => d !== t.shoot), pick = days.includes(TK.day[t.id]) ? TK.day[t.id] : days[0];
             const move = t.state === 'waiting' && days.length ? `<span class="mu-take-btns"><select data-input="tk-day" data-id="${esc(t.id)}">${days.map(d => `<option value="${n(d)}" ${d === pick ? 'selected' : ''}>${esc(dayText(g, d))}</option>`).join('')}</select><button class="mu-ghost" data-act="tk-move" data-id="${esc(t.id)}">Move the shoot</button></span>` : '';
-            rows.push({ day: t.shoot, html: `<span>${esc(t.state === 'shoot' ? 'Shoot today from 09:00' : 'Shoot')}${t.place ? ` at ${W(t.place)}` : t.set ? ` at ${W(t.set)}` : ''}</span>${move}` });
+            const what = stills ? (t.state === 'shoot' ? 'The stills, today from 09:00' : 'The stills') : t.state === 'shoot' ? 'Shoot today from 09:00' : 'Shoot';
+            rows.push({ day: t.shoot, html: `<span>${esc(what)}${t.place ? ` at ${W(t.place)}` : t.set ? ` at ${W(t.set)}` : ''}</span>${move}` });
         }
         else if (t.state === 'edit') {
             const act = actHere(g, w, `${EDIT_ID}${t.id}`);
@@ -291,10 +313,29 @@ function chartHtml(t) {
         return '';
     return `<small>${esc(t.charts ? `${plural(t.charts, '1 week', '{0} weeks')} in the top 10 · best place ${n(t.peak)}` : 'Not in the top 10 yet')}</small>`;
 }
+// A title's stills (the photos taken on its set, still in Lens), its cover first when it's one of them, with the still's
+// stars and what the cover adds to the first week's sales (sim/titles.ts's `coverBonus`).
+function stillsHtml(g, w, raw) {
+    if (!raw)
+        return '';
+    const cover = raw.cover === undefined ? undefined : photoById(g, raw.cover);
+    const recs = shownPhotos(g).filter(r => r.src === 'set' && r.title === raw.id).sort((a, b) => (a.id === cover?.id ? -1 : b.id === cover?.id ? 1 : (b.q ?? 0) - (a.q ?? 0)));
+    if (!recs.length)
+        return '';
+    wantSprites(w, recs);
+    const bonus = cover && cover.src === 'set' && !cover.undeveloped && recs.includes(cover) ? coverBonus(g, raw) : 0;
+    const pct = String(Math.round((bonus - 1) * 1000) / 10);
+    const stars = '★'.repeat(Math.max(1, Math.min(5, Math.round(num(cover?.stars ?? 1)))));
+    const said = pct === '0' ? `The cover is a still (${stars}): one star adds nothing to its first week.`
+        : raw.weeks > 0 ? `The cover is a still (${stars}): its first week sold ${pct}% more for it.` : `The cover is a still (${stars}): its first week sells ${pct}% more for it.`;
+    const coverLine = bonus ? `<small class="mu-good">${esc(said)}</small>` : '';
+    return `<h4 class="mu-take-sub">${esc('Stills')}</h4>${coverLine}<small>${esc(plural(recs.length, '1 still from the set, in Lens', '{0} stills from the set, in Lens'))}</small>
+        <div class="mu-take-stills">${recs.map(r => `${stillThumb(g, w, r)}`).join('')}</div>`;
+}
 function titlePage(g, w, t) {
     const raw = rawTitle(g, t.id);
     wantCoverSprites(g, w, [raw]);
-    const seats = t.you.map(s => (s === 'perform' ? 'You perform' : s === 'direct' ? 'You direct' : 'Your label')).join(' · ');
+    const seats = t.you.map(s => (s === 'perform' ? 'You perform' : s === 'direct' ? 'You direct' : s === 'stills' ? 'You take the stills' : 'Your label')).join(' · ');
     const cast = t.cast.filter(x => x !== 'You');
     const facts = [`${W(t.label)}${t.genre ? ` · ${W(t.genre)}` : ''}${t.set ? ` · ${W(t.set)}` : ''}${t.place ? ` · ${W(t.place)}` : ''}`, esc(seats), cast.length ? `With ${listed(cast)}` : '',
         esc(`Signed on day ${n(t.contract)}${t.shoot ? ` · shot on day ${n(t.shoot)}` : ''}${t.release ? ` · ${t.release <= g.day ? 'out since' : 'out on'} day ${n(t.release)}` : ''}`),
@@ -307,7 +348,7 @@ function titlePage(g, w, t) {
         ${coverHtml(g, w, raw, t.name, t.label, true)}${missing.map(x => `<small class="mu-muted" data-notr>${esc(x)}</small>`).join('')}
         <b class="mu-take-name" data-notr>${esc(t.name)}</b><small class="mu-take-state">${esc(STATE_WORDS[t.state])}</small>
         ${facts.map(f => `<small>${f}</small>`).join('')}${chartHtml(t)}
-        ${salesHtml(g, w, t)}${scenesHtml(g, w, t)}${cancel}</section>`;
+        ${salesHtml(g, w, t)}${stillsHtml(g, w, raw)}${scenesHtml(g, w, t)}${cancel}</section>`;
 }
 function titlesTab(g, w) {
     const v = titlesView(g, w), open = TK.title ? v.titles.find(t => t.id === TK.title) : undefined;
@@ -315,12 +356,14 @@ function titlesTab(g, w) {
         return titlePage(g, w, open);
     const head = `<p class="mu-take-line"><small>${esc(`${plural(v.made, '1 title made', '{0} titles made')} · ${money(w, num(v.sold))} sold`)}</small>${v.totals.best ? `<small>${esc('Best seller of the older ones:')} ${W(v.totals.best)}</small>` : ''}</p>`;
     // yours first; the label's commissioned titles (shot without you) under their own heading
-    const mine = v.titles.filter(t => !isCommissioned(t)), label = v.titles.filter(t => isCommissioned(t));
+    // (the titles you took the stills on, for a label's art department: their own heading)
+    const mine = v.titles.filter(t => !isCommissioned(t)), stills = v.titles.filter(t => holdsStills(t)), label = v.titles.filter(t => isCommissioned(t) && !holdsStills(t));
     if (!v.titles.length)
         return `${head}<p class="mu-muted">${esc('No titles yet.')}</p>`;
     wantCoverSprites(g, w, v.titles.map(t => rawTitle(g, t.id)));
     const grid = (list) => `<div class="mu-take-grid">${list.map(t => titleThumb(g, w, t)).join('')}</div>`;
-    return `${head}${mine.length ? grid(mine) : `<p class="mu-muted">${esc('No titles yet.')}</p>`}
+    return `${head}${mine.length ? grid(mine) : stills.length ? '' : `<p class="mu-muted">${esc('No titles yet.')}</p>`}
+        ${stills.length ? `<h4 class="mu-take-sub">${esc('Your stills')}</h4><p class="mu-take-line"><small>${esc(plural(stills.length, '1 title you took the stills on', '{0} titles you took the stills on'))}</small></p>${grid(stills)}` : ''}
         ${label.length ? `<h4 class="mu-take-sub">${esc('Made for your label')}</h4><p class="mu-take-line"><small>${esc(plural(label.length, '1 title your label commissioned, shot without you', '{0} titles your label commissioned, shot without you'))}</small></p>${grid(label)}` : ''}`;
 }
 /* ---------- Chart ---------- */
@@ -451,6 +494,9 @@ Object.assign(ACT, {
     'tk-tab': (el) => { TK.tab = (TABS.find(t => t[0] === el.dataset.v)?.[0] ?? 'offers'); TK.title = ''; TK.cancel = ''; TK.plan = 0; notify(); },
     'tk-title': (el) => { TK.title = el.dataset.id ?? ''; TK.cancel = ''; TK.tab = 'titles'; notify(); },
     'tk-title-close': () => { TK.title = ''; TK.cancel = ''; notify(); },
+    // (a still: Lens opens it large, through the phone's handler)
+    'tk-photo': (el, e) => { const x = ctxW(); const id = Number(el.dataset.id) || 0; if (!x || !photoById(x.g, id))
+        return; LS.tab = 'photos'; LS.photo = id; return ACT['ph-go']?.(el, e); },
     'tk-take': (el) => {
         const x = ctxW();
         if (!x)

@@ -125,3 +125,8 @@
 /* the journal (book look) */
 #mundi-root .mu-book .mu-take-tabs { background: transparent; border-color: rgba(90, 60, 30, .35); }
 #mundi-root .mu-book :is(.mu-take-offer, .mu-take-card, .mu-take-thumb, .mu-take-scene) { background: rgba(255, 248, 228, .5); border-radius: 6px; }
+/* the stills (plans/industry-lens.md): a row of Lens's pictures on set and on a title's page, each opening in Lens */
+#mundi-root .mu-take-stills { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
+#mundi-root .mu-take-still { position: relative; display: block; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg2); box-shadow: none; min-height: 0; color: inherit; }
+#mundi-root .mu-take-still em { position: absolute; right: 7px; bottom: 6px; padding: 0 5px; border-radius: 6px; background: rgba(0, 0, 0, .6); color: #d4a017; font-size: 11px; font-style: normal; letter-spacing: 1px; }
+#mundi-root .mu-take-card.is-live > button[data-act="tk-do"] { justify-self: start; }
