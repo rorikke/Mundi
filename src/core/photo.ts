@@ -109,6 +109,7 @@ function subject(s: any): SubjectDef | undefined {
     const outfit = str(s.outfit); if (outfit && ID.test(outfit)) out.outfit = outfit;
     if (s.consent === true) out.consent = true;
     if (str(s.scene)) out.scene = str(s.scene);
+    if (s.title === true) out.title = true;   // (a promo brief for one of your titles: sim/assignments.ts checks it in play)
     return out;
 }
 function brief(b: any, places: Set<string>, clients: Set<string>): BriefDef | null {
@@ -186,7 +187,7 @@ export function upgradePhoto(w: WorldDef) {
     const books = uniq((Array.isArray(p.books) ? p.books : []).map(book).filter(Boolean) as PhotobookDef[]);
     const ids = new Set(clients.map(c => c.id)), bookIds = new Set(books.map(b => b.id));
     const briefs = uniq((Array.isArray(p.briefs) ? p.briefs : []).map((b: any) => brief(b, places, ids)).filter(Boolean) as BriefDef[])
-        .filter(b => { const who = b.subject?.who; return !who || SUBJECT_KINDS.includes(who) || rosterSubject(who) || cameraAllows(loosestCamera(people.get(who)), b); });
+        .filter(b => { const who = b.subject?.who; return !who || SUBJECT_KINDS.includes(who) || rosterSubject(who) || b.subject?.title === true || cameraAllows(loosestCamera(people.get(who)), b); });
     for (const b of briefs) if (b.book && !bookIds.has(b.book)) delete b.book;
     const out: PhotoDef = { clients, briefs };
     const words = (Array.isArray(p.words) ? p.words : []).map((x: any) => ({ at: num(x?.at, 0, 100), text: str(x?.text) }))

@@ -38,6 +38,7 @@ import './ui/map.js';
 import './ui/tools.js';
 import './sim/onset.js';   // (adult industry) the set, loaded after everything it reads (its actions reach sim/actions.ts through hooks)
 import './sim/label.js';   // (adult industry) a label of your own: its earnings through the ventures' hook, loaded after everything it reads
+import './sim/photocall.js';   // (adult industry and photography) a performer's photo call: `setLink.visit`, after the set it seats her beside
 
 function addLauncher() {
     const menu = document.getElementById('extensionsMenu');

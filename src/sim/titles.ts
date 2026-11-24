@@ -43,6 +43,7 @@ import { effectMul } from './effects.js';
 import { money } from './needs.js';
 import { book } from './ledger.js';
 import { note } from './facts.js';
+import { workWords } from './camera.js';   // (IQL-3: a title's camera words are work)
 
 /** The rules' numbers (first guesses, tuned by the long run). */
 export const TITLES = {
@@ -107,7 +108,8 @@ export function performerLimits(g: Save, w: WorldDef, who: string): string[] {
 }
 /** The words a scene is tested by: its kind (whole, and each of its longer words: a "rough take" meets "nothing rough")
  *  and its genre's words. */
-const sceneWords = (genre: GenreDef | undefined, kind: string) => [...new Set([kind, ...kind.split(/[^\p{L}\p{N}]+/u).filter(x => x.length >= 4), ...(genre?.words ?? [])].filter(Boolean))];
+// (IQL-3) a title's own camera words are work, not a private limit (sim/camera.ts's workWords)
+const sceneWords = (genre: GenreDef | undefined, kind: string) => workWords([...new Set([kind, ...kind.split(/[^\p{L}\p{N}]+/u).filter(x => x.length >= 4), ...(genre?.words ?? [])].filter(Boolean))]);
 /** The first limit of someone in the scene its words match ('' when it fits everyone): the private moments' word test. */
 export function sceneLimit(g: Save, w: WorldDef, genre: GenreDef | undefined, s: TitleScene): string {
     const words = sceneWords(genre, s.kind);

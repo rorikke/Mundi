@@ -121,6 +121,8 @@ function subject(s) {
         out.consent = true;
     if (str(s.scene))
         out.scene = str(s.scene);
+    if (s.title === true)
+        out.title = true; // (a promo brief for one of your titles: sim/assignments.ts checks it in play)
     return out;
 }
 function brief(b, places, clients) {
@@ -268,7 +270,7 @@ export function upgradePhoto(w) {
     const books = uniq((Array.isArray(p.books) ? p.books : []).map(book).filter(Boolean));
     const ids = new Set(clients.map(c => c.id)), bookIds = new Set(books.map(b => b.id));
     const briefs = uniq((Array.isArray(p.briefs) ? p.briefs : []).map((b) => brief(b, places, ids)).filter(Boolean))
-        .filter(b => { const who = b.subject?.who; return !who || SUBJECT_KINDS.includes(who) || rosterSubject(who) || cameraAllows(loosestCamera(people.get(who)), b); });
+        .filter(b => { const who = b.subject?.who; return !who || SUBJECT_KINDS.includes(who) || rosterSubject(who) || b.subject?.title === true || cameraAllows(loosestCamera(people.get(who)), b); });
     for (const b of briefs)
         if (b.book && !bookIds.has(b.book))
             delete b.book;

@@ -1117,8 +1117,11 @@ export interface BriefDef {
  *  board picks among the people you know), `client` (an anonymous one), `roster:<id>` (a performer of the adult
  *  industry's roster) or `roster` (one whose genres and rank fit the brief); the expression wanted (one of the 28,
  *  `back`: from behind), the outfit (`clothes`, `naked` or any outfit the person has: `robe`, `lingerie`, `swim-red`…),
- *  whether they're asked first, and the scene's words for the AI. */
-export interface SubjectDef { who: string; expr?: string; outfit?: string; consent?: boolean; scene?: string }
+ *  whether they're asked first, and the scene's words for the AI. `title`: a promo brief for one of your titles (adult
+ *  industry, plans/industry-lens.md IQL-3): offered only while the person named is in the cast of one of your titles
+ *  (its label's, when the client is a label), from the offer to two weeks after release; then their camera rule and
+ *  photo limits don't refuse it (filming it was work they agreed to). */
+export interface SubjectDef { who: string; expr?: string; outfit?: string; consent?: boolean; scene?: string; title?: boolean }
 /** (photography) A photobook a publisher can offer: a city, a person (`who`) or a season; `briefs` to shoot (3–5);
  *  `pay`: weekly royalties by sales at the start, fading to nothing over `weeks`; `ai`: what the AI is told once out;
  *  `when`: only offered while this holds (a season book's season, an idol's book through her storyline's hook). */

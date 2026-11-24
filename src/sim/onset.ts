@@ -48,6 +48,7 @@ import { social } from './social.js';
 import { addStatus, statusDef } from './needs.js';
 import { photoOn, peekPhoto, hasCamera, recordPhoto, placeCaption, briefOf, clientOf, trimPhotos, photoById, type Taken, type PhotoRec } from './photo.js';
 import { shotParts, starsOf, stillsShot } from './assignments.js';
+import { workWords } from './camera.js';   // (IQL-3: a title's camera words are work)
 
 /** The set's numbers (minutes, roll parts, quality). First guesses, tuned by the long run (L). */
 export const SET = {
@@ -296,7 +297,8 @@ export const sceneDc = (w: WorldDef, t: TitleRec, i: number): number => (genreOf
 const gradeOf = (total: number, dc: number, d20: number): SceneGrade => (d20 === 20 || (d20 !== 1 && total >= dc + SET.great) ? 'great' : d20 !== 1 && total >= dc ? 'good' : 'poor');
 const qOf = (total: number, dc: number) => Math.max(0, Math.min(100, Math.round(SET.q.base + SET.q.per * (total - dc))));
 /** The words a scene is tested by against limits and likes: its kind and the genre's words. */
-const wordsOf = (w: WorldDef, t: TitleRec, sc: TitleScene) => [sc.kind, ...(genreOf(w, t.genre)?.words ?? [])].filter(Boolean);
+// (IQL-3) a title's own camera words are work, not a private limit (sim/camera.ts's workWords)
+const wordsOf = (w: WorldDef, t: TitleRec, sc: TitleScene) => workWords([sc.kind, ...(genreOf(w, t.genre)?.words ?? [])].filter(Boolean));
 const part = (name: string, add: number): ShotPart => ({ name, add });
 
 // Chemistry with a co-star: a Tokyo person's friendship and romance with you, a performer's titles with you.
