@@ -8,9 +8,12 @@
 // title; the `industry` royalty source (a name director's share, the star-producer's fan club). `performingLink` and
 // the condition keys `titles`, `chart` and `seat` are answered here. What the Take app shows comes from the views at
 // the end. With the industry off (no block, the system or adult content off) nothing here reads or writes the save.
+// The stills seat (plans/industry-lens.md Part 1, IQL-1): a label's on-set photo brief, taken in Lens, books you onto
+// one of its titles' shoot days (a title of its own, its cast from the roster), the day played for you by the set; a
+// still as a title's cover lifts its first week's sales by the still's stars.
 import { nowAbs, residentsOf, type Save } from '../core/store.js';
-import type { WorldDef, ActionDef, LabelDef, GenreDef, SetDef, ThreadStage } from '../core/world.js';
-import { INDUSTRY, INDUSTRY_PAY_MAX, type Seat, type TitleScene, type SetCall } from '../core/industry.js';
+import type { WorldDef, ActionDef, LabelDef, GenreDef, SetDef, ThreadStage, BriefDef } from '../core/world.js';
+import { INDUSTRY, INDUSTRY_PAY_MAX, type Seat, type TitleScene, type TitleRec, type SetCall } from '../core/industry.js';
 import { onDay, onHour, onAction, onWrap, onRelease, setLink, performingLink, industryLink, engineActions, stageGives } from './hooks.js';
 import {
     peekIndustry, industryOf, industryOn, inIndustry, directing, seatsNow, labelsOf, genresOf, setsOf, rosterOf, labelOf, genreOf, setOf, rosterPerson,
@@ -33,7 +36,7 @@ import { genderOf } from './gender.js';
 import { rollBonus, rollD20 } from './dice.js';
 import { npcRank } from './longlife.js';
 import { placeOf } from './places.js';
-import { atHomeNow } from './photo.js';
+import { atHomeNow, photoOn, peekPhoto, briefOf, photoById, type Taken } from './photo.js';
 import { seasonDays, hm } from './time.js';
 import { payOf } from './bills.js';
 import { effectMul } from './effects.js';
@@ -56,8 +59,10 @@ export const TITLES = {
     madeUp: [8, 12], rows: 10,
     /** the edit: hours a scene, its lift at most, days before the label's editor takes it */
     editHours: 2, lift: 15, editDays: 7,
-    /** a cover shot by a director from the lens: week one's sales × this */
-    lensCover: 1.05,
+    /** a still as the title's cover: week one's sales × this, from one star to five (IQL-4) */
+    cover: [1, 1.1] as [number, number],
+    /** the stills seat: the scenes of a label's own title, at least and at most */
+    stillsScenes: [2, 3] as [number, number],
     /** a roster performer's fame by rank; a Tokyo co-star's by job rank */
     rosterFame: 18, npcFame: 12,
     /** how far ahead a shoot day can be found for Tokyo's co-stars (days after the wait), the choices offered */
@@ -476,7 +481,7 @@ export function wrapNow(g: Save, w: WorldDef, id: string, rnd = Math.random): st
     if (!t || t.q !== undefined || t.cancelled) return [];
     const out: string[] = [];
     if (setLink.current(g)?.title.id === t.id) out.push(...setLink.wrap(g, w));
-    if (t.q === undefined) { rollScenes(g, w, t, rnd); for (const f of onWrap) out.push(...f(g, w, t)); }
+    if (t.q === undefined) { if (holdsStills(t)) castScenes(g, w, t, rnd); else rollScenes(g, w, t, rnd); for (const f of onWrap) out.push(...f(g, w, t)); }
     return out;
 }
 /** A shoot day gone by: wrapped if it began (whatever the set left unplayed is rolled), else missed: the title is
@@ -486,6 +491,9 @@ function pastShoots(g: Save, w: WorldDef): string[] {
     for (const t of [...st.titles] as Title[]) {
         if (t.q !== undefined || t.cancelled || !t.shoot || t.shoot >= g.day) continue;
         if (t.started) { out.push(...wrapNow(g, w, t.id)); continue; }
+        // (the stills seat: the label shoots its title anyway, without your stills; the brief is missed in Lens by its own
+        // deadline)
+        if (holdsStills(t)) { out.push(`${labelOf(w, t.label)?.name ?? 'The label'} shot "${t.name}" without you: no stills of yours.`, ...wrapNow(g, w, t.id)); continue; }
         st.titles = st.titles.filter(x => x !== t);
         const lb = (st.standing[t.label] ??= { n: 0 }); lb.n += BOOKINGS.missed.standing; lb.until = g.day + 7;
         for (const a of social(g).appts) if ((t.plans ?? []).includes(a.id) && a.state === 'set') a.state = 'cancelled';
@@ -527,20 +535,120 @@ function editTimeouts(g: Save): string[] {
     return out;
 }
 
+/* ---------- the stills seat (plans/industry-lens.md Part 1, IQL-1) ---------- */
+
+/** A title you hold the stills seat on: `stills` is the photo brief that booked you (its id in Lens). */
+export type StillsTitle = Title & { stills?: number };
+/** Do you hold a title's stills seat (no share of its sales, no fame as a performer, no stance)? */
+export const holdsStills = (t: { you: Seat[] }) => t.you.includes('stills');
+/** The set a photo brief books you onto: a brief from a label's art department (its client is one of the industry's
+ *  labels) shot at one of the industry's sets' places. Undefined: an ordinary photo brief. */
+export function stillsSet(w: WorldDef, b: BriefDef | undefined): SetDef | undefined {
+    if (!b || !labelsOf(w).some(l => l.id === b.client)) return undefined;
+    return setsOf(w).find(s => !!s.place && b.places.includes(s.place));
+}
+// The label's genre for that set (one both shoot; else the label's, else any).
+function stillsGenre(w: WorldDef, label: LabelDef, set: SetDef, salt: string): GenreDef | undefined {
+    const own = (label.genres ?? []).map(id => genreOf(w, id)).filter((x): x is GenreDef => !!x);
+    const both = own.filter(x => (set.genres ?? []).includes(x.id));
+    const pool = both.length ? both : own.length ? own : genresOf(w);
+    return pool[Math.floor(H(salt) * pool.length)];
+}
+// The cast of a label's own title: a woman of the roster for the genre (its own first, the higher ranks more often)
+// and a man for her (none in the roster: another woman); roster ids as titles name them.
+function stillsCast(g: Save, w: WorldDef, genre: GenreDef, salt: string): string[] {
+    const now = rosterNow(g, w), fit = (p: { genres?: string[]; rank?: number }) => ((p.genres ?? []).includes(genre.id) ? 3 : 1) * (1 + (p.rank ?? 0));
+    const women = now.filter(p => p.gender !== 'man'), men = now.filter(p => p.gender === 'man');
+    const lead = pickW(women, fit, H(`${salt}|lead`));
+    if (!lead) return [];
+    const co = pickW(men.length ? men : women.filter(p => p !== lead), fit, H(`${salt}|co`));
+    return [lead, ...(co ? [co] : [])].map(p => `roster:${p.id}`);
+}
+/** Books you onto a label's shoot day for a taken on-set brief: a title of the label's own (A's `makeTitle`, then given
+ *  scenes, a set and a day), the roster's cast in every scene (none past a limit), the first day from tomorrow to the
+ *  brief's deadline with no shoot of yours; you hold its `stills` seat. Lines (none when it can't be booked: the brief
+ *  is then shot the plain way). */
+export function bookStillsFor(g: Save, w: WorldDef, tk: Taken): string[] {
+    const b = briefOf(w, tk.brief), set = stillsSet(w, b), label = b && labelsOf(w).find(l => l.id === b.client);
+    if (!b || !set || !label || tk.shot || !industryOn(g, w)) return [];
+    const salt = `${g.world}|stills|${tk.id}`, genre = stillsGenre(w, label, set, `${salt}|g`);
+    if (!genre) return [];
+    const cast = stillsCast(g, w, genre, salt);
+    if (!cast.length) return [];
+    const kinds = genre.scenes?.length ? genre.scenes : ['scene'], [lo, hi] = TITLES.stillsScenes;
+    const n = lo + Math.floor(H(`${salt}|n`) * (hi - lo + 1)), first = Math.floor(H(`${salt}|k`) * kinds.length);
+    const scenes: TitleScene[] = [];
+    for (let i = 0; i < n; i++) { const sc: TitleScene = { kind: kinds[(first + i) % kinds.length], with: [...cast] }; if (!sceneLimit(g, w, genre, sc)) scenes.push(sc); }
+    if (!scenes.length) return [];
+    const busy = new Set(takenTitles(g).map(x => x.shoot));
+    let day = -1;
+    for (let d = g.day + 1; d <= tk.due && day < 0; d++) if (!busy.has(d)) day = d;
+    if (day < 0) return [];
+    const t = makeTitle(g, w, { label: label.id, genre: genre.id, q: 0, cast, you: ['stills'] }) as StillsTitle | null;
+    if (!t) return [];
+    delete t.q; delete t.edited;
+    Object.assign(t, { scenes, set: set.id, shoot: day, release: 0, contract: g.day, stills: tk.id });
+    const place = setPlace(w, set);
+    return [`${label.name} booked you for the stills on "${t.name}": ${dayWords(g, day)} from ${hm(TITLES.call * 60)}${place ? ` at ${placeOf(g, w, place)?.name ?? place}` : ''}.`];
+}
+/** Every taken on-set brief not booked yet (Lens's open briefs), booked now. Lines. */
+export function bookStills(g: Save, w: WorldDef): string[] {
+    if (!photoOn(w) || !industryOn(g, w)) return [];
+    const open = peekPhoto(g).open;
+    if (!open.length) return [];
+    const booked = new Set(peekIndustry(g).titles.map(t => (t as StillsTitle).stills).filter(x => x !== undefined));
+    return open.filter(tk => !booked.has(tk.id) && !tk.shot && stillsSet(w, briefOf(w, tk.brief))).flatMap(tk => bookStillsFor(g, w, tk));
+}
+// (a label's own title nobody played: its cast's takes by the roster's rank against the genre's difficulty)
+function castScenes(g: Save, w: WorldDef, t: Title, rnd = Math.random) {
+    const genre = genreOf(w, t.genre);
+    t.scenes.forEach((s, i) => {
+        if (s.grade) return;
+        const dc = (genre?.dc ?? 12) + i, ranks = s.with.map(x => rosterPerson(w, rosterIdOf(g, w, x))?.rank ?? 0);
+        const bonus = Math.round((2 * ranks.reduce((a, b) => a + b, 0)) / Math.max(1, ranks.length)), d = 1 + Math.floor(rnd() * 20), total = d + bonus;
+        s.grade = d === 20 || (d !== 1 && total >= dc + 5) ? 'great' : d !== 1 && total >= dc ? 'good' : 'poor';
+        s.q = Math.max(5, Math.min(100, Math.round(55 + 5 * (total - dc))));
+        s.parts = [{ name: "The cast's takes", add: total }];
+    });
+}
+/** After a stills title's shoot (before A's wrap step, which then finds it done): the quality, the release, the label's
+ *  own edit; no fee, no seat counted, no performance, no co-star's titles with you, no standing. Lines. */
+export function stillsWrap(g: Save, w: WorldDef, title: TitleRec): string[] {
+    if (!industryOn(g, w) || !holdsStills(title)) return [];
+    const st = industryOf(g), t = st.titles.find(x => x.id === title.id) as Title | undefined;
+    if (!t || t.q !== undefined || t.cancelled) return [];
+    if (t !== title) { t.scenes = title.scenes.map(s => ({ ...s })); if (title.cover !== undefined) t.cover = title.cover; }
+    t.q = titleQuality(t); t.release = t.shoot + releaseDays(g); t.edited = g.day; t.cut = 0;
+    if (t.started) note(g, '{u} took the stills on "{0}" for {1}.', [t.name, labelOf(w, t.label)?.name ?? t.label], [], g.player.loc, 'work');
+    return [`"${t.name}" is in the can: quality ${t.q}. ${labelOf(w, t.label)?.name ?? 'The label'} releases it in ${t.release - g.day} days.`];
+}
+// (the first of the wrap's steps)
+onWrap.unshift(stillsWrap);
+
 /* ---------- release, sales, the chart ---------- */
 
 /** The weeks a title sells over (the world's, else a season). */
 export const salesWeeks = (g: Save, w: WorldDef) => Math.max(1, w.industry?.sales?.weeks || Math.max(2, Math.round(seasonDays(g) / 7)));
 /** A title's sales for its next week: base × genre × label tier and pay × quality/60 × (1 + the stars' best fame/100) ×
- *  the trend, falling in a straight line to nothing over its weeks (week one ×1.05 with a lens director's cover). */
+ *  the trend, falling in a straight line to nothing over its weeks (week one × the cover's bonus when a still taken on
+ *  set is its cover). */
 export function weekSales(g: Save, w: WorldDef, t: Title): number {
     const W = salesWeeks(g, w);
     if (!t.out || t.cancelled || t.weeks >= W) return 0;
     const s = w.industry?.sales ?? INDUSTRY.sales, lb = labelOf(w, t.label), gn = genreOf(w, t.genre);
     const fame = Math.max(0, ...t.cast.map(x => (x === YOU && !t.you.includes('perform') ? 0 : starFame(g, w, x))));
-    const lens = t.weeks === 0 && t.you.includes('direct') && peekIndustry(g).seats.direct?.lens ? TITLES.lensCover : 1;
-    const v = s.base * (gn?.pay ?? 1) * (TITLES.tier[lb?.tier ?? 2] ?? 1) * (lb?.pay ?? 1) * ((t.q ?? 50) / 60) * (1 + fame / 100) * trendOf(g, w, t.genre) * (1 - t.weeks / W) * lens;
+    const cover = t.weeks === 0 ? coverBonus(g, t) : 1;
+    const v = s.base * (gn?.pay ?? 1) * (TITLES.tier[lb?.tier ?? 2] ?? 1) * (lb?.pay ?? 1) * ((t.q ?? 50) / 60) * (1 + fame / 100) * trendOf(g, w, t.genre) * (1 - t.weeks / W) * cover;
     return Math.min(INDUSTRY_PAY_MAX, Math.round(v * effectMul(g, w, 'royalty', 'industry')));
+}
+/** The cover's bonus to a title's first week: ×1.00 at one star to ×1.10 at five, only when a still taken on set (still
+ *  in Lens and developed) is its cover; ×1 without. */
+export function coverBonus(g: Save, t: { cover?: number }): number {
+    const r = t.cover === undefined ? undefined : photoById(g, t.cover);
+    if (!r || r.src !== 'set' || r.undeveloped) return 1;
+    const stars = Math.max(1, Math.min(5, Math.round(r.stars ?? 1)));
+    const [lo, hi] = TITLES.cover;
+    return lo + ((hi - lo) * (stars - 1)) / 4;
 }
 /** Releases due: the title out, its fans, the `onRelease` steps (sim/fame.ts, sim/stance.ts). Lines. */
 export function releases(g: Save, w: WorldDef): string[] {
@@ -627,7 +735,7 @@ function fold(g: Save) {
     const over = Math.max(0, st.titles.length - old.length - TITLES.keep);
     const gone = new Set([...old, ...(st.titles as Title[]).filter(t => done(t) && !old.includes(t)).slice(0, over)]);
     for (const t of gone) {
-        if (isCommissioned(t)) { st.totals.label = (st.totals.label ?? 0) + 1; continue; }
+        if (isCommissioned(t)) { if (!holdsStills(t)) st.totals.label = (st.totals.label ?? 0) + 1; continue; }
         st.totals.titles++; st.totals.sales += t.sold; if (t.sold > (st.totals.bestSold ?? 0)) { st.totals.bestSold = t.sold; st.totals.best = t.name; }
         // (its best chart place stays, for `chart: top N`, by each seat you held on it)
         if (t.peak) { const p = (st.totals.peaks ??= {}); for (const k of ['any', ...t.you] as const) p[k] = Math.min(p[k] ?? 99, t.peak); }
@@ -674,7 +782,7 @@ stageGives.push((g, w, s: ThreadStage, _thread: string, avatar: string) => {
 
 /* ---------- the days ---------- */
 
-onHour.push((g, w) => callTick(g, w));
+onHour.push((g, w) => [...bookStills(g, w), ...callTick(g, w)]);
 onDay.push((g, w) => {
     if (!industryOn(g, w)) return [];
     const has = !!(g as any).industry;
