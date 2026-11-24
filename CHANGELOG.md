@@ -1,5 +1,87 @@
 # Changelog
 
+## 1.2.0 · 2026-11-25
+
+With adult content on, the adult video job becomes a career of its own, and for everyone, pictures for Tokyo's things,
+apps of their own for Goals, Collection and Lens, and a second chance for a storyline that ended badly. **Your saves
+move to format 10** (a backup is kept): a game with the adult video job keeps its rank and goes on bookings.
+
+### The adult industry (adult content on)
+
+- **Title by title.** The adult video job has no shifts any more: each title counts toward your next rank. Offers and
+  briefs come to the new **Take** app every Monday, each one title with its label, genre, set, fee and every scene with
+  who is in it. A scene against your limits or a co-star's is never in a contract, and you can ask for one off.
+- **The shoot day.** Signed, a title waits about a month for its shoot, on a day everyone in it can come. Be at the set
+  at the call time: two to four scenes, each rolled on your skills, your co-star, the script and the set, played with
+  the AI or skipped to the result. A monthly test at the clinic keeps you able to sign and shoot.
+- **Release, sales and the chart.** A few weeks later the title comes out and sells every Monday for a season: more
+  with a better quality, a bigger label, the month's hot genre and a famous star. The week's best sellers make the chart.
+  The Calendar lists your shoot days, releases, an edit's last day and the monthly test.
+- **Three seats.** Perform (up to a star who produces her own titles, or for a man the women's line), go behind the
+  camera (briefs instead of offers: you cast it, shoot it and edit it, and a name director takes a share of the sales),
+  or open a **label of your own** in the Business app. A performer who sells may be offered an exclusive contract, renewed each
+  season by its sales; leaving the job ends it.
+- **Your own label** makes titles every month without you and earns from their sales, far more from the ones you make
+  yourself. Sign exclusives, run it by the law's spirit or cut corners (and risk a scandal), and climb to established
+  and major by its own set and the distributor, or by your own work for it: titles you made and their weeks in the
+  chart's top 10.
+- **Fame and what people think.** Each seat has its own fame, from releases and the chart, fading without them and
+  harder to hold at the top. Strangers recognize you now and then, a fan asks for a photo, and a day job may mind.
+  Everyone has a stance on your work (fine, uneasy or a deal-breaker) that counts once they know: an uneasy partner may
+  be jealous after a shoot, and a deal-breaker asks for a talk. Stances soften with friendship, and a season without
+  performing lifts them.
+- **New people and places.** Naomi Reid-Kagami, the director who runs Kurobara Visual's set in Nakano, ten actresses
+  and two actors who exist only in the industry, and a rented house in Setagaya used as a set, all drawn, with a
+  bathrobe for between takes. Naomi has a storyline of her own, Kanon a new one (her book on screen), and the year has
+  the industry's expo and awards.
+- **Risky sets.** Now and then an offer names a risky set, such as the beach at Odaiba after dark, and says how likely
+  you are to be caught: the shoot stops, word may get around and the place is closed to shoots for a week.
+- **Lens on set.** A photographer can be booked onto a label's shoot to take the stills, or a director takes them
+  between scenes. The best still is the title's cover and sells its first week up to a tenth more. Briefs can
+  photograph the industry's performers, who come by for the shoot, and a performer, or a star who produces, can have a
+  photobook of her own.
+- **Play as** keeps each person's part of the industry: their seats, contract, titles and fame.
+- **Help** explains it all, and the **World creator** has an Industry tab.
+
+### Tokyo's things in pictures
+
+- **Tokyo's 339 keepsakes, shop items, rewards, home fixtures and museum upgrades have pictures** in the city's flat
+  anime style, in place of their emoji: in the Shop, the Rewards tab, the Homes app's rooms, the museum's upgrades, the
+  gifts you give and buy, a person's page and Lens. Tap one in the Shop or a keepsake in Collection to see it full size.
+- **World makers:** keepsakes, shop items, home fixtures, rewards and museum upgrades have a Picture field, with an
+  upload, in the World creator.
+
+### The phone
+
+- **Goals, Collection and Lens are apps of their own.** Goals has *Hide finished* and a Back that returns where the
+  list was. In Collection, tapping a slot opens its page: a keepsake kind's keepsakes and where each comes from, a
+  district's places and street stories still waiting, a festival's next date.
+- **Unfolded, more apps sit side by side like Messages:** the Shop (with *Hide owned*), the Profile, Jobs, Homes,
+  Spark, Goals, Collection and Lens. Work lists Jobs, Campus, Business and Lens on the left and draws the one you open.
+  Reputation is a tab of the Profile.
+
+### Scenes and play
+
+- **A second chance**, a new reward (1,000 life points): one storyline that didn't end well begins again from the
+  start. The secret stays known, what its ending changed stays, and someone it took away comes back.
+- **See the scene:** an eye left of Map hides the interface, leaving only the place and its people; a click or any key
+  brings it back.
+- On the map, clicking the place you're in takes you back into its scene.
+
+### What people wear
+
+- Lingerie can also be found under the outfits a world names as hiding it, and in a private moment with a dress code,
+  someone it has no outfit for undresses instead of staying dressed. The AI is told when someone is in lingerie, half
+  undressed or in a robe.
+- Kaede's denim swimsuit goes with her road-trip clothes.
+
+### Fixes
+
+- 29 of Tokyo's expressions no longer show bits of the green or pink backdrop between the arms and body or in the hair.
+- The World creator edits a few fields it only showed: a feeling's adult and secret flags, a crisis that keeps you
+  overnight, and a street story's renown and damaged piece.
+- Everything new is in Portuguese and Spanish, and the README shows Tokyo in pictures and screenshots.
+
 ## 1.1.2 · 2026-11-21
 
 What people wear follows the story, and a few fixes. Your saves open as they are: no save format change.

@@ -22,8 +22,10 @@ point of view, and grows as new ones arrive.
 - [Rooms at home](#rooms-at-home)
 - [A friend staying over](#a-friend-staying-over)
 - [A photographer's life](#a-photographers-life)
+- [The adult industry](#the-adult-industry)
 - [Dressing for the place](#dressing-for-the-place)
 - [The phone](#the-phone)
+- [In the scene](#in-the-scene)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
 ## A color for each speaker's dialogue
@@ -268,6 +270,7 @@ own](#a-café-of-your-own), and *Mentor* through [training together](#training-t
 | Insight | one true thing about someone: who they have feelings for, how they see you, or their secret | 250 |
 | Change a trait | swap a personality or interest trait (your persona card is updated) | 500 |
 | Skip a step | the current step counts as done; never the last one, once per goal, and it pays no points | 400 |
+| A second chance | one storyline that didn't end well begins again from the start: the secret stays known, what its ending changed stays, someone it took away comes back, and Tokyo memories follows how it ends next time | 1,000 |
 
 - **Tokyo's shrines** sell their own, at Sensō-ji, Meiji Jingū, Kanda Myōjin and Tsukimi Inari: an *omikuji* (a lucky
   week, 500), four *omamori* charms for love, study, health and work (a week each, 300), a *daruma* that doubles the
@@ -339,7 +342,7 @@ items. It's all between adults who want to, and it never gets past a hard limit 
 ### Sensuality
 
 A skill like the others (levels 0–10), only there with adult content on. It grows from private moments, from the two
-adult courses and from some adult work (a dancer's or an AV shift), and it's what the adult careers ask for. The
+adult courses and from some adult work (a dancer's shift or an AV shoot), and it's what the adult careers ask for. The
 strength **Good in bed** starts you at Sensuality 3.
 
 ### Private moments
@@ -452,10 +455,10 @@ office (20%), Ueno Park after dark (15%), the ryokan's shared bath after midnigh
   none, you pick one when you're hired, once, and it can't be changed later. The world's people use their own.
 - **AV.** *AV actress* is the job as before (from the listings, for women). *AV actor* has no listing: you need an
   introduction (a director's card from a street story in Kabukichō, Airi or Momo as a friend, or Sensuality 7), Fitness
-  and Sensuality to start, and a harder interview; the pay is lower (¥800 to ¥3,000 an hour against ¥1,500 to ¥4,000). Ranks take half again as
-  long, you're called one day a week to begin with, and some ranks wait for a work event: a director calling you back,
-  an actress asking for you (a friend of yours first, otherwise someone unnamed). Both tracks wait a month between
-  signing and the first shoot.
+  and Sensuality to start, and a harder interview, and his fees are lower. Both are worked title by title, with offers
+  in the Take app (see [The adult industry](#the-adult-industry)). An actor's ranks take half again as long, and some
+  wait for a work event: a director calling you back, an actress asking for you (a friend of yours first, otherwise
+  someone unnamed), each once.
 - **Esthe therapist.** A new job at *Aroma Room Lily* in Shinjuku, the way on from the massage course (finishing it starts
   you past the trainee rank). *Men's esthe* works at the room, *Women's services* works outcalls off screen: slower ranks
   (×1.4), and a ¥30,000 training fee unless you've finished the massage course. Its main event is "Is there an option?":
@@ -693,6 +696,12 @@ The phone's Shop app grew from eight things into Tokyo's whole high street: abou
 machine cost what they always did), and the top is for the end game, when a career, a café and a hotel bring in half a
 million yen a week or more. It's meant for choosing, not buying out: everything together costs far more than a game
 earns.
+
+Each of Tokyo's things has a picture in the city's flat anime style (339 of them: keepsakes, shop items, rewards, home
+fixtures and museum upgrades), shown in the Shop, the Rewards tab, the Homes app's rooms, the museum's upgrades, gifts,
+a person's page and Lens. Tap one in the Shop, or a keepsake you've had in Collection, to see it full size with its
+name and description. *Hide owned* leaves out what you already have. World makers give an item a picture with the
+Picture field in the World creator; an item without one shows its emoji as before.
 
 ### What's sold, and where
 
@@ -1441,6 +1450,117 @@ with it; with it off, none of it shows, and photos marked adult stay hidden.
 - **Your existing games** get Lens at once; the boards fill the next morning, and photo keepsakes you already have show
   in Photos.
 
+## The adult industry
+
+With **adult content on**, adult video is a career of its own instead of a job with shifts. Offers come one title at a
+time to a phone app of its own, **Take**: each with its contract and its shoot day, then the release, the weekly sales
+and the chart. Above it are directing and a label of your own, and around it fame and what the people you know think
+of your work. With adult content off, none of it exists: no Take, no industry people, no expo or awards.
+
+### Getting in
+
+The way in is the AV job as before (see [Careers](#careers)): women from the listings, anyone else with an
+introduction. Once hired, there's no work week, shift button or Work button on the map: each title counts toward your
+next rank, and your first offers come on your first day.
+
+### Title by title
+
+- **Offers.** Every Monday the labels send offers to Take, fewer when your performance is low. Each is one title: its
+  label, genre, set, fee and every scene with who is in it. An offer keeps a few days, and Take's badge says when
+  something new is there.
+- **Contracts.** A scene that goes against someone's limits (yours, written in Take, or a co-star's) is never in a
+  contract. You can ask for a scene off, and the label remembers it for a while.
+- **The wait and the shoot day.** Signed, the shoot is set after a month's wait, on a day everyone in it can come, and
+  you can move it. The Calendar lists your shoot days with their call time, label and set.
+- **The monthly test.** Performers take a test at a clinic once a month, from its Things to do. While it's overdue you
+  can't sign a contract or shoot.
+- **On set.** Be at the set from the call time. The day's performers come on set at the call and leave at the wrap.
+  After hair and make-up come two to four scenes, each rolled on your skills, how you suit your co-star, a like of
+  theirs you know, the script, the set and how tired you are. Play a scene with the AI or skip to the result; a
+  co-star's hard limit stops a scene. Missing a shoot loses the title, and the label won't forget it.
+- **Risky sets.** Now and then an offer names a risky set, such as the beach at Odaiba after dark (most often for On
+  location), and its card says how likely you are to be caught. Caught at the call, the shoot is stopped, word may get
+  around, the place is closed to shoots for a week and you get a warning. A label's usual set is never a risky one.
+- **Release and sales.** A few weeks after the shoot the title comes out and sells every Monday for a season: more with
+  a better quality, a bigger label, a genre that's hot this month and a famous star. The week's best sellers make the
+  chart, and a title of yours keeps its sales week by week in Take.
+
+### Three seats
+
+Performing, directing and running a label are the industry's three seats. Take shows the ones you hold, each with its
+own fame.
+
+- **Performing.** An actress climbs to the top of the women's ranks, and later can become a **Star and producer** who
+  plans titles of her own; an actor can take **the women's line**, titles made for women. A performer who sells may be
+  offered an **exclusive contract**: titles from that label only, each a big release with a bigger fee and more fame,
+  renewed each season by what its titles sold (its raises add up to a fifth at most). Turning it down keeps you
+  freelance, and leaving the job ends it.
+- **Behind the camera.** Higher up, or by another way in, you can direct. A director gets briefs instead of offers:
+  choose the cast and the set, shoot it, then edit it at home or at the set for a better title (left a week, the label's
+  editor does it). A **name director** takes a share of the sales.
+- **A label of your own**, opened in the Business app, makes titles every month without you (how many by its tier) and
+  earns from their sales, far more from the ones you make for it yourself. Naomi or Airi may direct one after their
+  storylines end that way. You can sign performers as exclusives on the label's upkeep, and choose how it's run: by the
+  law's spirit, or cutting corners for more money and the risk of a scandal now and then. It climbs from its first tier
+  to *established* and then a *major* by buying its milestones (its own set, then the distributor who takes its titles
+  to every shop), or by your own work for it: four titles you directed or starred in for it and one in the chart's top
+  10 to be established, twelve and two weeks in the top 10 to be a major. Take lists the titles it made without you
+  apart, under *Made for your label*. Becoming a name director gives you your director's chair, and your label's first
+  jacket as a major comes framed: two keepsakes.
+
+### Fame and what people think
+
+- **Fame** (0 to 100) grows in each seat with every release, and a week in the chart adds more; weeks without a release
+  let it fade. It's harder to hold at the top, so a long career settles in the 80s and 90s. With fame, people recognize
+  you in busy places now and then: a fan may ask for a photo or a signature, or someone tells the people around. Fan
+  meetings and a star's fan club pay every week.
+- **A day job may mind:** a coworker who recognizes you can mean a warning, or worse. Your family may find out, and
+  cool off for a season.
+- **What people think.** Everyone has a stance on your work: fine, uneasy or a deal-breaker. It only matters once they
+  know, through word going round, a title, your fame, or you telling them yourself, which makes it weigh less for a
+  season. An uneasy partner may be jealous after a shoot. Someone for whom it's a deal-breaker won't be with you while
+  you perform, and asks for a talk: keep working, stop performing or give it time. Directing or a label weighs less
+  than performing.
+- **Stances change.** A close friendship softens a stance a little each season, and so does stopping or giving it time
+  in the talk. Once you've gone a season without performing, it no longer stands in the way. Friendship itself never
+  moves because of it.
+
+### Tokyo's industry
+
+- **Naomi Reid-Kagami** directs and runs **Kurobara Visual**'s windowless set and office in Nakano, and has a storyline
+  of her own (*The director at Kurobara*). Labels also shoot at **a rented house in Setagaya**.
+- **Ten actresses and two actors** exist only in the industry: they come on set for a shoot and leave after, and never
+  join the world's people, its couples or its rumors. Each has a portrait, her expressions and a set bathrobe for
+  between takes, and some have a swimsuit for the beach.
+- **Kanon** has a new storyline, *Kanon's book on screen*: a label wants to adapt her doujinshi, and she'd rather you
+  made it.
+- **The year** has the industry's expo at the Tokyo Bay Exhibition Center and its awards, in the Calendar and the News.
+
+### Lens on set
+
+With photography on, Lens and the industry meet:
+
+- **Stills on set.** Kurobara's stills brief books a photographer onto one of its shoot days in the stills seat, and a
+  director with a camera can take the stills between scenes, from Things to do on set. The best still becomes the
+  title's cover and sells its first week up to a tenth more by its stars; a title's page in Take shows its stills.
+- **Performers in front of your camera.** Briefs can name one of the industry's performers in any outfit she has; she
+  comes by for the shoot's window and leaves after. While a title of yours is out, a label may ask for a promo shoot
+  of its star.
+- **Photobooks.** A performer at rank 3, with Kurobara or a publisher as a contact, can have a photobook of her own, and
+  a Star and producer's own book is three sittings at the studio. You're never drawn in its pictures: the words keep
+  what was shot.
+
+### World makers and older games
+
+- **Play as** swaps your part of the industry too: each person keeps their own seats, exclusive contract, titles and
+  fame. The chart, the month's trend and your label stay shared.
+- **The World creator** has an **Industry** tab (the job it books, genres, labels and their sets, the roster of
+  performers, the chart's made-up titles) and the industry's fields on jobs, people (their stance), storylines and
+  ventures. A world can switch the **Adult industry** system off (Features › Systems): no Take, no bookings, titles,
+  fame or stances, and the AV job is worked in shifts.
+- **Your existing games** move to save format 10 once, with a backup kept: a game holding the AV job keeps its job,
+  track, rank and path and goes on bookings once the world has an industry.
+
 ## Dressing for the place
 
 People now change for where they are. At a pool, on a beach in summer or for a swim, everyone puts on swimwear of their
@@ -1457,8 +1577,11 @@ for the men, each with its full set of expressions, from a modest one-piece to a
   boat and wading in summer dress people too.
 - **Other occasions.** The same works for other outfits: Tamaki comes to the summer festivals in her yukata once she's
   your sweetheart, Ayame fences at her club in her whites, and Kaede sits at her van in her jumper with a mug of tea.
-- **Your choice too.** Click someone's sprite to change their outfit yourself; the outfits the world has for them are
-  listed with how bold each is. An outfit's pictures upload the first time it's worn.
+- **Outfits follow the story.** When a reply clearly has someone undress, dress again or change clothes, their picture
+  follows and the AI is told (undressing only in a private place with adult content on, changing outfits only where
+  they can, such as their home). It costs one short AI call after a reply, and *Outfits follow the story* (☰ → This
+  world → World) turns it off. You don't pick what other people wear: someone left in an outfit nothing calls for
+  changes back. An outfit's pictures upload the first time it's worn.
 - **Adult content.** The bold sets show only with adult content on, and the explicit ones only in a private or adult
   scene.
 
@@ -1489,10 +1612,23 @@ the home screen.
 - **The Calendar is an agenda:** the next seven days in a strip, and the chosen day with everything in it in time
   order (shifts and classes, plans, photo shoots, what's on in town, festivals, weddings, bills, Lens briefs), each
   opening where you act on it.
-- **The Profile** is in tabs under its top card (You, Skills, Courses, Perks), and the card's counts open them.
-  **Jobs** has two views while you have a job: Your job and Openings.
-- **Money** pays the bills (Homes keeps one line with what your home costs), and Jobs, Campus, Business and Lens share
-  one Work icon with a tab each.
+- **The Profile** is in tabs under its top card (You, Skills, Courses, Perks, Reputation), and the card's counts open
+  them. **Jobs** has two views while you have a job: Your job and Openings.
+- **Money** pays the bills (Homes keeps one line with what your home costs), and Jobs, Campus and Business share one
+  Work icon; unfolded, Work lists them (and Lens) on the left and draws the one you open on the right.
+- **Goals, Collection and Lens are apps of their own** on the home screen. Goals has *Hide finished*, and a goal's
+  page has a Back that returns where the list was. In Collection, tapping a slot opens its page: a keepsake kind's
+  keepsakes, the missing first, each with where it comes from; a district's places and where its street stories still
+  wait; a festival's or an event's next date. *Missing only* hides what's filled.
+- **Unfolded, more apps sit like Messages:** the Shop (your money and its tabs on the left, the tab's things side by
+  side on the right), the Profile, Jobs, Homes, Spark, Goals, Collection and Lens each show their list or tabs beside
+  what's open.
+
+## In the scene
+
+- **See the scene:** an eye left of Map and the menu hides the interface, as in a visual novel, leaving only the place
+  and the people in it. A click anywhere or any key brings it back (on a phone, it's in the menu).
+- **Back into the scene:** on the map, clicking the place you're in (under the clock) takes you back into its scene.
 
 ## The World creator and the new game
 

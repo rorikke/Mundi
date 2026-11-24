@@ -1,10 +1,20 @@
 // The version of Mundi (the same as manifest.json: a test checks it) and what each version brought.
-export const VERSION = '1.1.2';
+export const VERSION = '1.2.0';
 
 export interface Release { v: string; title: string; items: [string, string][] }
 // Newest first. The first one is what the window shows after an update; a small release can have none of its own
 // (1.1.1), and then the window doesn't open for it.
 export const CHANGELOG: Release[] = [
+    { v: '1.2.0', title: 'Behind the camera, and Tokyo in pictures', items: [
+        ['film', "With adult content on, the adult video job is a career of titles: offers and contracts in the new Take app, shoot days, releases, weekly sales and a chart, directing, and a label of your own."],
+        ['users', "Naomi Reid-Kagami and Kurobara Visual's set in Nakano, ten actresses and two actors of the industry, fame, and what everyone thinks of your work."],
+        ['camera', "Lens on set: take a title's stills, book the industry's performers for your briefs, and make a still the title's cover."],
+        ['image', "Tokyo's 339 keepsakes, shop items, rewards, home fixtures and museum upgrades have pictures: tap one to see it full size."],
+        ['phone', "Goals, Collection and Lens are apps of their own, and unfolded, the Shop, Profile, Jobs, Homes and Spark sit side by side like Messages."],
+        ['star', "A second chance, a new reward: a storyline that didn't end well begins again from the start."],
+        ['eye', "An eye in the scene hides the interface, leaving only the place and its people."],
+        ['globe', "Everything new is in Portuguese and Spanish, and your games open as they were (one with the adult video job moves onto bookings, with a backup kept in the save)."],
+    ] },
     { v: '1.1.0', title: 'Through the lens, and at home in Tokyo', items: [
         ['camera', "A photographer's career: assist Erika Mizushima at Studio MIZU, then go freelance with briefs that wait for their light and weather, a photo studio of your own and photobooks. Everyone gets Lens for their photos."],
         ['home', "The Kōenji share house has rooms inside, with housemates keeping the house's rhythm, and a friend can stay over for a few days."],
