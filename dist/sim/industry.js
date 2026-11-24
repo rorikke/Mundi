@@ -29,6 +29,60 @@ export function industryOf(g) {
     s.yes ??= {};
     return s;
 }
+/* ---------- "Play as" ---------- */
+// The world's part of the record stays with the save: the chart, the month's trend, the Monday's sales and pay, the ids
+// (never given twice), and the label's (a venture, shared like the money): its commissioned titles, its fame and its
+// folded count. The rest is the person's: seats, contract, offers, titles, fame, fans, stances, limits, the test.
+const WORLD_KEYS = ['chart', 'trend', 'week', 'nextId'];
+const labelOnly = (t) => !(t.you ?? []).some(s => s !== 'label');
+const titleNo = (t) => Number(String(t.id).replace(/^\D+/, '')) || 0;
+/** (sim/playas.ts) Switching who you play: puts `theirs` (the person you take over's own part, null for someone who
+ *  never worked in it) in `g.industry` with the world's part kept, and returns the one you leave's own part (null when
+ *  the save has no record). */
+export function swapIndustry(g, theirs) {
+    const s = g.industry;
+    let mine = null;
+    if (s) {
+        mine = { ...s };
+        for (const k of WORLD_KEYS)
+            delete mine[k];
+        if (s.titles)
+            mine.titles = s.titles.filter(t => !labelOnly(t));
+        if (s.fame) {
+            mine.fame = { ...s.fame };
+            delete mine.fame.label;
+        }
+        if (s.totals) {
+            mine.totals = { ...s.totals };
+            delete mine.totals.label;
+        }
+        if (s.out?.rel) {
+            mine.out = { ...s.out, rel: { ...s.out.rel } };
+            delete mine.out.rel.label;
+        }
+    }
+    const next = { ...(theirs ?? {}) };
+    if (s) {
+        for (const k of WORLD_KEYS)
+            if (s[k] !== undefined)
+                next[k] = s[k];
+        const shared = (s.titles ?? []).filter(labelOnly);
+        if (shared.length || next.titles)
+            next.titles = [...(next.titles ?? []), ...shared].sort((a, b) => titleNo(a) - titleNo(b));
+        if (s.fame?.label !== undefined)
+            next.fame = { ...(next.fame ?? {}), label: s.fame.label };
+        if (s.totals?.label !== undefined)
+            next.totals = { titles: 0, sales: 0, ...(next.totals ?? {}), label: s.totals.label };
+        if (s.out?.rel?.label !== undefined)
+            next.out = { ...(next.out ?? {}), rel: { ...(next.out?.rel ?? {}), label: s.out.rel.label } };
+        next.nextId = Math.max(Number(s.nextId) || 1, Number(theirs?.nextId) || 1);
+    }
+    if (Object.keys(next).length)
+        g.industry = next;
+    else
+        delete g.industry;
+    return mine;
+}
 /* ---------- is it on ---------- */
 /** The industry plays in this game: the world has it, the system and adult content are on. */
 export const industryOn = (g, w) => !!w.industry && systemOn(w, 'industry') && adultOn(g);

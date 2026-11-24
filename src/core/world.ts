@@ -1523,12 +1523,13 @@ export interface VentureWays {
 }
 export interface LeaseUnit { place: string; cost: number; rent: number }
 /** A tier (café: a stand, a kissaten, a second café, a roastery): the ceiling its numbers can't pass, and the
- *  milestone that opens the next one (an upgrade owned, a story seen, a condition). `alone`: the share it earns on days
+ *  milestone that opens the next one (an upgrade owned, a story seen, a condition: all that are set; or, instead, its
+ *  `or` condition: a label's own work for it). `alone`: the share it earns on days
  *  you don't run it yourself (0: open only while you do, as a first tier). `places`: how many places it runs at.
  *  `base`: a day's takings with every number at the ceiling, before the calendar. `rank`: (exec) the rank it is. */
 export interface TierDef {
     id: string; name: string; ceiling: number; desc?: string;
-    milestone?: { upgrade?: string; story?: string; when?: When };
+    milestone?: { upgrade?: string; story?: string; when?: When; /** another way to the next tier: this alone holds */ or?: When };
     alone?: number; places?: number; base?: number; rank?: string;
     /** (hospitality) Rooms at the ceiling (fewer while Capacity is short), the night's and a rest's prices, how many
      *  rests a room turns in a day, and (a partnership) your share of the takings at this tier. A tier without `rooms`

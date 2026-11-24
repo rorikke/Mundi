@@ -1,7 +1,7 @@
 // Festivals: fixed days of a season (the Harvest Festival, Midwinter, New Year…). While one lasts, prices change, the
 // people with free time gather at its place in the afternoon and evening, the AI knows, and you can celebrate there
 // once a day (mood, and a little reputation in town). Several can fall on the same day, each at its own place.
-import { changes, type Save } from '../core/store.js';
+import { changes, adultOn, type Save } from '../core/store.js';
 import { systemOn, type WorldDef, type FestivalDef } from '../core/world.js';
 import { seasonDays, SEASONS } from './time.js';
 import { addStatus } from './needs.js';
@@ -27,7 +27,8 @@ export function festivalsOn(g: Save, w: WorldDef, day = g.day): FestivalDef[] {
         const s = seasonAt(g, day), d = daySeason(g, day);
         k.by.set(key, list = w.festivals!.filter(f => f.season === s && d >= Math.min(f.day, seasonDays(g)) && d < Math.min(f.day, seasonDays(g)) + Math.max(1, f.days ?? 1)));
     }
-    return list.slice();
+    // (an adult festival, the AV Expo, isn't on at all with the save's adult content off: no crowds, demand, conditions)
+    return adultOn(g) ? list.slice() : list.filter(f => !f.adult);
 }
 // A festival belongs to the town of its place: the maps of the same city (the same "area"), or its own map. One
 // without a place is for everyone.

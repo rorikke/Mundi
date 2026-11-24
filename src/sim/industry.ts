@@ -40,7 +40,10 @@ export interface IndustryState {
     titles: Title[];
     /** titles folded out of the list (older than a year, past the ones kept), their sales, the best seller's name, the
      *  best chart place they reached (any, and by seat); `label`: the label's commissioned titles folded (never yours) */
-    totals: { titles: number; sales: number; best?: string; bestSold?: number; peaks?: Partial<Record<'any' | Seat, number>>; label?: number };
+    totals: { titles: number; sales: number; best?: string; bestSold?: number; peaks?: Partial<Record<'any' | Seat, number>>; label?: number;
+        /** folded titles of yours by each seat you held on them, and their weeks in the top 10 (the `mine` forms of the
+         *  `titles` and `chart` keys read them) */
+        seats?: Partial<Record<Seat, { n: number; charts: number }>> };
     chart: { week: number; rows: ChartRow[] };
     trend: { month: number; hot: string[]; cold: string; line?: string };
     /** the day of the last monthly test */
@@ -78,6 +81,42 @@ export function industryOf(g: Save): IndustryState {
     s.trend ??= { month: -1, hot: [], cold: '' }; s.test ??= g.day; s.roster ??= {}; s.week ??= {}; s.nextId ??= 1;
     s.limits ??= []; s.standing ??= {}; s.yes ??= {};
     return s;
+}
+
+/* ---------- "Play as" ---------- */
+
+// The world's part of the record stays with the save: the chart, the month's trend, the Monday's sales and pay, the ids
+// (never given twice), and the label's (a venture, shared like the money): its commissioned titles, its fame and its
+// folded count. The rest is the person's: seats, contract, offers, titles, fame, fans, stances, limits, the test.
+const WORLD_KEYS = ['chart', 'trend', 'week', 'nextId'] as const;
+const labelOnly = (t: Title) => !(t.you ?? []).some(s => s !== 'label');
+const titleNo = (t: Title) => Number(String(t.id).replace(/^\D+/, '')) || 0;
+/** (sim/playas.ts) Switching who you play: puts `theirs` (the person you take over's own part, null for someone who
+ *  never worked in it) in `g.industry` with the world's part kept, and returns the one you leave's own part (null when
+ *  the save has no record). */
+export function swapIndustry(g: Save, theirs: Record<string, any> | null | undefined): Record<string, any> | null {
+    const s = (g as any).industry as Record<string, any> | undefined;
+    let mine: Record<string, any> | null = null;
+    if (s) {
+        mine = { ...s };
+        for (const k of WORLD_KEYS) delete mine[k];
+        if (s.titles) mine.titles = (s.titles as Title[]).filter(t => !labelOnly(t));
+        if (s.fame) { mine.fame = { ...s.fame }; delete mine.fame.label; }
+        if (s.totals) { mine.totals = { ...s.totals }; delete mine.totals.label; }
+        if (s.out?.rel) { mine.out = { ...s.out, rel: { ...s.out.rel } }; delete mine.out.rel.label; }
+    }
+    const next: Record<string, any> = { ...(theirs ?? {}) };
+    if (s) {
+        for (const k of WORLD_KEYS) if (s[k] !== undefined) next[k] = s[k];
+        const shared = ((s.titles ?? []) as Title[]).filter(labelOnly);
+        if (shared.length || next.titles) next.titles = [...(next.titles ?? []), ...shared].sort((a, b) => titleNo(a) - titleNo(b));
+        if (s.fame?.label !== undefined) next.fame = { ...(next.fame ?? {}), label: s.fame.label };
+        if (s.totals?.label !== undefined) next.totals = { titles: 0, sales: 0, ...(next.totals ?? {}), label: s.totals.label };
+        if (s.out?.rel?.label !== undefined) next.out = { ...(next.out ?? {}), rel: { ...(next.out?.rel ?? {}), label: s.out.rel.label } };
+        next.nextId = Math.max(Number(s.nextId) || 1, Number(theirs?.nextId) || 1);
+    }
+    if (Object.keys(next).length) (g as any).industry = next; else delete (g as any).industry;
+    return mine;
 }
 
 /* ---------- is it on ---------- */

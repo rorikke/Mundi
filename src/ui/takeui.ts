@@ -114,6 +114,7 @@ const rawOffer = (g: Save, id: number): Offer | undefined => peekIndustry(g).off
 function offerTop(w: WorldDef, c: OfferCard, what: string): string {
     return `<header class="mu-take-label"><b data-notr>${esc(c.label)}</b>${c.genre ? `<small data-notr>${esc(c.genre)}</small>` : ''}</header>
         <b class="mu-take-name" data-notr>${esc(c.name)}</b>${c.set ? `<small>${W(c.set)}</small>` : ''}
+        ${c.risk ? `<small class="mu-take-risk">${esc(`A risky set: a ${n(Math.max(1, num(c.risk) * 100))}% chance of being caught at the call, and the shoot stopped`)}</small>` : ''}
         <small class="mu-take-pay">${esc(what.replace('{0}', money(w, num(c.fee))))} · ${esc(c.days <= 0 ? 'Last day to answer' : plural(c.days, 'Kept 1 more day', 'Kept {0} more days'))}</small>`;
 }
 function titleOffer(g: Save, w: WorldDef, c: OfferCard): string {
@@ -361,7 +362,7 @@ function chartTab(g: Save, w: WorldDef): string {
     const v = chartView(g, w);
     const trend = `${v.line ? `<p class="mu-take-news" data-notr>${esc(v.line)}</p>` : ''}${v.hot.length ? `<p class="mu-take-line"><small>Hot this month: ${listed(v.hot)}</small>${v.cold ? `<small>Cold: ${W(v.cold)}</small>` : ''}</p>` : ''}`;
     if (!v.rows.length) return `${trend}<p class="mu-muted">${esc('The chart comes out on Mondays.')}</p>`;
-    const row = (r: ReturnType<typeof chartView>['rows'][number]) => `<li class="${r.mine ? 'is-mine' : ''}"><b class="mu-take-pos">${esc(n(r.pos))}</b><span>${r.mine ? `<button class="mu-take-link" data-act="tk-title" data-id="${esc(r.mine)}" data-notr>${esc(r.name)}</button>` : `<b data-notr>${esc(r.name)}</b>`}<small data-notr>${esc(r.label)}</small></span><small>${cash(w, r.sales)}</small>${r.mine ? `<em>${esc('Yours')}</em>` : ''}</li>`;
+    const row = (r: ReturnType<typeof chartView>['rows'][number]) => `<li class="${r.by === 'label' ? 'is-label' : r.mine ? 'is-mine' : ''}"><b class="mu-take-pos">${esc(n(r.pos))}</b><span>${r.mine ? `<button class="mu-take-link" data-act="tk-title" data-id="${esc(r.mine)}" data-notr>${esc(r.name)}</button>` : `<b data-notr>${esc(r.name)}</b>`}<small data-notr>${esc(r.label)}</small></span><small>${cash(w, r.sales)}</small>${r.mine ? `<em>${esc(r.by === 'label' ? "Your label's" : 'Yours')}</em>` : ''}</li>`;
     return `<h4 class="mu-take-sub">${esc(`Week ${n(v.week + 1)}`)}</h4><ol class="mu-take-chart">${v.rows.map(row).join('')}</ol>${trend}`;
 }
 
@@ -412,7 +413,7 @@ const tabsOf = (g: Save, w: WorldDef): [Tab, string][] => TABS.filter(([id]) => 
 function counts(g: Save, w: WorldDef): Record<Tab, string> {
     const t = titlesView(g, w).titles, c = chartView(g, w).rows, r = rosterView(g, w);
     const sched = t.filter(x => ['waiting', 'shoot', 'edit', 'coming'].includes(x.state)).length;
-    return { offers: n(offersView(g, w).offers.length), schedule: n(sched), titles: n(t.filter(x => !isCommissioned(x)).length), chart: n(c.filter(x => x.mine).length), roster: n(r.people.filter(p => p.titles > 0).length + r.tokyo.length), label: n(myLabels(g, w).length) };
+    return { offers: n(offersView(g, w).offers.length), schedule: n(sched), titles: n(t.filter(x => !isCommissioned(x)).length), chart: n(c.filter(x => x.by === 'you').length), roster: n(r.people.filter(p => p.titles > 0).length + r.tokyo.length), label: n(myLabels(g, w).length) };
 }
 // Your seats: each with its rank and fame; the fans, the contract and the test under them.
 function seatsCard(g: Save, w: WorldDef): string {

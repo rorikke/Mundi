@@ -20,6 +20,7 @@ import { isHotel } from '../sim/rooms.js';
 import { pendingSighting, chooseSighting, setTell } from '../sim/sightings.js';
 import { roomsHtml, noteHtml, partnerHtml, tenantsHtml, discretionHtml, sightingAsk } from './hotels.js';
 import { budgetOf, targetOf } from '../sim/exec.js';
+import { missingWords } from '../sim/when.js';
 import { ACT, INPUT } from './reg.js';
 import { finishWork } from './map.js';
 /** What the app shows (memory only): the name you're typing for a café of your own, the venture whose finished
@@ -107,8 +108,11 @@ function milestoneHtml(g, w, d, s) {
     return `<section class="mu-ph-card mu-biz-next"><b>Next: ${esc(m.next.name)}</b>${m.next.desc ? `<small class="mu-muted" data-notr>${esc(m.next.desc)}</small>` : ''}
         ${m.upgrade ? `<small class="${m.upgrade.owned ? 'mu-good' : ''}">${tick(m.upgrade.owned)} <span data-notr>${esc(m.upgrade.u.name)}</span></small>` : ''}
         ${m.story ? `<small class="${m.story.seen ? 'mu-good' : ''}">${tick(m.story.seen)} <span data-notr>${esc(story?.title ? story.title.charAt(0).toUpperCase() + story.title.slice(1) : 'A moment at the place')}</span></small>` : ''}
-        ${m.when !== undefined ? `<small class="${m.when ? 'mu-good' : ''}">${tick(m.when)} Something more</small>` : ''}</section>`;
+        ${m.when !== undefined ? `<small class="${m.when ? 'mu-good' : ''}">${tick(m.when)} Something more</small>` : ''}
+        ${m.or !== undefined ? `<small class="${m.or ? 'mu-good' : ''}">${tick(m.or)} ${esc(orWords(g, w, s, tierOf(d, s.tier).milestone?.or))}</small>` : ''}</section>`;
 }
+// (a milestone's other way, in words: "Or instead: 8 titles for your label (3 now) and a title in the chart's top 10")
+const orWords = (g, w, s, or) => { const left = or ? missingWords(g, w, or, s.place, { more: true }) : []; return left.length ? `Or instead: ${left.join(' and ')}` : 'Or instead: done'; };
 const STATE_ORDER = ['found', 'ready', 'later', 'hidden', 'owned'];
 function upgradesHtml(g, w, d, s) {
     const list = upgradesOf(g, w, s);

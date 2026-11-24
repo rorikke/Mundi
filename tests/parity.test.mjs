@@ -63,9 +63,24 @@ const TOOLS = {
     'industry.roster.*.gender': 'Industry › the roster: the person panel, Gender', 'industry.roster.*.attraction': 'Industry › the roster: the person panel, Who they are drawn to',
     'industry.roster.*.pace': 'Industry › the roster: the person panel, Their ways', 'industry.roster.*.style': 'Industry › the roster: the person panel, Their ways', 'industry.roster.*.intimacy': 'Industry › the roster: the person panel, Their ways',
     'industry.roster.*.intimate': 'Industry › the roster: the person panel, the intimate profile, In bed and Drive',
+    // ids a private overlay rewrites by: shown, never typed (a new one gets one when the others have them)
+    'actions.*.outcomes.*.id': 'set by the creator', 'stories.*.choices.*.id': 'set by the creator', 'ventures.*.events.*.choices.*.id': 'set by the creator',
+    'occupations.*.events.*.choices.*.id': 'set by the creator', 'occupations.*.tracks.*.events.*.id': 'set by the creator', 'occupations.*.tracks.*.events.*.choices.*.id': 'set by the creator',
+    'occupations.*.tracks.*.branches.*.options.*.id': 'set by the creator',
+    // one control at the parent's path writes the field (its handler in ui/creator.ts)
+    'actions.*.roll.skill': 'Actions › A roll: the select (cw-aroll) writes roll and its skill',
+    'stories.*.choices.*.roll.skill': 'a choice\'s A roll (cw-roll)', 'occupations.*.events.*.choices.*.roll.skill': 'a choice\'s A roll (cw-roll)',
+    'occupations.*.tracks.*.events.*.choices.*.roll.skill': 'a choice\'s A roll (cw-roll)', 'ventures.*.events.*.choices.*.roll.skill': 'a choice\'s A roll (cw-roll)', 'ventures.*.cards.*.choices.*.roll.skill': 'a choice\'s A roll (cw-roll)',
+    'cast.examples.*.feelings.*.status': 'People › a feeling: Together (cw-together)', 'cast.examples.*.feelings.*.was': 'People › a feeling: Together, Used to be together (cw-together)',
+    'starts.*.knows.*.status': 'Starts › whom you already know: Together (cw-together)', 'starts.*.knows.*.was': 'Starts › whom you already know: Together, Used to be together (cw-together)',
+    'cast.examples.*.tiers.*.intimacy.preset': 'People › a tier: They need (cw-tintim)', 'cast.examples.*.tiers.*.intimacy.casual': 'People › a tier: Only with a partner (cw-tintim)',
+    'catalogs.shop.*.photo.gear': 'Shop › an item: It is (photo gear, cw-gear)', 'homes.fixtures.*.photo.gear': 'Homes › a fixture: It is (photo gear, cw-gear)',
 };
+// A leaf is covered only by its own path drawn, or a list of plain values by the list (`places.*.tags.*` by chips at
+// `places.*.tags`), never by a parent's path: a form for `industry.labels.*` doesn't make `industry.labels.*.pay` editable;
+// a TOOLS entry, named on purpose, covers what's inside it (the person panel writes `intimate` whole).
 // (an empty map, `effects: {}`, is covered when its keys are: `actions.*.effects` by `actions.*.effects.*`)
-const covered = (leaf, shown) => shown.some(s => leaf === s || leaf.startsWith(`${s}.`) || s.startsWith(`${leaf}.`)) || Object.keys(TOOLS).some(t => leaf === t || leaf.startsWith(`${t.replace(/\.\*$/, '')}.`) || leaf === t.replace(/\.\*$/, ''));
+const covered = (leaf, shown) => shown.some(s => leaf === s || leaf === `${s}.*` || s.startsWith(`${leaf}.`)) || Object.keys(TOOLS).some(t => leaf === t || leaf.startsWith(`${t.replace(/\.\*$/, '')}.`) || leaf === t.replace(/\.\*$/, ''));
 
 let fails = 0;
 for (const id of ['modern', 'urban', 'medieval', 'house', 'tokyo']) {

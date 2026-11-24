@@ -16,6 +16,7 @@
 #mundi-root .mu-take-line { display: grid; gap: 1px; margin: 0 2px; }
 #mundi-root .mu-take-line small { opacity: .8; }
 #mundi-root .mu-take-why { color: var(--warn, #e0a040); }
+#mundi-root .mu-take-risk { color: var(--warn, #e0a040); }
 #mundi-root .mu-take-btns { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 #mundi-root .mu-take-btns:empty { display: none; }
 #mundi-root .mu-take-btns button small { display: block; font-size: 11px; font-weight: 400; opacity: .75; }
@@ -97,6 +98,8 @@
 #mundi-root .mu-take-chart li { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 10px; }
 #mundi-root .mu-take-chart li:nth-child(odd) { background: var(--bg2); }
 #mundi-root .mu-take-chart li.is-mine { background: color-mix(in srgb, #c2185b 22%, var(--bg2)); }
+#mundi-root .mu-take-chart li.is-label { background: color-mix(in srgb, #c2185b 10%, var(--bg2)); }
+#mundi-root .mu-take-chart li.is-label em { background: transparent; color: inherit; box-shadow: inset 0 0 0 1px #c2185b; }
 #mundi-root .mu-take-chart li > span { display: grid; gap: 0; min-width: 0; }
 #mundi-root .mu-take-chart li small { opacity: .75; font-variant-numeric: tabular-nums; }
 #mundi-root .mu-take-chart em { font-style: normal; font-size: 11px; padding: 0 6px; border-radius: 999px; background: #c2185b; color: #fff; }

@@ -248,6 +248,7 @@ function tabNeeds(w) {
                 ${s.zero.drain?.status ? `<div class="mu-row2">${num('By', `${p}.zero.drain.amount`)}${num('Every … minutes', `${p}.zero.drain.everyMinutes`, 1)}</div>` : ''}
                 ${chk('A crisis after a while at zero', `${p}.zero.crisis`, 'Once each time it hits zero: you faint, you break down… People who see it remember it.')}
                 ${s.zero.crisis ? `<div class="mu-row2">${num('After … minutes at zero', `${p}.zero.crisis.after`)}${sel('You end up at', `${p}.zero.crisis.place`, [['', '(stay where you are)'], ['home', 'Your home'], ...placeOpts(w)])}</div>
+                    ${s.zero.crisis.place && s.zero.crisis.place !== 'home' ? flag('Kept there for the night', `${p}.zero.crisis.stay`, 'A bed until the morning (a hospital after a collapse); shifts until then are sick days.') : ''}
                     ${area('What happens (message)', `${p}.zero.crisis.text`, 2, 'You feel faint and nearly collapse…')}
                     <div class="mu-row2">${num('It costs', `${p}.zero.crisis.cost`)}${num('Comes back to', `${p}.zero.crisis.restore`)}</div>
                     <div class="mu-row2">${num('Your mood changes by', `${p}.zero.crisis.mood`, -100)}${num('People who saw it think less of you by', `${p}.zero.crisis.shame`)}</div>
@@ -439,7 +440,8 @@ function storyResult(w, q) {
         ${romanceRows(w, `${q}.romance`)}
         <div class="mu-row2">${optTxt('Someone now owes you a favor (a name, or a stranger\'s id)', `${q}.favor`, 'Rina')}${optTxt('A favor it calls in', `${q}.spend`)}</div>
         <div class="mu-row2">${threads.length || o.reveal ? sel('A secret the player learns', `${q}.reveal`, withCur([['', '(none)'], ...threads], o.reveal), 'opt') : '<span></span>'}${skillOpts(w).length ? sel('A skill it trains a little', `${q}.trains`, withCur([['', '(none)'], ...skillOpts(w)], o.trains), 'opt') : '<span></span>'}</div>
-        ${upgradeOpts(w).length || o.finds ? sel('An upgrade of a venture it turns up (it waits in the Business app until bought)', `${q}.finds`, withCur([['', '(none)'], ...upgradeOpts(w)], o.finds), 'opt') : ''}`;
+        ${upgradeOpts(w).length || o.finds ? sel('An upgrade of a venture it turns up (it waits in the Business app until bought)', `${q}.finds`, withCur([['', '(none)'], ...upgradeOpts(w)], o.finds), 'opt') : ''}
+        ${museumOf(w) || o.renown !== undefined || o.damage ? `<div class="mu-row2">${num('Renown for the museum (a milestone story)', `${q}.renown`)}${flag('The dearest piece on show needs restoring', `${q}.damage`, 'Never taken: it waits for the workshop.')}</div>` : ''}`;
 }
 // Weather by climate (a map's climate picks one): each season's odds of each kind of weather, stretches of a season with
 // odds of their own (the rainy season), weather a region has on its own (a view of a far mountain, volcanic gas), and
@@ -837,7 +839,7 @@ function tierRows(w, p, v) {
     const job = v.job ? w.occupations.find(o => o.id === v.job) : undefined;
     const ranks = (job?.ranks ?? []).filter(r => r.beyond).map(r => [r.name, r.name]);
     const ups = upgradeOpts(w, v), stories = storyOpts(w), sym = esc(w.currency.symbol), hotel = hotelish(v);
-    return `<h4>Tiers</h4><p class="mu-muted">Each tier holds its numbers under a ceiling; its milestone (an upgrade owned, a story seen, a condition: all that are set) opens the next.</p>
+    return `<h4>Tiers</h4><p class="mu-muted">Each tier holds its numbers under a ceiling; its milestone (an upgrade owned, a story seen, a condition: all that are set; a label's other way alone) opens the next.</p>
         ${v.tiers.map((t, k) => {
         const q = `${p}.tiers.${k}`, share = !!v.ways?.partner || t.share != null;
         return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">Tier ${k + 1}</b>${idTag(t.id)}<span class="mu-cw-spacer"></span>
@@ -851,7 +853,7 @@ function tierRows(w, p, v) {
                 ${area('What it is (told to the AI)', `${q}.desc`, 2)}
                 ${k < v.tiers.length - 1 || t.milestone ? `<span class="mu-cw-sub">The milestone to the next tier</span>
                     <div class="mu-row2">${sel('An upgrade owned', `${q}.milestone.upgrade`, withCur([['', '(none)'], ...ups], t.milestone?.upgrade), 'opt')}${sel('A story seen', `${q}.milestone.story`, withCur([['', '(none)'], ...stories], t.milestone?.story), 'opt')}</div>
-                    ${cond('A condition', `${q}.milestone.when`, 'season: winter')}` : ''}</div>`;
+                    ${cond('A condition', `${q}.milestone.when`, 'season: winter')}${(v.kind ?? v.track) === 'label' || t.milestone?.or ? cond('Or instead (optional): a condition that opens the next tier alone (a label: your own work for it)', `${q}.milestone.or`, 'titles: mine label 4; chart: mine label top 10') : ''}` : ''}</div>`;
     }).join('')}
         ${addBtn('vtier', `${p}.tiers`, 'Add a tier')}`;
 }
@@ -3788,7 +3790,8 @@ function feelRow(q, others, love) {
         ${love ? `<label class="mu-field"><span>Together</span><select data-input="cw-together" data-path="${esc(q)}">${TOGETHER.map(([v, l]) => `<option value="${v}" ${together === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>` : ''}
         <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
         <div class="mu-row2">${sel('Friendship', `${q}.f`, LEVELS('As usual'), 'opt')}${love ? sel('Romance', `${q}.r`, ROMANCE('As usual'), 'opt') : ''}</div>
-        <div class="mu-row2">${sel('Their friendship back', `${q}.back`, LEVELS('The same'), 'opt')}${love ? sel('Their romance back', `${q}.rback`, ROMANCE('The same'), 'opt') : ''}</div></div>`;
+        <div class="mu-row2">${sel('Their friendship back', `${q}.back`, LEVELS('The same'), 'opt')}${love ? sel('Their romance back', `${q}.rback`, ROMANCE('The same'), 'opt') : ''}</div>
+        <div class="mu-row2">${flag('Only with adult content on', `${q}.adult`, '', true)}${love && together && together !== 'ex' ? flag('They keep it secret', `${q}.secret`, 'Seen together only by people they trust.') : '<span></span>'}</div></div>`;
 }
 // A person's other parts: looks and voice, pictures, their household, the rank they hold, the languages they speak, what
 // they're good at, and whether they only exist with adult content on or may change their life by chance.
