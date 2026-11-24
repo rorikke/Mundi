@@ -54,6 +54,9 @@ export function career(o, path = []) {
 export const INTIMATE_ROLES = ['lead', 'follow', 'switch'];
 export const INTIMATE_DRIVES = ['low', 'average', 'high'];
 export const exampleTag = (w, ex) => `${ex.from ?? w.id}:${ex.name}`;
+/** Whose pictures (sprites, outfits) to draw for someone by name: one of the world's people, else a performer of the
+ *  adult industry's roster (not one of the world's people, drawn the same way: photos, covers). */
+export const personPictures = (w, name) => (w.cast?.examples ?? []).find(e => e.name === name) ?? (w.industry?.roster ?? []).find(p => p.name === name);
 // The phone's apps, as the Modern style has them (a world can rename them, change icons or turn them off).
 export const DEFAULT_APPS = [
     { id: 'messages', name: 'Messages', icon: 'chat', color: '#34c759', on: true },
