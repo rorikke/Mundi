@@ -170,8 +170,9 @@ export interface TitleRec {
 export interface SetCall { title: TitleRec; place: string; call: number; roster: string[] }
 /** A photo call (plans/industry-lens.md Part 2): a roster performer (`who`: her id, bare or `roster:<id>`) comes to
  *  `place` for a photo shoot from `from` to `to` (absolute minutes), the set's way: in the cast with `onset` for the
- *  window and gone after, with no plan or routine of her own (sim/onset.ts through `setLink.visit`). */
-export interface PhotoCall { who: string; place: string; from: number; to: number }
+ *  window and gone after, with no plan or routine of her own (sim/photocall.ts fills `setLink.visit`). `outfit`: what
+ *  the shoot puts her in (`naked` or one of her outfits; worn on set for the window). */
+export interface PhotoCall { who: string; place: string; from: number; to: number; outfit?: string }
 /** What a photo call gives: her avatar in the cast for the window (null: she can't come; `waiting`: her card is still
  *  being made, ask again), and lines for the player. */
 export interface PhotoCallResult { avatar: string | null; waiting?: true; lines: string[] }
