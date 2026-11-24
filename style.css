@@ -2844,6 +2844,10 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mu-book .mu-lens-tabs { background: transparent; border-color: rgba(90, 60, 30, .35); }
 #mundi-root .mu-book .mu-lens-tabs button.is-on { background: rgba(120, 70, 30, .85); color: #f6e7c8; }
 #mundi-root .mu-book :is(.mu-lens-brief, .mu-lens-card, .mu-lens-thumb) { background: rgba(255, 248, 228, .5); border-radius: 6px; }
+/* a still taken on set (plans/industry-lens.md): its tag over the thumbnail, Cover when it became a title's cover */
+#mundi-root .mu-lens-thumb:has(.mu-lens-tag) { position: relative; }
+#mundi-root .mu-lens-tag { position: absolute; top: 9px; left: 9px; padding: 1px 7px; border-radius: 999px; background: rgba(0, 0, 0, .62); color: #fff; font-size: 10px; font-style: normal; letter-spacing: .04em; text-transform: uppercase; pointer-events: none; }
+#mundi-root .mu-lens-big > button[data-act="lens-title"] { justify-self: start; }
 /* The Take app (ui/takeui.ts, adult industry): your seats and fame, the tabs (a pill row, or rows with counts on the
    left of the unfolded phone), an offer as a card (the label, the title, the scenes with "Ask for it off", the fee),
    the exclusive, renewal, fan meeting and lens cards, the brief's planning form, the schedule as dated rows, a cover as
@@ -2971,6 +2975,11 @@ body.mundi-open #toast-container { display: none !important; }
 /* the journal (book look) */
 #mundi-root .mu-book .mu-take-tabs { background: transparent; border-color: rgba(90, 60, 30, .35); }
 #mundi-root .mu-book :is(.mu-take-offer, .mu-take-card, .mu-take-thumb, .mu-take-scene) { background: rgba(255, 248, 228, .5); border-radius: 6px; }
+/* the stills (plans/industry-lens.md): a row of Lens's pictures on set and on a title's page, each opening in Lens */
+#mundi-root .mu-take-stills { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
+#mundi-root .mu-take-still { position: relative; display: block; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg2); box-shadow: none; min-height: 0; color: inherit; }
+#mundi-root .mu-take-still em { position: absolute; right: 7px; bottom: 6px; padding: 0 5px; border-radius: 6px; background: rgba(0, 0, 0, .6); color: #d4a017; font-size: 11px; font-style: normal; letter-spacing: 1px; }
+#mundi-root .mu-take-card.is-live > button[data-act="tk-do"] { justify-self: start; }
 /* (plans) A friend staying over: the row on a person's card and page, the form, the doorbell under who is here. */
 #mundi-root .mu-pc-visit { display: grid; gap: 6px; }
 #mundi-root .mu-pc-visit button { display: flex; align-items: center; gap: 8px; justify-content: center; }
