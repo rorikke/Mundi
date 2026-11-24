@@ -7,6 +7,22 @@ Ideas planned for later. Nothing here is promised for a date.
 - **High school:** a scenario inspired by school slice-of-life visual novels: class periods, clubs, the rooftop at
   lunch, festivals and exams on a school calendar, classmates and teachers with their own routines.
 
+## Careers
+
+Tokyo jobs that are shifts and ranks today, grown into systems of their own the way the photographer's was.
+
+- **Idol:** an agency, lessons in Singing and Dance, a group you're placed in; singles and a weekly chart, handshake
+  events, fans who remember you; concerts from a small live house up to Budokan, and graduating from the group. The
+  dating ban makes romance a risk: a scandal spreads as a rumor and the agency answers it. Its own app (fans, schedule,
+  the chart).
+- **Kabukichō nights:** the host and hostess clubs as a career: your regulars (what each spends, wants and how loyal
+  they are), kept up through Messages; dinner before a shift and drinks after closing; birthday events with a champagne
+  tower; the monthly ranking board; a customer who gets obsessive; at the top, a club of your own on the business
+  engine.
+- **Creator:** the streamer's job as channels (games, cooking, the city on foot, a virtual avatar), streams on the
+  Calendar, viewers, subscribers and paid chat, collabs with Tokyo's people, clips that spread like rumors, sponsors,
+  burnout, fans who find out where you live; followers shared with Lens.
+
 ## Business
 
 - **Tycoon:** stakes in a company (a seed, a large one, a majority), its value as the score: the projects you back, a
