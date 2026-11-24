@@ -254,12 +254,15 @@ export const PHOTO_KEEP = { starred: 24, others: 60 };
  *  last 60 others; older ones drop. */
 export function trimPhotos(g: Save) {
     const p = photoOf(g);
-    const must = new Set<number>([...p.portfolio, ...p.books.flatMap(b => b.pages ?? []), ...p.open.map(t => t.shot?.photo).filter((x): x is number => x !== undefined)]);
+    const kept = new Set<number>([...p.portfolio, ...p.books.flatMap(b => b.pages ?? []), ...p.open.map(t => t.shot?.photo).filter((x): x is number => x !== undefined)]);
+    const must = new Set<number>(kept);
     const starred = p.photos.filter(r => r.star && !must.has(r.id)).slice(-PHOTO_KEEP.starred).map(r => r.id);
     for (const id of starred) must.add(id);
     const rest = p.photos.filter(r => !must.has(r.id)).slice(-PHOTO_KEEP.others).map(r => r.id);
     for (const id of rest) must.add(id);
-    for (const r of p.photos) if (r.star && !starred.includes(r.id) && !p.portfolio.includes(r.id)) delete r.star;
+    // (a starred photo kept for its own reason, a page or an open brief's shot such as a still that's a title's cover,
+    // keeps its star: only the starred beyond the 24 lose theirs)
+    for (const r of p.photos) if (r.star && !starred.includes(r.id) && !kept.has(r.id)) delete r.star;
     p.photos = p.photos.filter(r => must.has(r.id));
 }
 /** Stars a photo or takes its star away (24 starred at most: the oldest star goes). Returns whether it's starred now. */

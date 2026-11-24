@@ -544,9 +544,12 @@ export type StillsTitle = Title & { stills?: number };
 /** Do you hold a title's stills seat (no share of its sales, no fame as a performer, no stance)? */
 export const holdsStills = (t: { you: Seat[] }) => t.you.includes('stills');
 /** The set a photo brief books you onto: a brief from a label's art department (its client is one of the industry's
- *  labels) shot at one of the industry's sets' places. Undefined: an ordinary photo brief. */
+ *  labels) shot at one of the industry's sets' places, with no subject of its own (none, or `client`: the stars of the
+ *  day). A brief with a subject (a performer by `roster` or `roster:<id>`, one of the city's people, a promo's `title`)
+ *  is shot the plain way, by a photo call or an invitation, even at a set's place. Undefined: an ordinary photo brief. */
 export function stillsSet(w: WorldDef, b: BriefDef | undefined): SetDef | undefined {
     if (!b || !labelsOf(w).some(l => l.id === b.client)) return undefined;
+    if (b.subject && b.subject.who !== 'client') return undefined;
     return setsOf(w).find(s => !!s.place && b.places.includes(s.place));
 }
 // The label's genre for that set (one both shoot; else the label's, else any).
