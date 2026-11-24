@@ -109,8 +109,13 @@ function photoHelp(w: WorldDef): Topic {
             ...(weddings ? [item('Weddings', 'When people you know set a wedding date, a photographer with a camera may be offered the wedding: shot on the day only, at the ceremony, with both of them in the picture.')] : []),
             ...(goal ? [item('A life goal', `${esc(goal.name)} follows a photographer's way: a camera, the studio, going freelance, a portfolio, a studio of your own, a photobook.`)] : []),
             ...(adultOn(game()) ? [item('Adult briefs', 'Shown, and offered, only while adult content is on in this game; photos from them are hidden otherwise and kept for when it\'s on again.')] : []),
+            ...(industryShown(w) ? [item('Performers and the set', `<span>A label's brief can name a performer and what she wears; her agency sends her to the shoot's place for its window, with no plan to set. A label's brief shot on one of its sets books you onto a shoot day instead: be on set and take the stills between scenes, and the best becomes the title's cover.</span>${performerVia(w) ? ` <span>A performer who has made her name may get a photobook of her own, offered once ${esc(performerVia(w))} knows your work.</span>` : ''}`)] : []),
         ] };
 }
+// (adult industry and photography) The industry in play (its system, adult content), as the photo topic reads it.
+const industryShown = (w: WorldDef) => !!w.industry && systemOn(w, 'industry') && adultOn(game());
+// The clients that bring a performer's photobook, by name ("Kurobara Visual or Peach Pages"; '' if the world has none).
+const performerVia = (w: WorldDef) => BOOKS.performer.via.map(id => w.photo?.clients?.find(c => c.id === id)?.name).filter(Boolean).join(' or ');
 // (adult industry) The adult industry topic, in a world with an industry while it plays (the system and adult content on):
 // what Take does, the bookings, the three seats, fame and what people think, each part only where the world has it. Its
 // checks read the world, not sim/industry.ts, so Help doesn't load the industry's modules earlier than the game does.
@@ -120,6 +125,7 @@ function industryHelp(w: WorldDef): Topic {
     const exclusive = tracks.some(t => t?.contracts?.some(c => c.exclusive));
     const direct = tracks.some(t => t?.entries?.length || t?.branches?.some(b => b.options.some(o => o.id === 'director')));
     const label = systemOn(w, 'business') && (w.ventures ?? []).some(v => ((v as { kind?: string }).kind ?? v.track) === 'label');
+    const starProducer = !!w.photo?.publisher && tracks.some(t => t?.branches?.some(b => b.options.some(o => o.id === 'starproducer')));
     const item = (k: string, v: string): [string, string] => [k, v];
     return { id: 'industry', icon: 'film', title: 'The adult industry', intro: `Adult video, ${appRef(w, 'take')}: offers of one title at a time, each with its contract and its shoot day, then the release, the weekly sales and the chart.`,
         items: [
@@ -129,6 +135,8 @@ function industryHelp(w: WorldDef): Topic {
             item('The shoot day', 'Be at the set from the call time. After hair and make-up come two to four scenes, each rolled: your skills, how you suit your co-star, a like of theirs you know, the script, the set and how tired you are. Play a scene with the AI, or skip to the result. Missing a shoot loses the title, and the label won\'t forget it.'),
             item('Release and sales', 'A few weeks after the shoot the title comes out. It sells every Monday for a season: more with a better quality, a bigger label, a genre that\'s hot this month and a famous star. The week\'s best sellers make the chart.'),
             item('Three seats', `Performing, directing and running a label of your own are the industry's three seats; Take shows the ones you hold, each with its own fame.`),
+            ...(photoOn(w) ? [item('Stills on set', 'A director with a camera can take the stills between scenes, from Things to do on set, and so can a photographer a label books for them. The best still becomes the title\'s cover and sells its first week up to a tenth more by its stars; a title\'s page in Take shows its stills.')] : []),
+            ...(starProducer ? [item('Your own photobook', 'As a star and producer, a publisher may offer you a photobook of your own: three sittings at the studio with its photographer, one a day, from Things to do there. You are never drawn in its pictures: the words keep what was shot.')] : []),
             ...(exclusive ? [item('An exclusive contract', 'A performer who sells may be offered an exclusive contract: titles from that label only, each a big release with a bigger fee and more fame. It is renewed each season by your sales; turning it down keeps you freelance, free to work for any label.')] : []),
             ...(direct ? [item('Behind the camera', 'Higher up, or by another way in, you can go behind the camera. A director gets briefs instead of offers: choose the cast and the set, shoot it, then edit it at home or at the set for a better title (left a week, the label\'s editor does it). A name director takes a share of the sales.')] : []),
             ...(label ? [item('Your own label', `Opened ${appRef(w, 'business')}, a label makes titles every month without you and earns from their sales, far more from the ones you make yourself. You can sign performers as exclusives and choose how it's run: by the law's spirit, or cutting corners for more money and the risk of a scandal.`)] : []),
