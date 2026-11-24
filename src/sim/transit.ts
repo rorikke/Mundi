@@ -4,7 +4,7 @@
 // Worlds without `transit` have no last train. A car of yours (the shop's `late`) drives you instead: no taxi, no wait,
 // and it isn't a missed train. (E11) On a train you may run into someone you know making the same trip, more often at
 // rush hour. (E36) The night a resident misses the last train is in people.ts (lateNight).
-import { cfg, type Save, type Resident } from '../core/store.js';
+import { cfg, type Save, type Resident, residentsOf } from '../core/store.js';
 import { isScenario, type WorldDef } from '../core/world.js';
 import { mapOf } from './places.js';
 import { priceOf } from './bills.js';
@@ -66,7 +66,7 @@ export const rushHour = (minutes: number) => { const m = dayMinute(minutes); ret
 export function fellowTravelers(g: Save, w: WorldDef, before: Map<string, string>, after: Map<string, string>, from: string, to: string, departed: number): Resident[] {
     const fromMap = mapOf(g, w, from), toMap = mapOf(g, w, to), rush = rushHour(departed);
     const same: Resident[] = [], station: Resident[] = [];
-    for (const r of Object.values(g.cast)) {
+    for (const r of residentsOf(g)) {
         const a = before.get(r.avatar), b = after.get(r.avatar);
         if (!r.met || !a || !b || a === b || mapOf(g, w, a) !== fromMap) continue;
         const m = mapOf(g, w, b);

@@ -171,6 +171,22 @@ export function inviteShoot(g, w, avatar, place, from, minutes, title) {
     }
     return { ...ans, ...(id ? { id } : {}), where, when: when(g, from) };
 }
+// (adult industry) A shoot day for a title (sim/titles.ts): a co-star from Tokyo's cast already said yes to the title,
+// so it doesn't ask how close you are; their day still does (work, sleep, other plans with you), and someone who doesn't
+// want you around or holds a grudge says no. The engine decides, the set plays it.
+export function inviteSet(g, w, avatar, place, from, minutes, title) {
+    const r = g.cast[avatar];
+    const ans = check(g, w, avatar, place, from, from + minutes, 'set', -100);
+    const where = placeOf(g, w, place)?.name ?? '';
+    let id;
+    if (ans.ok && r) {
+        const a = add(g, avatar, place, from, 'set', false, title);
+        a.to = from + Math.max(60, minutes);
+        id = a.id;
+        remember(g, '{u} and {0} have a shoot day at {1} on {2} ("{3}").', [r.name, where, `day ${Math.floor(from / 1440)} at ${hm(from % 1440)}`, title.trim()], [avatar], g.player.loc, 'plan');
+    }
+    return { ...ans, ...(id ? { id } : {}), where, when: when(g, from) };
+}
 // "Come over": she comes to where you are now, as soon as she gets here.
 export async function callOver(g, w, avatar, mine) {
     const r = g.cast[avatar];
@@ -421,7 +437,7 @@ export function planLines(g, present, w) {
                 return '';
             const d = Math.floor(next.from / 1440), when = `${d === g.day ? 'today' : d === g.day + 1 ? 'tomorrow' : weekday(d)} at ${hm(next.from % 1440)}`;
             const where = next.place === playerHomeId ? "{{user}}'s place" : (w && placeOf(g, w, next.place)?.name) || '';
-            return `${r.name} and {{user}} have plans for later: ${next.kind === 'date' ? 'a date' : next.kind === 'party' ? "{{user}}'s party" : next.kind === 'shoot' ? 'a photo shoot' : 'to hang out'}${next.title ? `, "${next.title}"` : ''} ${when}${where ? ` (${where})` : ''}. It has not happened yet.`;
+            return `${r.name} and {{user}} have plans for later: ${next.kind === 'date' ? 'a date' : next.kind === 'party' ? "{{user}}'s party" : next.kind === 'shoot' ? 'a photo shoot' : next.kind === 'set' ? 'a shoot day for a video title' : 'to hang out'}${next.title ? `, "${next.title}"` : ''} ${when}${where ? ` (${where})` : ''}. It has not happened yet.`;
         }
         if (a.come)
             return `${r.name} came here because {{user}} asked them to come over.`;

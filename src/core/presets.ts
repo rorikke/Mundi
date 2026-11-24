@@ -10,6 +10,7 @@ import { upgradeVentures } from './ventures.js';
 import { upgradeCollection } from './collection.js';
 import { upgradeTiers } from './tiers.js';
 import { upgradePhoto, upgradeStudios } from './photo.js';
+import { upgradeIndustry } from './industry.js';
 
 // Something the shop sells (catalogs.shop). Every field after `price` is optional, so older and user-made worlds read
 // as before; the defaults are read where they're used (`catOf`, `onlineOf`, `toldOf` in sim/shop.ts). The fields say
@@ -476,6 +477,8 @@ export function upgradeWorld(w: WorldDef): WorldDef {
     upgradePhoto(w);
     // (housing) the photo studios and the kinds' `work` flag made safe; no key for a world without studios
     upgradeStudios(w);
+    // (adult industry) the industry block and its fields elsewhere made safe; no key for a world without them
+    upgradeIndustry(w);
     // storylines: their new fields made safe (no key is added where a world has none)
     for (const ex of w.cast?.examples ?? []) for (const t of ex.threads ?? []) upgradeThread(t);
     // (museum) people who unlock, and a street story's renown and damage: made safe where a world has them

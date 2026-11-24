@@ -1,7 +1,7 @@
 // The switch and the list for each speaker's dialogue colour (Chat look), and the colour field in a person's page
 // (People tab). A character's colour is saved on their card; yours is kept per persona. Clearing one gives that person
 // a colour chosen by your AI again (sim/talkcolors.ts).
-import { esc, notify, game, toast, UI, saveSettings } from '../core/store.js';
+import { esc, notify, game, toast, UI, saveSettings, residentsOf } from '../core/store.js';
 import { charOf, saveCardColor, personaName } from '../st/bridge.js';
 import { ME, TALK, talkOn, colorOf, sourceOf, setMyColor, noteCardColor, ensure, cleanHex, myPersona } from '../sim/talkcolors.js';
 import { icon } from './icons.js';
@@ -23,7 +23,7 @@ function rowHtml(id: string): string {
 // The body of Chat look's "Speakers' colors" part.
 export function talkLookHtml(): string {
     const on = talkOn(), g = game();
-    const people = g ? Object.values(g.cast).sort((a, b) => Number(b.met) - Number(a.met) || a.name.localeCompare(b.name)).map(r => r.avatar) : [];
+    const people = g ? residentsOf(g).sort((a, b) => Number(b.met) - Number(a.met) || a.name.localeCompare(b.name)).map(r => r.avatar) : [];
     return `<label class="mu-check"><input type="checkbox" data-input="talk-on" ${on ? 'checked' : ''}><span>Color each speaker's dialogue<small>Quotes ("…") in a line, and the speaker's name, take that person's color. Leave it off if your preset or regex scripts already color quotes. The narrator keeps the quoted text color.</small></span></label>
         ${!on ? '' : !g ? '<p class="mu-muted">Open a game to see its people\'s colors.</p>' : `<div class="mu-talk-list">${[ME, ...people].map(rowHtml).join('')}</div>
             <div class="mu-row"><button class="mu-ghost" data-act="talk-again" ${TALK.busy ? 'aria-disabled="true"' : ''}>${icon('undo')}<span>Pick colors again</span></button>

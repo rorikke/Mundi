@@ -3,7 +3,7 @@
 // as a start", in Mundi's settings; Library → Starts). A start gives the home area, money, maybe a job, the traits and
 // skill levels you begin with, the premise the AI is told, and the people you already know (by name, with starting
 // feelings or as family). Applied once, by the new game.
-import { settings, saveSettings, adultOk, type Save } from '../core/store.js';
+import { settings, saveSettings, adultOk, type Save, residentsOf } from '../core/store.js';
 import { systemOn, exampleTag, type WorldDef, type StartDef, type StartKnown } from '../core/world.js';
 import { FRIEND_LEVELS, ROM_LEVELS, FAMILY_TYPES } from '../core/feel.js';
 import { charOf } from '../st/bridge.js';
@@ -77,7 +77,7 @@ const plain = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCa
 // The card of one of the world's people in this save, by full name or first name (accents and case ignored; a full
 // name wins); people from the player's own cards only when no world person has that name.
 export function knownAvatar(g: Save, w: WorldDef, name: string): string | undefined {
-    const n = plain(name), all = Object.values(g.cast);
+    const n = plain(name), all = residentsOf(g);
     const ours = all.filter(r => w.cast.examples.some(e => exampleTag(w, e) === charOf(r.avatar)?.data?.extensions?.mundi?.example));
     for (const list of [ours, all]) {
         const hit = list.find(r => plain(r.name ?? '') === n) ?? list.find(r => plain(r.name ?? '').split(/\s+/)[0] === n);
@@ -124,7 +124,7 @@ export function applyStart(g: Save, w: WorldDef, start: StartDef | undefined, de
     if (start.household) {
         const tagOf = (a: string) => charOf(a)?.data?.extensions?.mundi?.example;
         for (const ex of w.cast.examples.filter(e => e.household === start.household)) {
-            const r = Object.values(g.cast).find(x => tagOf(x.avatar) === exampleTag(w, ex)); if (!r) continue;
+            const r = residentsOf(g).find(x => tagOf(x.avatar) === exampleTag(w, ex)); if (!r) continue;
             r.met = true;
             liveTogether(g, YOU, r.avatar);
         }

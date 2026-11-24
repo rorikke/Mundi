@@ -2,6 +2,7 @@
 // to town on their own and grow in the telling. Each day a legend may reach another town and get more exaggerated;
 // told often enough, some start crediting the deed to someone else. The AI tells the tale as the town knows it:
 // bigger, and partly wrong. When you arrive somewhere your legend has grown, your name opens doors (reputation).
+import { residentsOf } from '../core/store.js';
 import type { Save } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onDay, onHour } from './hooks.js';
@@ -34,7 +35,7 @@ onDay.push((g, w) => {
         if (r < 0.35 && towns.length > l.regions.length) { const next = towns.find(t => !l.regions.includes(t) && H(`${l.id}|${t}`) > 0.2) ?? towns.find(t => !l.regions.includes(t)); if (next) l.regions.push(next); }
         if (H(`${l.id}|grow|${g.day}`) < 0.25 && l.level < 3) l.level++;
         if (l.level >= 3 && !l.credit && H(`${l.id}|credit`) < 0.3) {
-            const others = Object.values(g.cast); if (others.length) l.credit = others[Math.floor(H(`${l.id}|who`) * others.length)].name;
+            const others = residentsOf(g); if (others.length) l.credit = others[Math.floor(H(`${l.id}|who`) * others.length)].name;
         }
     }
     (g as any).legends = list.filter(l => g.day * 1440 - l.at < 60 * 1440).slice(-20);

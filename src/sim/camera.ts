@@ -18,6 +18,7 @@ import { tierReached } from './tiers.js';
 import { sceneHere } from './homerooms.js';
 import { limitsOf, matchIn } from './private.js';
 import { cameraOf, cameraPerson, stepCounts } from './photo.js';
+import type { TitleRec } from '../core/industry.js';
 
 // Two limits are the same one when their words are (case, spaces and stops aside).
 const same = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
@@ -88,6 +89,39 @@ actionGates.push((g, w, a) => {
     const who = lensRefused(g, w, a);
     return who ? `${who} won't be in a private photo.` : '';
 });
+
+/* ---------- work and private life (plans/industry-lens.md Part 4, IQL-3) ---------- */
+
+// Filming a title is work someone agreed to: her camera rule and her limits about cameras are about her private life.
+// So the industry's own word test reads a title's camera words as work (the casting and the set: `workWords`), and her
+// rule and limits don't hold the stills of a title she's in the cast of, nor its label's promo brief naming her
+// (`filmedFor`). Off set they still decide everything: Lens briefs and private photos (`lensRefused` above).
+
+/** Is this a lens word, or a phrase with one (a genre's "camera", the scene "to the camera")? */
+export const lensWord = (s: string): boolean => same(s).split(' ').some(x => LENS_WORDS.includes(x));
+/** A title's words as the industry's word test reads them (AV-6, IQL-3): its camera words are the work the cast agreed
+ *  to, never a private limit, so they're left out; every other word stays. For sim/titles.ts's `sceneWords` (the
+ *  casting) and sim/onset.ts's `wordsOf` (a scene on set). */
+export const workWords = (words: string[]): string[] => words.filter(x => !lensWord(x));
+/** Did they agree to be filmed for this title: in its cast (an avatar, or `roster:<id>`), the title not cancelled? */
+export const agreedToFilm = (t: TitleRec | null | undefined, who: string): boolean => !!t && !t.cancelled && (t.cast ?? []).includes(who);
+/** How long after a title's release its promo briefs are still offered (days). */
+export const PROMO_DAYS = 14;
+const titlesHere = (g: Save): TitleRec[] => (((g as any).industry?.titles ?? []) as TitleRec[]);
+/** Is a photo of them work they agreed to, so their camera rule and private limits don't hold it (the industry in play:
+ *  its system and adult content)? `title`: the stills of that title (its id or record), when they're in its cast.
+ *  `client`: a promo brief (`subject.title`), when they're in the cast of one of your titles (that label's, when the
+ *  client is one of the industry's labels) from the offer to `PROMO_DAYS` after its release. Neither: never (Lens
+ *  briefs and private photos keep their rule). */
+export function filmedFor(g: Save, w: WorldDef, who: string, x: { title?: string | TitleRec; client?: string }): boolean {
+    if (!who || who === YOU || !w.industry || !systemOn(w, 'industry') || !adultOn(g)) return false;
+    if (x.title) { const t = typeof x.title === 'string' ? titlesHere(g).find(r => r.id === x.title) : x.title; if (agreedToFilm(t, who)) return true; }
+    if (x.client !== undefined) {
+        const label = (w.industry.labels ?? []).some(l => l.id === x.client);
+        return titlesHere(g).some(t => (!label || t.label === x.client) && agreedToFilm(t, who) && (t.q === undefined || g.day <= t.release + PROMO_DAYS));
+    }
+    return false;
+}
 
 onHour.push(latchCamera);
 onDay.push(latchCamera);

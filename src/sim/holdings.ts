@@ -9,6 +9,7 @@
 //   with the moneylender and their thugs come for you; late with the bank and your reputation suffers.
 //   Taxes: every week, a share of what your property is worth and what your businesses earned, by the realm's rate
 //   (higher when towns are tense). Unpaid, it becomes a bounty.
+import { residentsOf } from '../core/store.js';
 import type { Save } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onDay } from './hooks.js';
@@ -40,7 +41,7 @@ const week = (g: Save) => Math.floor((g.day - 1) / 7);
 
 export function freeHomes(g: Save, w: WorldDef) {
     if (!systemOn(w, 'property')) return [];
-    const taken = new Set([g.player.home, ...Object.values(g.cast).map(r => r.home), ...holdingsOf(g).estates, ...ownedHomes(g)].map(h => `${h.zone}:${h.x},${h.y}`));   // (and homes owned through housing)
+    const taken = new Set([g.player.home, ...residentsOf(g).map(r => r.home), ...holdingsOf(g).estates, ...ownedHomes(g)].map(h => `${h.zone}:${h.x},${h.y}`));   // (and homes owned through housing)
     return w.homes.zones.flatMap(z => z.spots.map((s, i) => ({ zone: z.id, x: s[0], y: s[1], n: i + 1, price: (z.rent ?? 40) * 30, rent: z.rent ?? 40, name: homeAddress(w, { zone: z.id, x: s[0], y: s[1], n: i + 1 }) })))
         .filter(h => !taken.has(`${h.zone}:${h.x},${h.y}`));
 }

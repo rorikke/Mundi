@@ -5,7 +5,7 @@ import { homeJobOf, npcOut, onShift, SHIFTS } from './hometime.js';
 import { festivalSpot } from './festivals.js';
 import { eventSpot } from './cityevents.js';
 import { lockedHere } from './life.js';
-import { nowAbs, changes } from '../core/store.js';
+import { nowAbs, changes, residentsOf } from '../core/store.js';
 import { systemOn, isScenario } from '../core/world.js';
 import { isWeekend } from './time.js';
 import { appointmentNow, isWith } from './social.js';
@@ -304,10 +304,13 @@ function routineNow(g, w, r, st) {
 }
 // The systems and save rules a routine reads (a Home's rooms, the length of the seasons for festivals).
 const rulesOf = (w, c) => `${systemOn(w, 'living')}|${systemOn(w, 'jobs')}|${systemOn(w, 'events')}|${systemOn(w, 'festivals')}|${c?.seasonDays}|${c?.npcOut}|${c?.rooms?.join(',')}|${c?.extraRooms?.length}`;
-export const residents = (g) => Object.values(g.cast);
+// The world's people (a job-only performer on a set is not one of them: core/store.ts residentsOf).
+export const residents = (g) => residentsOf(g);
+// (adult industry) job-only performers on a set at this place (sim/onset.ts): in its scene, and nowhere else
+const onSetAt = (g, loc) => Object.values(g.cast).filter(r => r.onset?.place === loc);
 // (someone you are playing as is not "here": you are them)
 const selfOf = (g) => { const s = g.swap; return s ? (s.avatar || s.origCard || '') : ''; };
-export const presentAt = (g, w, loc) => residents(g).filter(r => r.avatar !== selfOf(g) && whereNow(g, w, r) === loc);
+export const presentAt = (g, w, loc) => { const here = residents(g).filter(r => r.avatar !== selfOf(g) && whereNow(g, w, r) === loc); const set = onSetAt(g, loc); return set.length ? [...here, ...set] : here; };
 // Someone who stopped to talk with you (a chance encounter) stays where you met for a while, without following you.
 export function stayingAt(g, avatar) {
     const list = (g.social?.stays ?? []);

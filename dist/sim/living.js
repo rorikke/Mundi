@@ -214,7 +214,7 @@ export function startRumor(g, w, text, place, o = {}) {
         return null;
     const about = aboutOf(g, o.about);
     // (`first`: who hears it first, when the caller knows: the people of a home)
-    let first = (o.first ?? presentAt(g, w, place).map(r => r.avatar)).filter(a => !!g.cast[a] && !about.includes(a));
+    let first = (o.first ?? presentAt(g, w, place).map(r => r.avatar)).filter(a => !!g.cast[a] && !g.cast[a].onset && !about.includes(a)); // ((adult industry) never a performer on a set)
     if (!first.length && !o.first) {
         const there = (r) => r.leisure.includes(place) || w.occupations.find(x => x.id === r.occupation)?.place === place;
         first = residents(g).filter(r => !about.includes(r.avatar) && there(r)).sort((a, b) => rnd(g, `${id}|${a.avatar}`) - rnd(g, `${id}|${b.avatar}`)).slice(0, 2).map(r => r.avatar);

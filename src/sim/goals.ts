@@ -8,7 +8,7 @@
 // Points are the ledger's (sim/points.ts listens to `onGoalStep`); the screens are ui/'s. Everything belongs to the
 // `goals` system: with it off nothing moves. Old saves: the old aspiration and the ones finished (`player.aspiration`,
 // `player.aspDone`) are read once into this state and left where they are.
-import { nowAbs, adultOk, adultOn, type Save } from '../core/store.js';
+import { nowAbs, adultOk, adultOn, type Save, residentsOf, residentIds } from '../core/store.js';
 import { systemOn, activeStatuses, getWorld, type WorldDef, type GoalDef, type GoalStep, type When } from '../core/world.js';
 import { goalsOf, goalOf, isSystemNeed, FOLDED_GOALS, SKILL_GROUPS, GENERAL_GOALS, GOAL_CATEGORIES } from '../core/goals.js';
 import type { EffectDef } from '../core/traits.js';
@@ -127,7 +127,7 @@ function pause(g: Save, s: GoalsState) {
 const keptThreads = new WeakMap<Save, { w: WorldDef; key: string; list: ReturnType<typeof threadsOf> }>();
 function threadsHere(g: Save, w: WorldDef) {
     if (!systemOn(w, 'living')) return [];
-    const key = `${g.day}|${adultOn(g)}|${Object.values(g.cast).map(r => `${r.avatar}:${r.name}:${(r as any).gone ? 1 : 0}`).join(',')}`;
+    const key = `${g.day}|${adultOn(g)}|${residentsOf(g).map(r => `${r.avatar}:${r.name}:${(r as any).gone ? 1 : 0}`).join(',')}`;
     const k = keptThreads.get(g);
     if (k && k.w === w && k.key === key) return k.list;
     const list = threadsOf(g, w).filter(({ t, r }) => !(r as any).gone && [t.reveal, ...t.stages.map(x => x.when), ...(t.endings ?? []).map(x => x.when)]
@@ -182,8 +182,8 @@ function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<strin
         // (adult) a partner with an open style needs someone who has one (or the world's open relationships); two
         // partners need two people; getting caught needs an action with a risk
         case 'partner': {
-            if (v === 'open') return systemOn(w, 'romance') && Object.keys(g.cast).some(a => styleOf(g, a) === 'open');
-            return !/^\d+$/.test(v) || (systemOn(w, 'romance') && Object.keys(g.cast).length >= Number(v));
+            if (v === 'open') return systemOn(w, 'romance') && residentIds(g).some(a => styleOf(g, a) === 'open');
+            return !/^\d+$/.test(v) || (systemOn(w, 'romance') && residentIds(g).length >= Number(v));
         }
         case 'did': { const c = countedOf('did', v); return !c || !['risky', 'caught'].includes(c.what) || (w.actions ?? []).some(a => (a.risk ?? 0) > 0); }
         // a better home than your first: not when the first was already in the dearest area (Porto Alto's heir)
@@ -439,7 +439,7 @@ export function suggestedGoals(g: Save, w: WorldDef, n = 3): GoalDef[] {
     const list = offeredGoals(g, w).filter(x => !s.done.includes(x.id) && s.active !== x.id);
     const doneIn = (cat: string) => s.done.filter(id => goalOf(w, id)?.category === cat).length;
     const job = !!g.player.job, studying = !!degreeOf(g, w) || ((g.player as any).learning?.taking?.length ?? 0) > 0;
-    const shared = Object.values(g.cast).some(r => (r as any).homeWith === '__you'), early = g.day < seasonDays(g);
+    const shared = residentsOf(g).some(r => (r as any).homeWith === '__you'), early = g.day < seasonDays(g);
     // your skills (a strength starts one) and the ones your interests cover
     const traits = Object.values((g.player.traits ?? {}) as Record<string, string[]>).flat();
     const mine = new Set([...skillsOf(w, g).filter(h => levelOf(g, h.id) > 0).map(h => h.id), ...traits.flatMap(t => w.traitInfo?.[t]?.covers?.skills ?? [])]);

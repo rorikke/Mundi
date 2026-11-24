@@ -1,6 +1,6 @@
 // Factions on screen: the Factions app (standing, power, membership and duties, leading, your own faction), the
 // realm and its gods (patron, prayer, offerings, miracles), the leader's audience dialog and the HUD duty button.
-import { esc, game, notify, saveGame, toast } from '../core/store.js';
+import { esc, game, notify, saveGame, toast, residentsOf } from '../core/store.js';
 import { getWorld, systemOn } from '../core/world.js';
 import { godsActive } from '../core/rpgdef.js';
 import { ACT } from './reg.js';
@@ -51,7 +51,7 @@ export function factionsApp(g, w, head) {
         <section><h4>Factions</h4>${list.map(row).join('') || '<p class="mu-muted">None in this world.</p>'}</section>
         ${ownHtml}</div>`;
 }
-const recruitable = (g) => Object.values(g.cast).filter(r => r.met && bondOf(g, r.avatar) >= 50 && !fstate(g).own?.members.includes(r.avatar)).slice(0, 6);
+const recruitable = (g) => residentsOf(g).filter(r => r.met && bondOf(g, r.avatar) >= 50 && !fstate(g).own?.members.includes(r.avatar)).slice(0, 6);
 function realmHtml(g, w) {
     const r = w.realm;
     if (!r)

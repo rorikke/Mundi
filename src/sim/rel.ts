@@ -9,7 +9,7 @@ import { getWorld, isScenario } from '../core/world.js';
 import { difficultyOf } from './bills.js';
 import { effectMul } from './effects.js';
 import { CURVES, HALF_LIFE, PACE, faded, paced, rawFor, rateAt, type Curve, type PaceId } from './pace.js';
-import { tierLink } from './hooks.js';
+import { tierLink, stanceLink } from './hooks.js';
 import { FAMILY_START, FRIEND_START, COUPLE_FRIEND, isFamily } from '../core/feel.js';
 import type { Intimacy, RelStyle } from './intimacy.js';
 import type { IntimateProfile, CameraRule } from '../core/world.js';
@@ -179,6 +179,8 @@ export function land(g: Save, m: Meter, x: string, y: string, raw: number, isPac
     const before = meter(g, m, x, y);
     const F = isPaced ? fatigue(g, m, x, y) : 0, c = isPaced ? curveOf(g, x, m) : null;
     let add = c ? paced(raw, F, c) : raw;
+    // (adult industry) someone uneasy about your work grows closer more slowly while you perform (sim/stance.ts)
+    if (m === 'r' && y === YOU) { const k = stanceLink.gain(g, x); if (k !== 1) add *= Math.max(0, k); }
     const cap = y === YOU ? tierLink.cap(g, m, x) : null;
     if (cap !== null && before + add > cap) {
         const room = Math.max(0, cap - before), rawIn = c ? rawFor(room, F, c) : room;
@@ -270,13 +272,15 @@ export function casualsOf(g: Save, id = YOU): string[] {
     }
     return out;
 }
+// One of the world's people in the game now ((adult industry) a performer on a set isn't one).
+const ofWorld = (g: Save, a: string) => !!g.cast[a] && !g.cast[a].onset;
 // Couples between two people of the world (not you).
 export function couplePairs(g: Save): { a: string; b: string; status: Status; since: number }[] {
     const out: { a: string; b: string; status: Status; since: number }[] = [];
     for (const [k, p] of Object.entries(relOf(g).pairs)) {
         if (!p.status || !PARTNER.includes(p.status)) continue;
         const [a, b] = k.split('|');
-        if (a !== YOU && b !== YOU && g.cast[a] && g.cast[b]) out.push({ a, b, status: p.status, since: p.since ?? g.day });
+        if (a !== YOU && b !== YOU && ofWorld(g, a) && ofWorld(g, b)) out.push({ a, b, status: p.status, since: p.since ?? g.day });
     }
     return out;
 }
@@ -287,7 +291,7 @@ export function casualPairs(g: Save): { a: string; b: string; since: number }[] 
     for (const [k, p] of Object.entries(relOf(g).pairs)) {
         if (p.status !== 'casual') continue;
         const [a, b] = k.split('|');
-        if (a !== YOU && b !== YOU && g.cast[a] && g.cast[b]) out.push({ a, b, since: p.since ?? g.day });
+        if (a !== YOU && b !== YOU && ofWorld(g, a) && ofWorld(g, b)) out.push({ a, b, since: p.since ?? g.day });
     }
     return out;
 }
@@ -325,7 +329,7 @@ export function pastPairs(g: Save): { a: string; b: string; was: Past }[] {
     for (const [k, p] of Object.entries(relOf(g).pairs)) {
         if (!p.was) continue;
         const [a, b] = k.split('|');
-        if (a !== YOU && b !== YOU && g.cast[a] && g.cast[b]) out.push({ a, b, was: p.was });
+        if (a !== YOU && b !== YOU && ofWorld(g, a) && ofWorld(g, b)) out.push({ a, b, was: p.was });
     }
     return out;
 }

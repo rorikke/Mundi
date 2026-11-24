@@ -23,6 +23,10 @@ export const PHOTO_PAY_MAX = 1_000_000;
 export const ANY_STUDIO = 'studio';
 /** Subjects that aren't a person by name. */
 export const SUBJECT_KINDS = ['couple', 'cast', 'client'];
+/** A subject from the adult industry's roster: `roster:<id>` (that performer) or `roster` (one whose genres and rank
+ *  fit the brief; plans/industry-lens.md Part 2). Kept when the world loads: performers are professionals, free in
+ *  front of a camera unless their roster entry sets a rule, checked when a brief is offered. */
+export const rosterSubject = (who: string | undefined): boolean => who === 'roster' || /^roster:[^\s,;]+$/.test(who ?? '');
 
 const ID = /^[^\s,;]+$/;
 const str = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : undefined);
@@ -101,9 +105,11 @@ function subject(s: any): SubjectDef | undefined {
     if (!s || typeof s !== 'object' || !str(s.who)) return undefined;
     const out: SubjectDef = { who: str(s.who)! };
     if (str(s.expr)) out.expr = str(s.expr)!.toLowerCase();
-    if (s.outfit === 'clothes' || s.outfit === 'naked') out.outfit = s.outfit;
+    // (any outfit by name: clothes, naked, or one of the person's own sets: robe, lingerie, swim-red…)
+    const outfit = str(s.outfit); if (outfit && ID.test(outfit)) out.outfit = outfit;
     if (s.consent === true) out.consent = true;
     if (str(s.scene)) out.scene = str(s.scene);
+    if (s.title === true) out.title = true;   // (a promo brief for one of your titles: sim/assignments.ts checks it in play)
     return out;
 }
 function brief(b: any, places: Set<string>, clients: Set<string>): BriefDef | null {
@@ -181,7 +187,7 @@ export function upgradePhoto(w: WorldDef) {
     const books = uniq((Array.isArray(p.books) ? p.books : []).map(book).filter(Boolean) as PhotobookDef[]);
     const ids = new Set(clients.map(c => c.id)), bookIds = new Set(books.map(b => b.id));
     const briefs = uniq((Array.isArray(p.briefs) ? p.briefs : []).map((b: any) => brief(b, places, ids)).filter(Boolean) as BriefDef[])
-        .filter(b => { const who = b.subject?.who; return !who || SUBJECT_KINDS.includes(who) || cameraAllows(loosestCamera(people.get(who)), b); });
+        .filter(b => { const who = b.subject?.who; return !who || SUBJECT_KINDS.includes(who) || rosterSubject(who) || b.subject?.title === true || cameraAllows(loosestCamera(people.get(who)), b); });
     for (const b of briefs) if (b.book && !bookIds.has(b.book)) delete b.book;
     const out: PhotoDef = { clients, briefs };
     const words = (Array.isArray(p.words) ? p.words : []).map((x: any) => ({ at: num(x?.at, 0, 100), text: str(x?.text) }))

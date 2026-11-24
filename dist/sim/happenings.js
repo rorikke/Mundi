@@ -2,7 +2,7 @@
 // and the big moments in the lives of the people you know (a promotion, an engagement, a birthday…).
 // Every one of them is one of the world's people (a card): no extras are made up. One at a time, as a card on screen
 // with a choice; what you choose is the engine's to apply (bonds, approval, their lives).
-import { nowAbs } from '../core/store.js';
+import { nowAbs, residentsOf } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { breakOf } from './daylife.js';
 import { onHour, onDay } from './hooks.js';
@@ -50,7 +50,7 @@ const isKid = (g, a) => (g.family?.kids ?? []).some((k) => k.avatar === a);
 const livesWithYou = (r) => r.homeWith === '__you';
 /* ---------- neighbors ---------- */
 // Your neighbors: the world's people who live in your area (not with you, not your children).
-export const neighbors = (g) => Object.values(g.cast).filter(r => r.home.zone === g.player.home.zone && !livesWithYou(r) && !isKid(g, r.avatar));
+export const neighbors = (g) => residentsOf(g).filter(r => r.home.zone === g.player.home.zone && !livesWithYou(r) && !isKid(g, r.avatar));
 export const neighborsActive = (g, w) => systemOn(w, 'neighbors') && neighbors(g).length >= NEIGHBORS_MIN;
 const homeKeyOf = (g) => `${g.player.home.zone}:${g.player.home.x},${g.player.home.y}`;
 function neighborHour(g, w) {
@@ -95,7 +95,7 @@ const pickThing = (w, v) => { const list = w.style === 'medieval' || (w.kind ?? 
 // (museum) the museum's curator keeps the job the museum gave them while they hold it: no offer elsewhere, no quitting
 // for a dream (asked or decided on their own), so the museum keeps its curator
 const keepsJob = (w, r) => { const m = w.collection?.museum; return !!m?.curator && !!m.curatorJob && r.occupation === m.curatorJob && (r.name === m.curator || r.name.split(/\s+/)[0] === m.curator); };
-const others = (g, r) => Object.values(g.cast).filter(x => x.avatar !== r.avatar && !isKid(g, x.avatar));
+const others = (g, r) => residentsOf(g).filter(x => x.avatar !== r.avatar && !isKid(g, x.avatar));
 const DILEMMAS = [
     { id: 'job', yes: 'Take it', no: 'Stay where you are',
         setup: (g, w, r) => { const list = w.occupations.filter(o => o.id !== r.occupation); return systemOn(w, 'jobs') && list.length && !keepsJob(w, r) ? list[Math.floor(dayRnd(g, `job|${r.avatar}`) * list.length)].id : null; },
@@ -120,7 +120,7 @@ const DILEMMAS = [
         setup: (g, w, r) => { const z = w.homes.zones.filter(z => z.id !== r.home.zone && z.spots.length); return z.length && !livesWithYou(r) ? z[Math.floor(dayRnd(g, `move|${r.avatar}`) * z.length)].id : null; },
         ask: (_g, w, _r, x) => `I'm thinking of moving to ${w.homes.zones.find(z => z.id === x)?.name ?? 'another part of town'}. What do you think?`,
         apply: (g, w, r, x) => { const z = w.homes.zones.find(z => z.id === x); if (!z)
-            return; const spot = homeSpot(w, z.id, takenHomes(g), g.player.home); const key = homeKey(r.home); for (const m of Object.values(g.cast))
+            return; const spot = homeSpot(w, z.id, takenHomes(g), g.player.home); const key = homeKey(r.home); for (const m of residentsOf(g))
             if (homeKey(m.home) === key)
                 m.home = { ...spot }; normalizeHomes(g); note(g, '{0} moved to {1}.', [r.name, z.name], [r.avatar], `home:${r.avatar}`, 'life'); } },
     // someone they dislike or have a rival tie with; apologizing brings them a little closer, standing firm apart
@@ -189,7 +189,7 @@ function adviceDay(g, w) {
     if (!systemOn(w, 'consults') || l.asking)
         return out;
     // a friend comes to you, about every few days (their message is written by the AI when it goes out)
-    const friends = Object.values(g.cast).filter(r => r.met && bondOf(g, r.avatar) >= FRIEND_BOND && !isKid(g, r.avatar) && !l.consults.some(c => c.avatar === r.avatar));
+    const friends = residentsOf(g).filter(r => r.met && bondOf(g, r.avatar) >= FRIEND_BOND && !isKid(g, r.avatar) && !l.consults.some(c => c.avatar === r.avatar));
     if (!friends.length || dayRnd(g, 'consult') > 0.25)
         return out;
     const r = friends[Math.floor(dayRnd(g, 'consultwho') * friends.length)];
@@ -278,7 +278,7 @@ function momentsDay(g, w) {
     const out = [];
     if (!systemOn(w, 'consults'))
         return out;
-    for (const r of Object.values(g.cast)) {
+    for (const r of residentsOf(g)) {
         if (!r.met || bondOf(g, r.avatar) < KNOWN_BOND)
             continue;
         if (breakOf(g, w, r, g.day)?.kind === 'sick')

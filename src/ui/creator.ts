@@ -16,7 +16,7 @@ import { TIE_TYPES } from '../sim/living.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { GOVERNMENTS, POWERS } from '../sim/realm.js';
 import { state, notify, esc, toast, busy } from '../core/store.js';
-import { WEEKDAY_IDS, getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES, type WorldDef, type HallDef, type SlotDef, type PieceSource, type MuseumDef, type MuseumUpgrade, type DigDef, type PersonTier, type IntimateProfile, type GameMode, type GoalDef, type GoalStep, type RewardDef, type Rank, type VentureDef, type Ritual, type BriefDef, type PhotoClient, type PhotobookDef } from '../core/world.js';
+import { WEEKDAY_IDS, getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES, type WorldDef, type HallDef, type SlotDef, type PieceSource, type MuseumDef, type MuseumUpgrade, type DigDef, type PersonTier, type IntimateProfile, type GameMode, type GoalDef, type GoalStep, type RewardDef, type Rank, type VentureDef, type Ritual, type BriefDef, type PhotoClient, type PhotobookDef, type Occupation, type JobTrack, type Stance, type GenreDef, type LabelDef, type SetDef, type RosterPerson } from '../core/world.js';
 import { statsOf, statName, STAT_NAMES, VENTURE_STATS, EXEC_STATS } from '../core/ventures.js';
 import { STYLES, inWorld } from './styles.js';
 import { SKINS } from './skins.js';
@@ -43,14 +43,15 @@ import { GENERAL_GOALS, GENERAL_REWARDS, GOAL_CATEGORIES, PERK_LIMITS, BOOST_LIM
 import { TALLY_EVENTS } from '../sim/tally.js';
 import { SECOND_POINTS } from '../sim/points.js';
 import { missingFromRecord, MUSEUM_PRICE_MAX } from '../core/collection.js';
+import { INDUSTRY, INDUSTRY_PAY_MAX, STANCES } from '../core/industry.js';
 import { PHOTO_KINDS, CLIENT_KINDS, GEAR_KINDS, PHOTO_WORDS, SMALL_BOARD, FULL_BOARD, BRIEF_DAYS, BRIEF_DC, BRIEF_HOURS, BRIEF_REP, PHOTO_PAY_MAX, ANY_STUDIO, SUBJECT_KINDS, cameraAllows } from '../core/photo.js';
 
-type Tab = 'photo' | 'business' | 'economy' | 'realm' | 'customs' | 'rpg' | 'general' | 'features' | 'needs' | 'maps' | 'homes' | 'actions' | 'jobs' | 'goals' | 'courses' | 'shop' | 'collection' | 'words' | 'character' | 'people' | 'lore' | 'books';
+type Tab = 'photo' | 'industry' | 'business' | 'economy' | 'realm' | 'customs' | 'rpg' | 'general' | 'features' | 'needs' | 'maps' | 'homes' | 'actions' | 'jobs' | 'goals' | 'courses' | 'shop' | 'collection' | 'words' | 'character' | 'people' | 'lore' | 'books';
 const TABS: [Tab, string][] = [['general', 'General'], ['features', 'Features'], ['needs', 'Needs'], ['maps', 'Maps & places'], ['homes', 'Homes & rent'],
-    ['actions', 'Things to do'], ['jobs', 'Jobs'], ['photo', 'Photography'], ['goals', 'Goals & rewards'], ['business', 'Business'], ['courses', 'Courses'], ['shop', 'Shop'], ['collection', 'Collection'], ['words', 'Words (lexicon)'], ['character', 'Character creation'], ['rpg', 'RPG'], ['customs', 'Customs & calendar'], ['realm', 'Realm & factions'], ['economy', 'Economy & skies'], ['people', 'People & routines'], ['lore', 'Lore'], ['books', 'Lorebooks & notes']];
+    ['actions', 'Things to do'], ['jobs', 'Jobs'], ['photo', 'Photography'], ['industry', 'Industry'], ['goals', 'Goals & rewards'], ['business', 'Business'], ['courses', 'Courses'], ['shop', 'Shop'], ['collection', 'Collection'], ['words', 'Words (lexicon)'], ['character', 'Character creation'], ['rpg', 'RPG'], ['customs', 'Customs & calendar'], ['realm', 'Realm & factions'], ['economy', 'Economy & skies'], ['people', 'People & routines'], ['lore', 'Lore'], ['books', 'Lorebooks & notes']];
 // A scenario (one house, its residents) leaves out the tabs about towns, careers and kingdoms (a switch shows them), and
-// life goals and photography (a Home has them off).
-const SCENARIO_HIDES: Tab[] = ['realm', 'economy', 'rpg', 'goals', 'photo'];
+// life goals, photography and the adult industry (a Home has them off).
+const SCENARIO_HIDES: Tab[] = ['realm', 'economy', 'rpg', 'goals', 'photo', 'industry'];
 export const CW = {
     w: null as WorldDef | null, tab: 'general' as Tab, dirty: false, saving: false, confirmDel: false, leaveAsk: false, nameMiss: false,
     sel: { courses: 0, needs: 0, actions: 0, jobs: 0, zones: 0, kinds: '', traits: 0, origins: 0, people: 0, routine: '', lore: 0, tinfo: '' } as Record<string, any>,
@@ -511,6 +512,7 @@ function tabJobs(w: WorldDef) {
             <span class="mu-cw-sub">Hired only with (one of these is enough; none: anyone)</span>
             ${hireRows(p, o)}
             ${words('Kinds of job (tags, comma separated)', `${p}.tags`, 'Effects can aim at them: pay and performance in every job of a kind (adult-stage, nightwork).', 'nightwork')}
+            ${industryJobBox(w, p, o, o, false)}
             <h4>Ranks and pay per hour</h4>
             ${rankRows(w, p, o)}
             ${csv('New bottom ranks added (ids)', `${p}.shifted`, 'Added a rank below the first one after people played this job? Add a new id here once: saved games holding this job move up one rank, so they keep the rank they had.')}
@@ -679,6 +681,7 @@ function trackEditor(w: WorldDef, o: WorldDef['occupations'][number], p: string)
             ${bounded(`${INTERVIEW_LABEL}; empty: the job's`, `${q}.interview`, -10, 10, 1)}
             ${courses.length ? `<div class="mu-field"><span>Courses it asks for (none picked: the job's)</span>${pairChips(courses, `${q}.courses`, true)}</div>` : ''}
             ${bounded('Months before the first shift (0–12; empty: the job\'s)', `${q}.startAfter`, 0, 12, 0.5)}
+            ${industryJobBox(w, q, t, o, true)}
             <span class="mu-cw-sub">The work (empty: as the job)</span>
             ${inherit('Works at', `${q}.place`, [['', '(no place: off-screen)'], ...placeOpts(w)], `As the job (${placeName})`)}
             <div class="mu-row2">${num('Shift length (hours)', `${q}.shift`, 1)}${num('Energy per shift', `${q}.cost.energy`)}</div>
@@ -716,7 +719,7 @@ const storyOpts = (w: WorldDef): Opt[] => (w.stories ?? []).map(s => [s.id, `${s
 // Every venture's upgrades (a street story or a job's event can turn up any of them), named by venture when there are several.
 const upgradeOpts = (w: WorldDef, only?: VentureDef): Opt[] => { const l = only ? [only] : w.ventures ?? [];
     return l.flatMap(d => (d.upgrades ?? []).map(u => [u.id, l.length > 1 ? `${d.name}: ${u.name}` : u.name] as Opt)); };
-const TRACK_NAMES: Record<string, string> = { cafe: 'café', exec: 'executive\'s division', hotel: 'hotel', capsule: 'capsule hotel', ryokan: 'ryokan', lovehotel: 'love hotel' };
+const TRACK_NAMES: Record<string, string> = { cafe: 'café', exec: 'executive\'s division', hotel: 'hotel', capsule: 'capsule hotel', ryokan: 'ryokan', lovehotel: 'love hotel', label: 'label' };
 // Where a street story may happen besides a place: at whichever place of a venture (or of a track or kind of venture) you own.
 const venturePlaceOpts = (w: WorldDef): Opt[] => [...(w.ventures ?? []).map(v => [`venture:${v.id}`, `At your ${v.name || v.id}, wherever it runs`] as Opt),
     ...[...new Set((w.ventures ?? []).flatMap(v => [v.track, ...(v.kind ? [v.kind] : [])]))].map(t => [`venture:${t}`, `At any ${TRACK_NAMES[t] ?? t} of yours`] as Opt)];
@@ -779,6 +782,7 @@ function wayForm(w: WorldDef, p: string, v: VentureDef, k: 'takeover' | 'buy' | 
 function waysEditor(w: WorldDef, p: string, v: VentureDef) {
     const l = v.ways?.lease, r = `${p}.ways.lease`;
     return `<h4>How it becomes yours</h4><p class="mu-muted">A takeover, a purchase, a partnership, a lease (one of each at most, any of them a way in), or none: an executive's division opens with the job's rank.</p>
+        ${cond('None of them opens until this holds (optional)', `${p}.ways.when`, 'thread: naomi_story', 'Read before each way\'s own condition: a label can wait for a storyline to end.')}
         ${wayForm(w, p, v, 'takeover')}${wayForm(w, p, v, 'buy')}${wayForm(w, p, v, 'partner')}
         ${l ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><span class="mu-cw-sub">A lease: one of these units, chosen (mark each place as a unit of this venture in Maps &amp; places)</span><span class="mu-cw-spacer"></span>
                 <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(r)}">${icon('x')}<span>No lease</span></button></div>
@@ -925,7 +929,7 @@ function buyerRows(w: WorldDef, p: string, v: VentureDef) {
 function ventureForm(w: WorldDef, i: number) {
     const p = `ventures.${i}`; const v = (w.ventures ?? [])[i]; const exec = v.track === 'exec' || !!v.job;
     return `${idTag(v.id)}
-        <div class="mu-row2">${txt('Name', `${p}.name`, 'Your café')}<label class="mu-field"><span>What kind (Café: cafe; Executive: exec; or another word)</span><input data-input="cw" data-path="${esc(`${p}.track`)}" data-focus="${esc(`${p}.track`)}" value="${val(`${p}.track`)}" list="mu-cw-vtracks" placeholder="cafe"><datalist id="mu-cw-vtracks"><option value="cafe">Café</option><option value="exec">Executive</option><option value="hotel">Hotel</option></datalist></label></div>
+        <div class="mu-row2">${txt('Name', `${p}.name`, 'Your café')}<label class="mu-field"><span>What kind (Café: cafe; Executive: exec; or another word)</span><input data-input="cw" data-path="${esc(`${p}.track`)}" data-focus="${esc(`${p}.track`)}" value="${val(`${p}.track`)}" list="mu-cw-vtracks" placeholder="cafe"><datalist id="mu-cw-vtracks"><option value="cafe">Café</option><option value="exec">Executive</option><option value="hotel">Hotel</option><option value="label">Label (the adult industry)</option></datalist></label></div>
         <div class="mu-row2"><label class="mu-field"><span>What kind of its track (one of each kind at a time; empty: the track)</span><input data-input="cw" data-type="opt" data-path="${esc(`${p}.kind`)}" data-focus="${esc(`${p}.kind`)}" value="${val(`${p}.kind`)}" list="mu-cw-vkinds" placeholder="capsule"><datalist id="mu-cw-vkinds"><option value="capsule">Capsule hotel</option><option value="ryokan">Ryokan</option><option value="lovehotel">Love hotel</option></datalist></label>
             ${chk('Friends come here in their free time', `${p}.hangout`, 'Off: nobody spends their free time here (a love hotel).', true)}</div>
         <div class="mu-row2">${optTxt('Its button for running it yourself (empty: the café\'s)', `${p}.run.label`, 'Work the front desk')}${optTxt('The button\'s icon (an emoji)', `${p}.run.icon`, '🛎')}</div>
@@ -1639,6 +1643,215 @@ function tidyPhoto(w: WorldDef) {
         if (Array.isArray(z.fixtures) && !z.fixtures.length) delete z.fixtures;
     }
     if (Array.isArray(st) && !st.length) delete w.homes.studios;
+}
+
+/* ---------- (adult industry) the Industry tab, and its fields on jobs, people, storylines and ventures (plans/adult-industry.md, session E) ---------- */
+
+// The tab is shown where the industry can play or is already written (the system on, or the block there); its fields on
+// jobs, people and storylines only in a world that has the block (they do nothing without it), or where already set.
+const industryHere = (w: WorldDef) => systemOn(w, 'industry') || !!w.industry;
+const STANCE_NAMES: Record<Stance, string> = { fine: 'Fine with it', uneasy: 'Uneasy about it', no: 'A deal-breaker' };
+const STIGMA_NAMES = ['Nobody minds', 'A warning when a coworker recognizes them', 'A warning, then they are let go'];
+const genreOpts = (w: WorldDef): Opt[] => (w.industry?.genres ?? []).map(g => [g.id, g.name] as Opt);
+const setOpts = (w: WorldDef): Opt[] => (w.industry?.sets ?? []).map(s => [s.id, s.name] as Opt);
+const rosterOpts = (w: WorldDef): Opt[] => (w.industry?.roster ?? []).map(r => [r.id, r.name] as Opt);
+// Every way in of the world's jobs and tracks, once each (a storyline stage's offer names one by id).
+const entryOpts = (w: WorldDef): Opt[] => { const seen = new Set<string>();
+    return w.occupations.flatMap(o => [o, ...Object.values(o.tracks ?? {})].flatMap(x => x?.entries ?? []).filter(e => !seen.has(e.id) && !!seen.add(e.id)).map(e => [e.id, `${o.name}: ${e.name}`] as Opt)); };
+const placeTags = (w: WorldDef) => [...new Set(w.places.flatMap(p => p.tags ?? []))].filter(t => /^[^\s,;]+$/.test(t) && !BAD_KEYS.includes(t)).sort();
+// The work events of the industry's job and its tracks (a performer's job stories are some of them).
+const industryEvents = (w: WorldDef): Opt[] => { const o = w.occupations.find(x => x.id === w.industry?.job); if (!o) return [];
+    return [...(o.events ?? []), ...Object.values(o.tracks ?? {}).flatMap(t => t?.events ?? [])].filter(e => e?.id).map(e => [e.id, e.id] as Opt); };
+const rowDel = (p: string) => `<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(p)}" title="Remove">${icon('x')}</button>`;
+
+// A job's or a track's industry fields: worked by bookings, its ways in straight onto a path, its contracts, and (a job's)
+// the stigma when a coworker recognizes the player from adult video.
+function industryJobBox(w: WorldDef, p: string, x: Occupation | JobTrack, o: Occupation, track: boolean) {
+    const stigma = track ? undefined : (x as Occupation).stigma;
+    const set = !!x.bookings || !!x.entries?.length || !!x.contracts?.length || stigma !== undefined;
+    if (!w.industry && !set) return '';
+    const paths: Opt[] = (x.branches ?? o.branches ?? []).flatMap(b => b.options.map(op => [op.id, op.name] as Opt));
+    const sym = esc(w.currency.symbol);
+    const entries = (x.entries ?? []).map((e, k) => { const q = `${p}.entries.${k}`;
+        return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${idTag(e.id)}<span class="mu-cw-spacer"></span>${rowDel(q)}</div>
+            <div class="mu-row2">${txt('Name', `${q}.name`, 'From the lens')}${sel('Hired straight onto the path', `${q}.path`, withCur(paths, e.path))}</div>
+            ${cond('Offered while (empty: whenever a storyline offers it)', `${q}.when`, 'photorep: 75; skill: photography 7')}</div>`; }).join('');
+    const contracts = (x.contracts ?? []).map((c, k) => { const q = `${p}.contracts.${k}`;
+        return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${idTag(c.id)}<span class="mu-cw-spacer"></span>${rowDel(q)}</div>
+            <div class="mu-row2">${txt('Name', `${q}.name`, 'Exclusive')}${flag('Exclusive', `${q}.exclusive`, 'With one label only, renewed each season by the titles\' sales.')}</div>
+            <div class="mu-row2">${bounded('Titles a month (1–30; empty: the rank\'s days a week)', `${q}.titles`, 1, 30)}${bounded('Fee × (0.1–10; empty: 1)', `${q}.fee`, 0.1, 10, 0.1)}</div>
+            <div class="mu-row2">${bounded('A title counts toward promotion as (0.5–5 shifts; empty: 1)', `${q}.counts`, 0.5, 5, 0.5)}${bounded('Fame × (0.1–5; empty: 1)', `${q}.fame`, 0.1, 5, 0.1)}</div>
+            ${bounded(`Renewed when the season's sales reach (${sym}; empty: always)`, `${q}.renew`, 0, INDUSTRY_PAY_MAX * 13)}</div>`; }).join('');
+    return `<details class="mu-cw-kept" ${set ? 'open' : ''}><summary>The adult industry ${ADULT}</summary>
+        <small class="mu-muted">Only while the Industry system and adult content are on${w.industry ? '' : ', in a world with the adult industry (its own tab): this one has none'}.</small>
+        ${flag('Bookings instead of shifts', `${p}.bookings`, `${track ? 'On this track' : 'From the first rank'}: offers of one title each in the Take app, no shifts. A title pays the rank's pay × the shift's hours and counts as a shift toward promotion; a rank's days a week are offers a week.${track ? '' : ' Only on the industry\'s own job.'}`)}
+        ${track ? '' : sel('When a coworker recognizes the player from adult video', `${p}.stigma`, [...(stigma === 0 ? [['0', `${STIGMA_NAMES[0]} (written as 0)`] as Opt] : []), ['', STIGMA_NAMES[0]], ['1', STIGMA_NAMES[1]], ['2', STIGMA_NAMES[2]]], 'num')}
+        <span class="mu-cw-sub">Ways in straight onto a path (an offer made when its condition holds: a photographer becoming a director)</span>
+        ${entries || '<small class="mu-muted">None.</small>'}
+        ${paths.length ? addBtn('jentry', `${p}.entries`, 'Add a way in') : '<small class="mu-muted">Add career paths first: a way in hires onto one.</small>'}
+        <span class="mu-cw-sub">Contracts the player chooses between (exclusive or freelance)</span>
+        ${contracts || '<small class="mu-muted">None: freelance, one title at a time.</small>'}
+        ${addBtn('jcontract', `${p}.contracts`, 'Add a contract')}</details>`;
+}
+// A person's stance on the player's work in adult video: performing, and directing or running a label (each from their
+// profile when not set: limits about cameras a deal-breaker, a free spirit fine, anyone else uneasy).
+function stanceRows(w: WorldDef, p: string, e: WorldDef['cast']['examples'][number]) {
+    const s = e.stance; if (!w.industry && !s) return '';
+    const opts = (none: string): Opt[] => [['', none], ...STANCES.map(x => [x, STANCE_NAMES[x]] as Opt)];
+    return `<div class="mu-row2">${selAct(`Stance on adult work: performing ${ADULT}`, 'cw-stance', `${p}.stance.perform`, opts('From their profile'), s?.perform ?? '')}
+        ${s?.perform ? selAct('…and directing or running a label', 'cw-stance', `${p}.stance.direct`, opts(s.perform === 'no' ? 'Uneasy (a step under performing)' : 'Fine'), s.direct ?? '') : '<span></span>'}</div>
+        <small class="mu-muted">It counts once they know (a rumor, seeing it, being told). Directing is never more than uneasy.</small>`;
+}
+// A storyline stage's industry results: an offer of a job's way in, a title it cancels (a performer's right).
+function stageIndustry(w: WorldDef, s: string, st: { offer?: string; cancel?: true | 'latest' }) {
+    if (!w.industry && st.offer === undefined && st.cancel === undefined) return '';
+    const cancel = st.cancel === undefined ? '' : String(st.cancel);
+    return `<div class="mu-row2">${sel('An offer it brings (a job\'s way in)', `${s}.offer`, withCur([['', '(none)'], ...entryOpts(w)], st.offer), 'opt')}
+        ${selAct('A title it cancels', 'cw-tcancel', `${s}.cancel`, [['', '(none)'], ['true', 'The latest title with them in it (within a year of its release)'], ...(cancel === 'latest' ? [['latest', 'The latest title with them in it (written as latest)'] as Opt] : [])], cancel)}</div>`;
+}
+
+// The rules: the job it books, the player's label, the cover's layout, pay, sales, fame and where people recognize you,
+// the chart's made-up titles.
+function industryRules(w: WorldDef) {
+    const I = w.industry!, sym = esc(w.currency.symbol), D = INDUSTRY;
+    const job = w.occupations.find(o => o.id === I.job), lv = I.label ? (w.ventures ?? []).find(v => v.id === I.label) : undefined;
+    const warn: string[] = [];
+    if (!job) warn.push(`The job it books (${I.job}) isn't a job of this world.`);
+    else if (!job.bookings && !Object.values(job.tracks ?? {}).some(t => t?.bookings)) warn.push(`${job.name} is still worked in shifts: tick Bookings instead of shifts on it (Jobs).`);
+    if (I.label && !lv) warn.push(`No venture has the id ${I.label}.`);
+    else if (lv && lv.track !== 'label') warn.push(`${lv.name || lv.id} isn't a label: its kind (Business) should be label.`);
+    if (!systemOn(w, 'industry')) warn.push('The Industry system is off in this world (Features): none of this plays.');
+    const places = (I.fame?.places ?? {}) as Record<string, number>, has = Object.keys(places).filter(k => !BAD_KEYS.includes(k));
+    const tags = placeTags(w), free = tags.filter(t => !has.includes(t));
+    const tagRow = (k: string) => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Places tagged</span><select data-input="cw-rekey" data-path="industry.fame.places" data-from="${esc(k)}">${[...tags.filter(t => t === k || free.includes(t)), ...(tags.includes(k) ? [] : [k])].map(t => `<option value="${esc(t)}" ${t === k ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label>
+        ${bounded('Recognized × (0–5)', `industry.fame.places.${k}`, 0, 5, 0.1)}${rowDel(`industry.fame.places.${k}`)}</div>`;
+    return `<section class="mu-cw-sec mu-cw-wide"><div class="mu-row mu-cw-inline"><h4>The adult industry ${ADULT}</h4><span class="mu-cw-spacer"></span><button class="mu-ghost mu-danger-text" data-act="cw-industry-off">${icon('trash')}<span>Remove it</span></button></div>
+        <p class="mu-muted">Adult video as a career of its own: offers of one title at a time instead of shifts, labels and their sets, performers who are only ever on set, sales and a weekly chart, fame, and what the people around the player think of it. Only with adult content on.</p>
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}
+        <div class="mu-row2">${sel('The job it books', 'industry.job', withCur(jobOpts(w), I.job))}${sel('The player\'s own label (a venture of the kind label)', 'industry.label', withCur([['', '(none)'], ...ventureOpts(w)], I.label), 'opt')}</div>
+        <div class="mu-row2">${optTxt('The cover\'s layout (a name the Take app knows; empty: the plain one)', 'industry.covers.layout', 'jacket')}<span></span></div>
+        <span class="mu-cw-sub">Pay: a director's share of their titles' sales, by rank on the director's path (0–0.5; 0.05: 5%)</span>
+        ${(I.pay?.share ?? []).map((_x, k) => `<div class="mu-row mu-cw-inline">${bounded(`Rank ${k + 1} of the path`, `industry.pay.share.${k}`, 0, 0.5, 0.01)}${rowDel(`industry.pay.share.${k}`)}</div>`).join('') || `<small class="mu-muted">None: the game's (${esc(D.share.join(' · '))}).</small>`}
+        ${addBtn('ishare', 'industry.pay.share', 'Add a rank')}
+        <span class="mu-cw-sub">Title sales</span>
+        <div class="mu-row2">${bounded(`A title's weekly sales at quality 60 on a tier-2 label (${sym}; empty: ${esc(D.sales.base)})`, 'industry.sales.base', 0, INDUSTRY_PAY_MAX)}${bounded('The weeks they fade over (0–52; 0 or empty: a season)', 'industry.sales.weeks', 0, 52)}</div>
+        <div class="mu-row2">${bounded(`The month's hot genres sell × (1–3; empty: ${esc(D.sales.hot)})`, 'industry.sales.hot', 1, 3, 0.05)}${bounded(`…its cold genre × (0.1–1; empty: ${esc(D.sales.cold)})`, 'industry.sales.cold', 0.1, 1, 0.05)}</div>
+        <span class="mu-cw-sub">Fame (0–100)</span>
+        <div class="mu-row2">${bounded(`Fame a release brings at quality 60 (0–50; empty: ${esc(D.fame.titles)})`, 'industry.fame.titles', 0, 50, 0.5)}${bounded(`Fame lost each week without one (0–20; empty: ${esc(D.fame.fade)})`, 'industry.fame.fade', 0, 20, 0.5)}</div>
+        <span class="mu-cw-sub">Where the player is recognized more, or less, by place tag (× the chance)</span>
+        ${has.map(tagRow).join('') || `<small class="mu-muted">None: the game's (${esc(Object.entries(D.fame.places).map(([k, v]) => `${k} ×${v}`).join(', '))}).</small>`}
+        ${free.length ? addBtn('ifame', 'industry.fame.places', 'Add a kind of place') : ''}
+        ${lines('Made-up titles for the rest of the chart (one per line)', 'industry.chart.names', 6, 'Summer Rain on Platform 4')}</section>`;
+}
+function genreForm(w: WorldDef, i: number) {
+    const p = `industry.genres.${i}`, g = w.industry?.genres?.[i]; if (!g) return '';
+    const I = w.industry!, labels = (I.labels ?? []).filter(l => l.genres?.includes(g.id)), sets = (I.sets ?? []).filter(s => s.genres?.includes(g.id)), cast = (I.roster ?? []).filter(r => r.genres?.includes(g.id));
+    const warn: string[] = [];
+    if (!sets.length) warn.push('No set suits it: its titles are shot at any set.');
+    if (!cast.length) warn.push('Nobody on the roster is cast in it: only the world\'s people and the player can be.');
+    return `${idTag(g.id)}
+        <div class="mu-row2">${txt('Name', `${p}.name`, 'Drama')}${sel('The skill its scenes lean on', `${p}.skill`, withCur([['', '(none)'], ...skillOpts(w)], g.skill), 'opt')}</div>
+        <div class="mu-row2">${bounded('Pay and sales × (0.1–5; empty: 1)', `${p}.pay`, 0.1, 5, 0.05)}${bounded('How hard its scenes are (1–30; empty: 12)', `${p}.dc`, 1, 30)}</div>
+        ${words('Its words (comma separated)', `${p}.words`, 'Someone whose limits name one of these is never cast in it.', 'camera, acting')}
+        ${lines('Its scenes, in order (one per line)', `${p}.scenes`, 4, 'the setup')}
+        ${flag('Only with adult content on', `${p}.adult`, '', true)}
+        <p class="mu-muted">Labels making it: ${esc(labels.map(l => l.name).join(', ') || 'none')}. Sets for it: ${esc(sets.map(s => s.name).join(', ') || 'none')}. On the roster: ${esc(cast.length)}.</p>
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+function labelForm(w: WorldDef, i: number) {
+    const p = `industry.labels.${i}`, l = w.industry?.labels?.[i]; if (!l) return '';
+    const warn: string[] = [];
+    if (l.set && !(w.industry?.sets ?? []).some(s => s.id === l.set)) warn.push(`No set has the id ${l.set}.`);
+    if (!l.genres?.length) warn.push('It makes no genre: it is never offered.');
+    return `${idTag(l.id)}
+        <div class="mu-row2">${txt('Name', `${p}.name`, 'Kurobara Visual')}${bounded('Tier (1 small, 2 mid-size, 3 major; empty: 2)', `${p}.tier`, 1, 3)}</div>
+        ${optArea('What it is (for the AI and the app)', `${p}.desc`, 2, 'a mid-size label with its own set')}
+        <div class="mu-row2">${bounded('Pay × (0.1–5; empty: 1)', `${p}.pay`, 0.1, 5, 0.05)}${sel('Its own set', `${p}.set`, withCur([['', '(none: any set for the genre)'], ...setOpts(w)], l.set), 'opt')}</div>
+        ${sel('Its director (one of the world\'s people)', `${p}.director`, withCur([['', '(none: an anonymous director)'], ...peopleOpts(w)], l.director), 'opt')}
+        <div class="mu-field"><span>The genres it makes</span>${pairChips(withCurAll(genreOpts(w), l.genres), `${p}.genres`, true)}</div>
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+function setForm(w: WorldDef, i: number) {
+    const p = `industry.sets.${i}`, s = w.industry?.sets?.[i]; if (!s) return '';
+    const warn: string[] = [];
+    if (s.place && !realPlaces(w).some(x => x.id === s.place)) warn.push(`${s.place} isn't a place of this world.`);
+    if (!s.place && !s.zone) warn.push('Neither a place nor a kind of home: it is dropped when the world loads.');
+    return `${idTag(s.id)}
+        ${txt('Name', `${p}.name`, 'A rented house in Setagaya')}
+        <div class="mu-row2">${sel('At a place', `${p}.place`, withCur(placeOpts(w, '(none: a home)'), s.place), 'opt')}${sel('…or in a home', `${p}.zone`, withCur([['', '(none: the place)'], ['studio', 'Any studio of the player\'s'], ...zoneOpts(w)], s.zone), 'opt')}</div>
+        <div class="mu-row2">${bounded(`Its fee a shoot (${esc(w.currency.symbol)})`, `${p}.fee`, 0, INDUSTRY_PAY_MAX)}${bounded('The risk of being caught there (0–1; 0.25: one in four)', `${p}.risk`, 0, 1, 0.05)}</div>
+        <div class="mu-field"><span>The genres it suits</span>${pairChips(withCurAll(genreOpts(w), s.genres), `${p}.genres`, true)}</div>
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+// A performer of the roster: the cast's card fields and ways (the same person panel), plus their rank, genres, the day they
+// debut and the job stories about them. Never one of the world's people: only ever on a set.
+function rosterForm(w: WorldDef, i: number) {
+    const p = `industry.roster.${i}`, r = w.industry?.roster?.[i]; if (!r) return '';
+    const job = w.occupations.find(o => o.id === w.industry?.job), ranks = (job?.ranks ?? []).slice(0, 5).map((x, k) => `${k} ${x.name}`).join(' · ');
+    const warn: string[] = [];
+    if (!r.avatar || !r.sprites) warn.push('No portrait or sprites yet: a performer is only interesting with their pictures.');
+    if (!r.genres?.length) warn.push('Cast in no genre: never on a title.');
+    return `${idTag(r.id)}
+        <div class="mu-row2">${txt('Name (a stage name)', `${p}.name`)}${bounded('Age (18 and over)', `${p}.age`, 18, 99)}</div>
+        ${personPanel('cwr', String(i), ['gender'])}
+        <div class="mu-row2"><label class="mu-field"><span>Rank (0–4)</span><input type="number" min="0" max="4" step="1" data-input="cw" data-type="num" data-clamp="0,4" data-int="1" data-path="${esc(`${p}.rank`)}" data-focus="${esc(`${p}.rank`)}" value="${val(`${p}.rank`)}">${ranks ? `<small class="mu-muted">${esc(ranks)}</small>` : ''}</label>${bounded('Debuts on day (empty: from the start)', `${p}.debut`, 0, 100000)}</div>
+        <div class="mu-field"><span>Genres they are cast in</span>${pairChips(withCurAll(genreOpts(w), r.genres), `${p}.genres`, true)}</div>
+        <div class="mu-field"><span>Job stories about them (the industry job's work events)</span>${pairChips(withCurAll(industryEvents(w), r.stories), `${p}.stories`, true)}</div>
+        ${sel('Job (on their card)', `${p}.occupation`, withCur([['', '(none)'], ...jobOpts(w)], r.occupation), 'opt')}
+        ${area('Description (who they are; becomes the card\'s description)', `${p}.description`, 5)}
+        ${area('Personality (optional)', `${p}.personality`, 2)}
+        ${area('First message (optional; the card\'s greeting)', `${p}.first_mes`, 3)}
+        <h4>Looks, voice and pictures</h4>
+        <div class="mu-row2">${optTxt('Their looks in a line', `${p}.look`)}${optTxt('Their voice in a line', `${p}.voice`)}</div>
+        <div class="mu-row2">${optTxt('Portrait (a picture in the world\'s folder)', `${p}.avatar`, 'cast/rs_new/portrait.webp')}${optTxt('Expression sprites (a folder in the world\'s folder)', `${p}.sprites`, 'cast/rs_new/sprites')}</div>
+        ${Object.keys(r.outfits ?? {}).length ? `<div class="mu-row2">${Object.keys(r.outfits ?? {}).map(o => optTxt(`Outfit: ${esc(o)} (a folder of sprites; empty: no such outfit)`, `${p}.outfits.${o}`, 'cast/rs_new/robe')).join('')}</div>` : ''}
+        ${Object.keys(r.outfits ?? {}).length || Object.keys(r.wear ?? {}).length ? wearBox(p, r) : ''}
+        ${skillOpts(w).length || r.languages ? skillLevels(w, `${p}.languages`, 'Languages they speak (empty: the world\'s own fluently)', 0) : ''}
+        <h4>Their ways</h4>${personPanel('cwr', String(i), ['attraction', 'pace', 'ways'])}
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+// The drawn scene pictures: whose, for which genre or scene words, and the file (a private overlay's, usually).
+function scenePics(w: WorldDef) {
+    const l = w.industry?.pictures ?? [];
+    return `<section class="mu-cw-sec mu-cw-wide"><h4>Scene pictures</h4><p class="mu-muted">Drawn pictures of a performer's scenes: a scene with them and a matching genre or words shows one, the least shown first. The player is never in one.</p>
+        ${l.map((x, k) => { const q = `industry.pictures.${k}`;
+            return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${sel('Whose', `${q}.who`, withCur(rosterOpts(w), x.who))}${sel('For the genre', `${q}.genre`, withCur([['', '(any)'], ...genreOpts(w)], x.genre), 'opt')}${rowDel(q)}</div>
+                <div class="mu-row2">${words('…or for scenes with these words', `${q}.words`, '', 'a love scene')}${optTxt('The picture (a file in the world\'s folder)', `${q}.file`, 'industry/rs_new-1.webp')}</div>
+                ${String(x.file ?? '').trim() ? '' : '<p class="mu-warn">No picture: it is dropped when the world loads.</p>'}</div>`; }).join('') || '<small class="mu-muted">None: scenes are told in words.</small>'}
+        ${rosterOpts(w).length ? addBtn('ipic', 'industry.pictures', 'Add a picture') : ''}</section>`;
+}
+function tabIndustry(w: WorldDef) {
+    const I = w.industry;
+    if (!I) return `<section class="mu-cw-sec mu-cw-wide"><h4>The adult industry ${ADULT}</h4><p class="mu-muted">No adult industry in this world: no Take app, no bookings, titles, fame or stances; a job in adult video is worked in shifts like any other.</p>
+        ${w.occupations.length ? addBtn('industry', 'industry', 'Add the adult industry') : '<p class="mu-muted">Add a job first: the industry books one.</p>'}</section>`;
+    const count = (l: unknown[] | undefined) => (l ?? []).length;
+    return `<div class="mu-cw-grid">${industryRules(w)}
+        <section class="mu-cw-sec mu-cw-wide"><h4>Genres · ${esc(count(I.genres))}</h4><p class="mu-muted">The kinds of title: the skill their scenes lean on, their pay, their scenes in order, and the words checked against a performer's limits.</p>
+            ${master('igenre', 'industry.genres', (g: GenreDef) => `<b data-notr>${esc(g.name)}</b><small>${esc(skillOpts(w).find(([id]) => id === g.skill)?.[1] ?? g.skill ?? '')}${g.pay ? ` · ×${esc(g.pay)}` : ''}</small>`, i => genreForm(w, i), 'igenre', 'No genres yet.')}</section>
+        <section class="mu-cw-sec mu-cw-wide"><h4>Labels · ${esc(count(I.labels))}</h4><p class="mu-muted">Who makes the titles: a tier, a rate, the genres they make, their own set and director. A higher tier only offers to a higher rank.</p>
+            ${master('ilabel', 'industry.labels', (l: LabelDef) => `<b data-notr>${esc(l.name)}</b><small>tier ${esc(l.tier ?? 2)}${l.genres?.length ? ` · ${esc(l.genres.length)} genres` : ''}</small>`, i => labelForm(w, i), 'ilabel', 'No labels yet.')}</section>
+        <section class="mu-cw-sec mu-cw-wide"><h4>Sets · ${esc(count(I.sets))}</h4><p class="mu-muted">Where titles are shot: a place, or a home (a studio of the player's), the genres it suits, a fee and the risk of being caught.</p>
+            ${master('iset', 'industry.sets', (s: SetDef) => `<b data-notr>${esc(s.name)}</b><small data-notr>${esc(s.place ? (w.places.find(x => x.id === s.place)?.name ?? s.place) : s.zone === 'studio' ? 'a studio' : s.zone ?? '')}</small>`, i => setForm(w, i), 'iset', 'No sets yet.')}</section>
+        <section class="mu-cw-sec mu-cw-wide"><h4>The roster · ${esc(count(I.roster))}</h4><p class="mu-muted">Performers who only work in the industry: their cards are made the first time they are on a set, and they are never among the world's people (no routine, no home, never in Messages).</p>
+            ${master('iroster', 'industry.roster', (r: RosterPerson) => `<b data-notr>${esc(r.name)}</b><small>rank ${esc(r.rank ?? 0)}${r.age ? ` · ${esc(r.age)}` : ''}${r.debut ? ` · from day ${esc(r.debut)}` : ''}</small>`, i => rosterForm(w, i), 'iperson', 'Nobody on the roster yet.')}</section>
+        ${scenePics(w)}</div>`;
+}
+// What the industry's forms can leave that the loader would drop anyway: emptied lists, a picture with no file, a share
+// emptied, the chart or the cover with nothing left, a venture's emptied ways; a job's emptied ways in and contracts.
+// Nothing else is touched (Tokyo saves as its file).
+function tidyIndustry(w: WorldDef) {
+    const I: any = w.industry;
+    if (I) {
+        if (Array.isArray(I.pictures)) I.pictures = I.pictures.filter((x: any) => x?.who && String(x.file ?? '').trim());
+        for (const k of ['genres', 'labels', 'sets', 'roster', 'pictures']) if (Array.isArray(I[k]) && !I[k].length) delete I[k];
+        if (I.pay) { const s = (Array.isArray(I.pay.share) ? I.pay.share : []).filter((x: unknown) => typeof x === 'number'); if (s.length) I.pay.share = s; else delete I.pay; }
+        if (I.chart && !(Array.isArray(I.chart.names) && I.chart.names.length)) delete I.chart;
+        if (I.covers && !String(I.covers.layout ?? '').trim()) delete I.covers;
+        if (I.fame?.places && typeof I.fame.places === 'object' && !Object.keys(I.fame.places).length) delete I.fame.places;
+        for (const k of ['sales', 'fame']) if (I[k] && typeof I[k] === 'object' && !Object.keys(I[k]).length) delete I[k];
+    }
+    for (const o of w.occupations ?? []) for (const x of [o, ...Object.values(o.tracks ?? {})] as any[]) if (x) for (const k of ['entries', 'contracts']) if (Array.isArray(x[k]) && !x[k].length) delete x[k];
+    for (const v of w.ventures ?? []) if (v.ways && typeof v.ways === 'object' && !Object.keys(v.ways).length) delete v.ways;
 }
 
 /* ---------- the collection: halls, their groups, and slots (plans/collection.md, session E) ---------- */
@@ -2475,7 +2688,7 @@ export function forSaving(w: WorldDef): WorldDef {
         tidyInfo(info);
     }
     if (mine) out.traitInfo = mine; else delete out.traitInfo;
-    tidyGoals(out); tidyAdult(out); tidyThreads(out); tidyShop(out); tidyFixtures(out); tidyCollection(out); tidyTiers(out); tidyRival(out); tidyPhoto(out);
+    tidyGoals(out); tidyAdult(out); tidyThreads(out); tidyShop(out); tidyFixtures(out); tidyCollection(out); tidyTiers(out); tidyRival(out); tidyPhoto(out); tidyIndustry(out);
     for (const g of out.sheet?.traits ?? []) {
         const left = Object.keys(g.skills ?? {}).filter(n => !g.options.includes(n) && !(g.adultOptions ?? []).includes(n) && !(g.formerly ?? []).includes(n));
         if (left.length) g.formerly = [...(g.formerly ?? []), ...left];
@@ -3195,7 +3408,7 @@ function threadsEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][n
                 ${cond('Begins when', `${s}.when`, 'season: summer; seasonDays: 8-14')}${area('What is going on', `${s}.text`, 2)}
                 <div class="mu-row2">${optTxt('A moment it brings', `${s}.moment`)}${optTxt('A rumor it starts', `${s}.rumor`)}</div>${optTxt('Remembered (a fact)', `${s}.fact`)}
                 ${st.ritual ? `<span class="mu-cw-sub">A standing appointment while at this stage</span>${ritualRow(w, `${s}.ritual`, st.ritual, peopleOpts(w).filter(([n]) => n !== e.name))}`
-                    : `<button class="mu-ghost" data-act="cw-add" data-what="tritual" data-path="${esc(`${s}.ritual`)}">${icon('plus')}<span>Add an appointment for this stage</span></button>`}</div>`; }).join('')}
+                    : `<button class="mu-ghost" data-act="cw-add" data-what="tritual" data-path="${esc(`${s}.ritual`)}">${icon('plus')}<span>Add an appointment for this stage</span></button>`}${stageIndustry(w, s, st)}</div>`; }).join('')}
             ${(t.stages ?? []).length ? `<small class="mu-muted mu-cw-lastnote">The last stage waits for the player: the storyline ends in a deciding scene with them, or after its last chances</small>${(t.stages ?? []).some(x => x?.ritual) ? '<small class="mu-muted">An appointment on the last stage lasts until the storyline ends.</small>' : ''}` : ''}
             <button class="mu-ghost" data-act="cw-add" data-what="tstage" data-path="${esc(`${q}.stages`)}">${icon('plus')}<span>Add a stage</span></button>
             <span class="mu-cw-sub">Endings (the first whose condition holds; else the last without one)</span>
@@ -3310,6 +3523,7 @@ function peopleEditor(w: WorldDef) {
                 ${others(e).length ? `<button class="mu-ghost" data-act="cw-add" data-what="efeel" data-i="${esc(i)}">${icon('plus')}<span>Add a relation</span></button>` : ''}
                 <h4>Their ways</h4><p class="mu-muted">Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.</p>
                 ${personPanel('cw', String(i), ['attraction', 'pace', 'ways'])}
+                ${stanceRows(w, p, e)}
                 ${personMore(w, p, e)}
                 ${datingEditor(w, p, e)}
                 ${doorEditor(p, e)}
@@ -3349,25 +3563,34 @@ function tabPeople(w: WorldDef) {
 // An example person's own ways, edited with the shared panel (stored on the example; `attraction` in world.json).
 SCOPES.cw = {
     get: (id) => { const e = CW.w?.cast.examples[Number(id)]; return e ? cleanPerson(e) : undefined; },
-    set: (id, p) => {
-        const e: any = CW.w?.cast.examples[Number(id)]; if (!e) return;
-        for (const k of ['gender', 'attraction', 'attMode', 'pace', 'style', 'intimacy']) delete e[k];
-        if (p?.gender) e.gender = p.gender;
-        if (p?.att) e.attraction = p.att;
-        if (p?.attMode) e.attMode = p.attMode;
-        if (p?.pace) e.pace = p.pace;
-        if (p?.style) e.style = p.style;
-        if (p?.intimacy) e.intimacy = p.intimacy;
-        // (adult) the intimate profile (and the panel's role and drive) only when the panel changed it: one never touched stays
-        // exactly as the file has it
-        if (canon(cleanIntimate(e.intimate)) !== canon(p?.intimate)) { if (p?.intimate) e.intimate = p.intimate; else delete e.intimate; }
-        CW.dirty = true;
-    },
+    set: (id, p) => setWays(CW.w?.cast.examples[Number(id)], p),
     genders: () => CW.w?.genders ?? [],
     romance: () => systemOn(CW.w, 'romance'),
     // a world's people carry their intimate profiles whatever a game's adult switch will say (it's marked adult)
     adult: () => true,
 };
+// (adult industry) a roster performer's ways, the same panel on `industry.roster`
+SCOPES.cwr = {
+    get: (id) => { const e = CW.w?.industry?.roster?.[Number(id)]; return e ? cleanPerson(e) : undefined; },
+    set: (id, p) => setWays(CW.w?.industry?.roster?.[Number(id)], p),
+    genders: () => CW.w?.genders ?? [],
+    romance: () => systemOn(CW.w, 'romance'),
+    adult: () => true,
+};
+function setWays(e: any, p: Parameters<typeof SCOPES.cw.set>[1]) {
+    if (!e) return;
+    for (const k of ['gender', 'attraction', 'attMode', 'pace', 'style', 'intimacy']) delete e[k];
+    if (p?.gender) e.gender = p.gender;
+    if (p?.att) e.attraction = p.att;
+    if (p?.attMode) e.attMode = p.attMode;
+    if (p?.pace) e.pace = p.pace;
+    if (p?.style) e.style = p.style;
+    if (p?.intimacy) e.intimacy = p.intimacy;
+    // (adult) the intimate profile (and the panel's role and drive) only when the panel changed it: one never touched stays
+    // exactly as the file has it
+    if (canon(cleanIntimate(e.intimate)) !== canon(p?.intimate)) { if (p?.intimate) e.intimate = p.intimate; else delete e.intimate; }
+    CW.dirty = true;
+}
 
 function tabLore(w: WorldDef) {
     return master('lore', 'lore', (l, k) => `<b>${esc((l.keys ?? []).join(', ') || `#${k + 1}`)}</b><small>${l.constant ? 'Always on' : ''}${l.id ? ` · ${esc(l.id)}` : ''}</small>`, i => {
@@ -3480,7 +3703,7 @@ export function creatorHtml(): string {
     if (CW.start && !CW.w) return startPage();
     const w = CW.w; if (!w) return '';
     const body = CW.tab === 'general' ? tabGeneral(w) : CW.tab === 'features' ? tabFeatures(w) : CW.tab === 'needs' ? tabNeeds(w) : CW.tab === 'maps' ? (isScenario(w) ? houseMapsHtml(w) : mapEditorHtml(w))
-        : CW.tab === 'homes' ? tabHomes(w) : CW.tab === 'actions' ? tabActions(w) : CW.tab === 'jobs' ? tabJobs(w) : CW.tab === 'photo' ? tabPhoto(w) : CW.tab === 'goals' ? tabGoals(w) : CW.tab === 'business' ? tabBusiness(w) : CW.tab === 'courses' ? tabCourses(w) : CW.tab === 'shop' ? tabShop(w) : CW.tab === 'collection' ? tabCollection(w) : CW.tab === 'words' ? tabWords(w) : CW.tab === 'character' ? tabCharacter(w) : CW.tab === 'rpg' ? tabRpg(w) : CW.tab === 'customs' ? tabCustoms(w) : CW.tab === 'realm' ? tabRealm(w) : CW.tab === 'economy' ? tabEconomy(w)
+        : CW.tab === 'homes' ? tabHomes(w) : CW.tab === 'actions' ? tabActions(w) : CW.tab === 'jobs' ? tabJobs(w) : CW.tab === 'photo' ? tabPhoto(w) : CW.tab === 'industry' ? tabIndustry(w) : CW.tab === 'goals' ? tabGoals(w) : CW.tab === 'business' ? tabBusiness(w) : CW.tab === 'courses' ? tabCourses(w) : CW.tab === 'shop' ? tabShop(w) : CW.tab === 'collection' ? tabCollection(w) : CW.tab === 'words' ? tabWords(w) : CW.tab === 'character' ? tabCharacter(w) : CW.tab === 'rpg' ? tabRpg(w) : CW.tab === 'customs' ? tabCustoms(w) : CW.tab === 'realm' ? tabRealm(w) : CW.tab === 'economy' ? tabEconomy(w)
         : CW.tab === 'people' ? tabPeople(w) : CW.tab === 'books' ? tabBooks(w) : tabLore(w);
     const head = CW.view ? (isScenario(w) ? 'The Home' : 'The world') : isScenario(w) ? 'Home creator' : 'World creator';
     return `<div class="mu-settings mu-creator-ed ${CW.view ? 'is-view' : ''}">
@@ -3488,7 +3711,7 @@ export function creatorHtml(): string {
             ${CW.view ? `<span class="mu-cw-viewnote">${icon('lock')}<span>${isScenario(w) ? 'View only: the Home as it is made. What this game chose for itself (its rules, who lives where) is in This Home.' : 'View only: the world as it is made. What this game chose for itself (difficulty, work, relationships, who lives where) is in This world.'}</span></span>` : ''}
 </div>
         <div class="mu-settings-layout mu-cw-layout">
-            <nav class="mu-tabs">${TABS.filter(([id]) => !(RPG_LOCKED && id === 'rpg')).filter(([id]) => CW.allTabs || !isScenario(W()) || !SCENARIO_HIDES.includes(id)).filter(([id]) => id !== 'business' || systemOn(W(), 'business') || CW.tab === 'business').filter(([id]) => id !== 'photo' || systemOn(W(), 'photography') || !!W().photo || CW.tab === 'photo').map(([id, l]) => `<button class="${CW.tab === id ? 'is-on' : ''}" data-act="cw-tab" data-tab="${esc(id)}">${l}</button>`).join('')}</nav>
+            <nav class="mu-tabs">${TABS.filter(([id]) => !(RPG_LOCKED && id === 'rpg')).filter(([id]) => CW.allTabs || !isScenario(W()) || !SCENARIO_HIDES.includes(id)).filter(([id]) => id !== 'business' || systemOn(W(), 'business') || CW.tab === 'business').filter(([id]) => id !== 'photo' || systemOn(W(), 'photography') || !!W().photo || CW.tab === 'photo').filter(([id]) => id !== 'industry' || industryHere(W()) || CW.tab === 'industry').map(([id, l]) => `<button class="${CW.tab === id ? 'is-on' : ''}" data-act="cw-tab" data-tab="${esc(id)}">${l}</button>`).join('')}</nav>
             <div class="mu-settings-body mu-panel ${CW.tab === 'maps' ? 'is-maps' : ''}" data-keep="cw-body">${body}</div>
         </div>
         ${CW.view ? '' : `<div class="mu-row mu-cw-new-go mu-cw-foot">
@@ -3529,7 +3752,7 @@ export function openCreatorView(id: string, tab: Tab = 'general') {
 // and setPath writes nothing. A button that only edits (add, remove, a picture…) is hidden instead.
 const VIEW_ACTS = new Set(['cw-close', 'cw-tab', 'cw-pick', 'cw-fold', 'cw-routine', 'cw-wev', 'cw-track', 'cw-table', 'cw-climate', 'cw-tinfo', 'me-map', 'me-zoom', 'pe-view', 'pe-floor', 'pe-pick', 'pp-int-open']);
 const VIEW_INPUTS = new Set(['cw-words-q', 'cw-alltabs', 'cw-briefkind']);
-const EDIT_ONLY = /^(cw-(add|del|move|crel|pquick-go|photo-off|fx-add|ti-add|ti-del|ti-reset|hire-del|qa-add|rnd-.+|cover.*|kind-img.*|homes-map|rpg-.+)|me-(add-.+|del-.+|new-zone|bg-.+|map-img.*|map-lib|mode)|pe-(floor-.+|room-off)|pp-sug.*|pp-suggest)$/;
+const EDIT_ONLY = /^(cw-(add|del|move|crel|pquick-go|photo-off|industry-off|fx-add|ti-add|ti-del|ti-reset|hire-del|qa-add|rnd-.+|cover.*|kind-img.*|homes-map|rpg-.+)|me-(add-.+|del-.+|new-zone|bg-.+|map-img.*|map-lib|mode)|pe-(floor-.+|room-off)|pp-sug.*|pp-suggest)$/;
 export function viewRefuses(el: HTMLElement): boolean {
     if (!CW.view || state.view !== ('creator' as any) || !el.closest('.mu-creator-ed')) return false;
     const act = el.dataset.act, input = el.dataset.input;
@@ -3586,6 +3809,11 @@ const NEW: Record<string, () => [string, any]> = {
     pbrief: () => { const w = W(), k = CW.sel.briefKind; return ['photo.briefs', { id: newId('br'), client: w.photo?.clients[0]?.id ?? '', name: 'New brief', text: '', board: k === 'small' ? 'small' : 'full', kind: PHOTO_KINDS.includes(k) ? k : 'magazine', places: [realPlaces(w)[0]?.id ?? ANY_STUDIO], pay: 100 }]; },
     pbook: () => ['photo.books', { id: newId('pb'), name: 'New photobook', kind: 'city', briefs: 4, pay: 10000 }],
     studio: () => { const w = W(), kind = Object.entries(w.homes.kinds).find(([, k]) => k.work)?.[0] ?? 'photostudio'; return ['homes.studios', { id: newId('hz_ps'), name: 'New photo studio', map: w.maps[0]?.id ?? '', kind, rent: 100, spots: [[50, 50]] }]; },
+    // (adult industry) a genre, a label, a set (at the first place: one with neither is dropped), a performer on the roster
+    igenre: () => ['industry.genres', { id: newId('genre'), name: 'New genre' }],
+    ilabel: () => ['industry.labels', { id: newId('label'), name: 'New label', tier: 1 }],
+    iset: () => ['industry.sets', { id: newId('set'), name: 'New set', place: realPlaces(W())[0]?.id ?? '' }],
+    iperson: () => ['industry.roster', { id: newId('rs'), name: 'New performer', age: 25, occupation: W().industry?.job, rank: 0, description: '', personality: '', first_mes: '' }],
     fixture: () => ['homes.fixtures', { id: newId('fx'), name: 'New fixture', desc: '', icon: '🛋️', price: 1000 }],
     breakable: () => ['homes.breakables', { id: newId('thing'), name: 'the new thing', blocks: [] }],
     course: () => ['catalogs.courses', { id: newId('course'), name: 'New course', area: 'General', days: 3, cost: 100, grants: [], icon: '📚', desc: '' }],
@@ -3609,7 +3837,7 @@ const NEW: Record<string, () => [string, any]> = {
     venture: () => ['ventures', { id: newId('vn'), track: 'cafe', name: 'New venture', tiers: [{ id: newId('tier'), name: 'Open', ceiling: 50 }] }],
     reward: () => ['rewards.add', { id: newId('reward'), name: 'New reward', icon: '🎁', desc: '', price: 200, kind: 'boost', effects: [{ kind: 'roll', value: 1 }], days: 1, limit: { per: 'day' } }],
 };
-const listKey: Record<string, string> = { 'collection.halls': 'chall', 'collection.slots': 'cslot', 'collection.museum.upgrades': 'mup', 'collection.digs': 'cdig', 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'photo.clients': 'photo-clients', 'photo.briefs': 'photo-briefs', 'photo.books': 'photo-books', 'homes.studios': 'studios', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
+const listKey: Record<string, string> = { 'collection.halls': 'chall', 'collection.slots': 'cslot', 'collection.museum.upgrades': 'mup', 'collection.digs': 'cdig', 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'photo.clients': 'photo-clients', 'photo.briefs': 'photo-briefs', 'photo.books': 'photo-books', 'homes.studios': 'studios', 'industry.genres': 'igenre', 'industry.labels': 'ilabel', 'industry.sets': 'iset', 'industry.roster': 'iroster', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
 
 Object.assign(ACT, {
     'cw-rpg-preset': (el) => { W().rpg = structuredClone(el.dataset.v === 'modern' ? MODERN_RPG : el.dataset.v === 'powers' ? POWERS_RPG : MEDIEVAL_RPG); CW.dirty = true; notify(); },
@@ -3854,6 +4082,26 @@ Object.assign(ACT, {
         if (what === 'pword') { const l = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; l.push({ at: Math.min(100, (Number(l[l.length - 1]?.at) || 0) + 10), text: '' }); CW.dirty = true; notify(); return; }
         if (what === 'prental' || what === 'prentalfb') { setPath(el.dataset.path!, { at: realPlaces(w)[0]?.id ?? '', price: 0 }); notify(); return; }
         if (what === 'psubject') { setPath(el.dataset.path!, { who: 'cast' }); notify(); return; }
+        // (adult industry) the block with the game's numbers, booking the job already on bookings (else an adult-stage one, an
+        // adult one, the first); a job's way in (onto its first path) and contract; a director's share, a kind of place for fame, a scene picture
+        if (what === 'industry') {
+            if (w.industry || !w.occupations.length) return;
+            const o = w.occupations.find(x => x.bookings) ?? w.occupations.find(x => x.adult && x.tags?.includes('adult-stage')) ?? w.occupations.find(x => x.adult) ?? w.occupations[0];
+            w.industry = { job: o.id, pay: { share: [...INDUSTRY.share] }, sales: { ...INDUSTRY.sales }, fame: { titles: INDUSTRY.fame.titles, fade: INDUSTRY.fame.fade, places: { ...INDUSTRY.fame.places } } };
+            CW.dirty = true; notify(); return;
+        }
+        if (what === 'jentry' || what === 'jcontract' || what === 'ishare' || what === 'ipic') {
+            const p = el.dataset.path!, list = (getPath(p) ?? (setPath(p, []), getPath(p))) as any[];
+            const x = getPath(p.replace(/\.entries$/, '')), path = ((x?.branches ?? w.occupations[Number(p.split('.')[1])]?.branches ?? []) as any[]).flatMap(b => b.options ?? [])[0]?.id;
+            if (what === 'jentry' && !path) return;
+            list.push(what === 'jentry' ? { id: newId('entry'), name: 'New way in', path } : what === 'jcontract' ? { id: newId('contract'), name: 'New contract' }
+                : what === 'ishare' ? 0 : { who: w.industry?.roster?.[0]?.id ?? '', file: '' });
+            CW.dirty = true; notify(); return;
+        }
+        if (what === 'ifame') {
+            const p = el.dataset.path!, m = (getPath(p) ?? {}) as Record<string, number>, k = placeTags(w).find(t => own(m, t) === undefined); if (!k) return;
+            setPath(p, { ...m, [k]: 1 }); notify(); return;
+        }
         const [path, item] = NEW[what]();
         // (a shop item added while the list shows one category is in that category, so it stays in sight)
         if (what === 'item' && SHOP_CATS.some(c => c.id === CW.sel.shopCat)) item.cat = CW.sel.shopCat;
@@ -3864,6 +4112,8 @@ Object.assign(ACT, {
     },
     // (photography) the world's photo gigs gone whole (a top-level key cw-del can't reach); a brief made from a festival, an event or a place
     'cw-photo-off': () => { const w = W(); if (CW.view || !w.photo) return; delete w.photo; CW.dirty = true; notify(); },
+    // (adult industry) the block gone whole; the jobs' bookings, people's stances and the rest stay (they do nothing without it)
+    'cw-industry-off': () => { const w = W(); if (CW.view || !w.industry) return; delete w.industry; CW.dirty = true; notify(); },
     'cw-pquick-go': () => {
         const w = W(); if (CW.view || !w.photo) return;
         const src = quickSources(w), on = src.some(([v]) => v === CW.sel.pquick) ? String(CW.sel.pquick) : src[0]?.[0] ?? '';
@@ -4029,6 +4279,17 @@ Object.assign(INPUT, {
         if (el.value === 'when') { if (cur === undefined || cur === 'job' || cur === 'always') setPath(p, 'photorep: 20'); } else setPath(p, el.value || undefined);
         notify();
     },
+    // (adult industry) a person's stance: performing unset takes the whole stance away (it's from their profile then);
+    // directing unset leaves it to performing's
+    'cw-stance': (el) => {
+        const p = el.dataset.path!, base = p.replace(/\.(perform|direct)$/, ''), cur = getPath(base), s = cur && typeof cur === 'object' ? { ...cur } : {};
+        if (p.endsWith('.perform')) { if (!el.value) { setPath(base, undefined); notify(); return; } s.perform = el.value; }
+        else if (!s.perform) return;
+        else if (el.value) s.direct = el.value; else delete s.direct;
+        setPath(base, s); notify();
+    },
+    // (adult industry) a stage's cancelled title: none, true (as the data writes it), or `latest` kept as written
+    'cw-tcancel': (el) => { setPath(el.dataset.path!, el.value === 'true' ? true : el.value || undefined); notify(); },
     // (photography) the studio a brief needs: none, any (true), or one with that fixture
     'cw-pstudio': (el) => { setPath(el.dataset.path!, el.value === '' ? undefined : el.value === 'true' ? true : el.value); notify(); },
     // (photography) an item's gear kind: none removes its photo gear whole; another keeps its rung and bonuses

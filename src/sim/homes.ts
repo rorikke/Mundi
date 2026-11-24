@@ -1,11 +1,11 @@
 // Homes: who lives where. Kept apart from the rest of the game so anything can use it without import cycles.
-import type { Save, Resident } from '../core/store.js';
+import { residentsOf, type Save, type Resident } from '../core/store.js';
 import type { WorldDef } from '../core/world.js';
 
 const pick = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
 // Where people live: `${zone}:${x},${y}` (and `#unit` for a second flat at the same address).
 export const spotKey = (zone: string, x: number, y: number, unit?: number) => `${zone}:${x},${y}${unit ? `#${unit}` : ''}`;
-export const takenHomes = (g: Save, except?: Resident) => new Set([g.player.home, ...Object.values(g.cast).filter(r => r !== except).map(r => r.home)].map(h => spotKey(h.zone, h.x, h.y, (h as any).unit)));
+export const takenHomes = (g: Save, except?: Resident) => new Set([g.player.home, ...residentsOf(g).filter(r => r !== except).map(r => r.home)].map(h => spotKey(h.zone, h.x, h.y, (h as any).unit)));
 // A free home in a zone (else a free one in another zone). Nobody is put in someone else's home by chance: only a
 // household shares one. When every home is taken, a new flat opens at an address in the zone (House 3B…), never `avoid`'s.
 export function homeSpot(w: WorldDef, zoneId: string, taken: Set<string>, avoid?: { zone: string; x: number; y: number }) {
@@ -33,7 +33,7 @@ export function homeSpot(w: WorldDef, zoneId: string, taken: Set<string>, avoid?
 export const homeKey = (h: { zone: string; x: number; y: number; unit?: number }) => `${h.zone}:${h.x},${h.y}${h.unit ? `#${h.unit}` : ''}`;
 export function normalizeHomes(g: Save) {
     const groups = new Map<string, string[]>();
-    for (const r of Object.values(g.cast)) { const k = homeKey(r.home); groups.set(k, [...(groups.get(k) ?? []), r.avatar]); }
+    for (const r of residentsOf(g)) { const k = homeKey(r.home); groups.set(k, [...(groups.get(k) ?? []), r.avatar]); }
     const mine = homeKey(g.player.home);
     for (const [k, list] of groups) {
         if (k === mine) { for (const a of list) (g.cast[a] as any).homeWith = '__you'; continue; }

@@ -22,6 +22,8 @@ const ids = (w) => ({
     collection: (w.collection?.slots ?? []).map(s => s.id),
     // rooms inside a home (a save keeps the room you're in by id): an area's own and a kind's
     homeRooms: [...w.homes.zones.flatMap(z => (z.rooms ?? []).map(r => `zone:${z.id}/${r.id}`)), ...Object.entries(w.homes.kinds).flatMap(([k, d]) => (d.rooms ?? []).map(r => `kind:${k}/${r.id}`))],
+    // the adult industry's job-only performers (a save keeps its titles' casts and its time with each by their id)
+    roster: (w.industry?.roster ?? []).map(r => r.id),
 });
 const lock = fs.existsSync(lockFile) ? JSON.parse(fs.readFileSync(lockFile, 'utf8')) : {};
 const problems = [];

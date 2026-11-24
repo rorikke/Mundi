@@ -5,10 +5,10 @@
 // board's verdicts, its initiatives. Not yet a venture: the takeover when it's offered, the units to lease (with a name
 // of your own). A hotel's own parts (rooms, the owner's note, a partnership, tenants, discretion and the sighting
 // waiting) are drawn in ui/hotels.ts. Also the HUD's rows at your venture's place ("Run the counter") and the card for one
-// of its events, a sighting or a calendar card. The engine owns every number (sim/ventures.ts, sim/exec.ts); this file
-// only draws and calls.
-import { esc, game, toast, notify, saveGame, state, type Save } from '../core/store.js';
-import { getWorld, type WorldDef, type VentureDef, type UpgradeDef } from '../core/world.js';
+// of its events, a sighting or a calendar card. A label of your own (adult industry) links to Take, where its titles
+// are. The engine owns every number (sim/ventures.ts, sim/exec.ts); this file only draws and calls.
+import { esc, game, toast, notify, saveGame, state, adultOn, type Save } from '../core/store.js';
+import { getWorld, appsShown, type WorldDef, type VentureDef, type UpgradeDef } from '../core/world.js';
 import { statsOf, statName } from '../core/ventures.js';
 import { money } from '../sim/needs.js';
 import { placeOf } from '../sim/places.js';
@@ -62,9 +62,15 @@ function ventureHtml(g: Save, w: WorldDef, s: VentureState): string {
     const where = (isHotel(d) ? [s.place] : placesOf(s)).map(p => pname(g, w, p)).join(' · ');
     const head = `<section class="mu-ph-card mu-biz-head"><small>${esc(t.name)}${d.tiers.length > 1 ? ` · tier ${esc(String(s.tier))} of ${esc(String(d.tiers.length))}` : ''}</small>
         <b data-notr>${esc(ventureName(w, s))}</b><small data-notr>${esc(where)}</small>${t.desc ? `<small class="mu-muted" data-notr>${esc(t.desc)}</small>` : ''}</section>`;
-    return `<div class="mu-biz-venture">${head}${roomsHtml(g, w, d, s)}${exec ? execHtml(g, w, d, s) : weekHtml(g, w, d, s)}${noteHtml(w, s)}${partnerHtml(d, s)}
+    return `<div class="mu-biz-venture">${head}${labelHtml(g, w, d)}${roomsHtml(g, w, d, s)}${exec ? execHtml(g, w, d, s) : weekHtml(g, w, d, s)}${noteHtml(w, s)}${partnerHtml(d, s)}
         ${numbersHtml(g, w, d, s)}${styleHtml(g, w, d, s)}${milestoneHtml(g, w, d, s)}${tenantsHtml(g, w, d, s)}${discretionHtml(g, w, d, s)}
         ${upgradesHtml(g, w, d, s)}${discoveriesHtml(d, s)}${staffHtml(s)}${exec ? '' : placesHtml(g, w, s)}${exec ? '' : sellHtml(g, w, s)}</div>`;
+}
+// (adult industry) A label of your own: its titles, the chart and the roster are in Take.
+function labelHtml(g: Save, w: WorldDef, d: VentureDef): string {
+    if (((d as any).kind ?? d.track) !== 'label') return '';
+    const take = adultOn(g) && appsShown(w).some(a => a.id === 'take');
+    return `<section class="mu-ph-card mu-biz-label"><b>Your titles</b><small>Its titles, the chart and the roster are in Take.</small>${take ? '<button class="mu-ghost" data-act="ph-go" data-app="take">Open Take</button>' : ''}</section>`;
 }
 function numbersHtml(g: Save, w: WorldDef, d: VentureDef, s: VentureState): string {
     const cap = tierOf(d, s.tier).ceiling;

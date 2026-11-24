@@ -2,7 +2,7 @@
 // address gets a bedroom. At home you are in one room: its picture, its things to do, the AI told where you are.
 // A room is a detail of the home, never a place: `g.player.loc` stays the home, `whereNow` is untouched, and the room
 // you're in (`g.player.room`) is kept with the home it belongs to, so leaving the home in any way makes it stale.
-import { adultOn, changes, nowAbs } from '../core/store.js';
+import { adultOn, changes, nowAbs, residentsOf } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { placeOf, homeKindAt, homeZoneAt, playerHomeId, isHome } from './places.js';
 import { secondHome, SECOND_HOME_ID } from './housing.js';
@@ -65,7 +65,7 @@ export function homeRooms(g, w, loc) {
     const mine = loc === playerHomeId;
     if (mine)
         list.push({ id: 'bed:you', name: 'Your room', tags: ['bed'], image: kind?.image, images: kind?.images, bed: 'you' });
-    const people = Object.values(g.cast).filter(r => at && homeKey(r.home) === at && !r.guest && !(mine && isPartner(g, r.avatar, YOU)))
+    const people = residentsOf(g).filter(r => at && homeKey(r.home) === at && !r.guest && !(mine && isPartner(g, r.avatar, YOU)))
         .sort((a, b) => (a.avatar < b.avatar ? -1 : a.avatar > b.avatar ? 1 : 0));
     for (const r of people) {
         const b = exampleOf(w, r)?.bedroom;

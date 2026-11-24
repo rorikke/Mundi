@@ -10,7 +10,7 @@
 // It all comes from the day itself (nothing stored but a story's placement), worked out once per day for everyone and
 // kept until anything it reads changes (who works where, a click, the rules). A job without a schedule, a world
 // without rituals, roles or audiences: nothing here changes, the routine templates play as before.
-import { nowAbs, changes, type Save, type Resident, adultOn } from '../core/store.js';
+import { nowAbs, changes, type Save, type Resident, adultOn, residentsOf } from '../core/store.js';
 import { systemOn, isScenario, offScreenWork, exampleTag, WEEKDAY_IDS, type WorldDef, type Occupation, type ExampleCharacter, type Ritual, type FestivalDef, type When, type DressDef } from '../core/world.js';
 import { charOf } from '../st/bridge.js';
 import { onDay, ventureLink } from './hooks.js';
@@ -42,7 +42,10 @@ export function exampleOf(w: WorldDef, r: Resident): ExampleCharacter | null {
     const have = m.get(k);
     if (have !== undefined) return have;
     const tag = charOf(r.avatar)?.data?.extensions?.mundi?.example;
-    const ex = (tag ? w.cast.examples.find(e => exampleTag(w, e) === tag) : undefined) ?? w.cast.examples.find(e => e.name === r.name) ?? null;
+    const ex = (tag ? w.cast.examples.find(e => exampleTag(w, e) === tag) : undefined) ?? w.cast.examples.find(e => e.name === r.name)
+        // (adult industry) a job-only performer on a set is no example of the world's, but her roster entry has the same
+        // shape (her outfits, `wear` and its `from`), so what she wears follows the same rules
+        ?? (r.onset ? (w.industry?.roster ?? []).find(p => p.name === r.name) : undefined) ?? null;
     m.set(k, ex);
     return ex;
 }
@@ -125,7 +128,7 @@ export function stampOf(g: Save, w: WorldDef): Stamp {
         }
         if (same && i === s.sig.length) return s;
     }
-    const list = Object.values(g.cast), sig: unknown[] = [];
+    const list = residentsOf(g), sig: unknown[] = [];
     list.forEach((r, i) => sigOf(r, sig, i * SIG));
     const made: Stamp = { id: ++stamps, w, code, sd, adult, swap, list, sig, rit, vis };
     kept.set(g, made);
@@ -327,7 +330,7 @@ export const dayOff = (g: Save, w: WorldDef, r: Resident, day: number, st = stam
 // name that lies on a branch puts them on that branch (Reiko is a Sales section chief, on the sales path).
 export function seedRanks(g: Save, w: WorldDef) {
     const l = ((g as any).living ??= {}); l.ranks ??= {}; l.ranked ??= [];
-    for (const r of Object.values(g.cast)) {
+    for (const r of residentsOf(g)) {
         if (l.ranked.includes(r.avatar)) continue;
         const ex = exampleOf(w, r), o = jobOf(g, w, r);
         if (!ex || ex.rank === undefined || !o || ex.occupation !== o.id) continue;

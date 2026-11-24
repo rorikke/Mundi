@@ -1,6 +1,7 @@
 // Letters from afar: friends who live in another town or kingdom write now and then (the AI writes the letter in their
 // voice), with news or asking for help. Writing back keeps the friendship warm; distance cools it otherwise (two weeks
 // without a word, then a point every three days, never below 30). A plea for help can be answered with coins.
+import { residentsOf } from '../core/store.js';
 import type { Save } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onDay } from './hooks.js';
@@ -23,7 +24,7 @@ export function farAway(g: Save, w: WorldDef, avatar: string): boolean {
     const theirs = regionOf(g, w, `home:${avatar}`), mine = regionOf(g, w, 'home:player');
     return !!theirs && theirs !== mine && (r as any).homeWith !== '__you';
 }
-export const distantFriends = (g: Save, w: WorldDef) => Object.values(g.cast).filter(r => r.met && bondOf(g, r.avatar) >= 35 && farAway(g, w, r.avatar));
+export const distantFriends = (g: Save, w: WorldDef) => residentsOf(g).filter(r => r.met && bondOf(g, r.avatar) >= 35 && farAway(g, w, r.avatar));
 export function wroteTo(g: Save, avatar: string) { postOf(g).contact[avatar] = g.day; }
 
 onDay.push((g, w) => {

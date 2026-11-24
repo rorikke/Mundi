@@ -15,7 +15,7 @@
 // price. A second chance begins again one of someone's storylines that didn't end well (`redoThread()` in
 // sim/threads.ts). What the AI hears is a fact, as for anything else that happens.
 // All of it belongs to the `goals` system: with it off the shop is empty.
-import { nowAbs, adultOk, adultOn, type Save, type Resident } from '../core/store.js';
+import { nowAbs, adultOk, adultOn, type Save, type Resident, residentsOf } from '../core/store.js';
 import { systemOn, activeStatuses, placeIs, type WorldDef, type RewardDef } from '../core/world.js';
 import { rewardsOf, isOwnReward, isSystemNeed, PERSON_KINDS, PIECE_KINDS } from '../core/goals.js';
 import { goalLink } from './hooks.js';
@@ -142,7 +142,7 @@ export function shopItems(g: Save, w: WorldDef | null | undefined): ShopItem[] {
 export interface RewardPerson { avatar: string; name: string; ok: boolean; why?: string; meters?: Meter[]; questions?: InsightQuestion[]; storylines?: { id: string; name: string }[] }
 const togetherWith = (g: Save, a: string) => !!statusOf(g, a, YOU);
 // People you know (not the one you play).
-const known = (g: Save): Resident[] => Object.values(g.cast).filter(r => r.met && idOf(g, r.avatar) !== YOU);
+const known = (g: Save): Resident[] => residentsOf(g).filter(r => r.met && idOf(g, r.avatar) !== YOU);
 /** Why the Nudge can't raise this meter for them (null: it can): never past the rules (attraction zero means never,
  *  no romance with family, not while they need some time). */
 export function nudgeWhy(g: Save, w: WorldDef, a: string, m: Meter): string | null {
@@ -259,7 +259,7 @@ function secretAnswer(g: Save, w: WorldDef, a: string): Answer | null {
         const st = threadStates(g)[t.id];
         if (st && !st.known && !st.ended && st.stage >= 0) return { key: `thread:${t.id}`, t: '{u} found out {0}\'s secret: {1}.', a: [r.name, trimEnd(t.hidden)], thread: t.id };
     }
-    for (const b of Object.values(g.cast)) {
+    for (const b of residentsOf(g)) {
         if (b.avatar === a || !statusOf(g, a, b.avatar) || !secretCouple(g, w, a, b.avatar) || told(g, a).includes(`couple:${b.avatar}`)) continue;
         if (levelHolds(g, w, a, 'good') || levelHolds(g, w, b.avatar, 'good')) continue;   // they'd have told you
         return { key: `couple:${b.avatar}`, t: '{u} found out that {0} and {1} are secretly together.', a: [r.name, b.name] };

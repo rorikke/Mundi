@@ -19,7 +19,7 @@ import { needWord } from '../sim/life.js';
 import { lifeOverlays, lifeAskHtml, soloOf, playAsOn } from './lifeui.js';
 import { swapOf } from '../sim/playas.js';
 import { clockWaitHtml, clockWaitBtn, waitGoHtml } from './waitgo.js';
-import { game, esc, state, UI, settings, saveSettings, notify, nowAbs, clockMode, onPhone, toast, saveGame } from '../core/store.js';
+import { game, esc, state, UI, settings, saveSettings, notify, nowAbs, clockMode, onPhone, toast, saveGame, residentsOf } from '../core/store.js';
 import { getWorld, activeStatuses, systemOn, type StatusDef, type WorldDef, type ActionDef, deviceLook, offScreenWork, isScenario, HOME_NEEDS, homeNeedsOn } from '../core/world.js';
 import { levelChip } from './rpgui.js';
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -35,7 +35,7 @@ import { sceneAct } from '../sim/actions.js';
 import { sceneActRow } from './sceneact.js';
 import { placeOf, playerHomeId } from '../sim/places.js';
 import { missingCourses } from '../sim/courses.js';
-import { traitsOf, openJobs, offScreen, jobPlace, myJob, trackOf, isFreelance } from '../sim/work.js';
+import { traitsOf, openJobs, offScreen, jobPlace, myJob, trackOf, noShifts } from '../sim/work.js';
 import { banHere } from '../sim/caught.js';
 import { approachOn, keepToMyself, setKeepToMyself } from '../sim/approach.js';
 import { period, weekday, seasonOf, toNextPeriod } from '../sim/time.js';
@@ -75,6 +75,7 @@ import { roomRows } from './homesui.js';
 import { roomNow, sceneHere, elsewhereHere } from '../sim/homerooms.js';
 import { SECOND_HOME_ID } from '../sim/housing.js';
 import { itemIco } from './itempic.js';
+import { takeAskHtml } from './takeui.js';
 
 /* ---------- you ---------- */
 
@@ -168,7 +169,7 @@ const bareBtn = () => state.view === 'scene' && !onPhone() ? `<button class="mh-
 function corner(g: Save, w: WorldDef) {
     return `<div class="mh-corner">
         <button class="mh-menu mh-glass ${menuOpen ? 'is-on' : ''}" data-act="hud-menu" title="Menu">${icon('menu')}</button>
-        ${g.player.job && featureOn(w, 'jobs') && myJob(g, w) && !offScreen(w, myJob(g, w)) && !isFreelance(g, w) && g.player.loc !== jobPlace(g, myJob(g, w)!) ? `<button class="mh-mapbtn mh-glass" data-act="go-work" title="Go to work">${icon('briefcase')}<span>Work</span></button>` : ''}
+        ${g.player.job && featureOn(w, 'jobs') && myJob(g, w) && !offScreen(w, myJob(g, w)) && !noShifts(g, w) && g.player.loc !== jobPlace(g, myJob(g, w)!) ? `<button class="mh-mapbtn mh-glass" data-act="go-work" title="Go to work">${icon('briefcase')}<span>Work</span></button>` : ''}
         ${isScenario(w) && isOuting(g.player.loc) ? `<button class="mh-mapbtn mh-glass" data-act="out-move" title="Go on to another place">${icon('map')}<span>Go somewhere else</span></button><button class="mh-mapbtn mh-glass" data-act="out-back" title="Go back home">${icon('home')}<span>Back home</span></button>` : state.view === 'scene' ? `<button class="mh-mapbtn mh-glass" data-act="to-map" title="${state.generating ? 'Wait until they finish speaking' : 'Map'}" ${state.generating ? 'aria-disabled="true"' : ''}>${icon(isScenario(w) ? 'home' : 'map')}<span>${isScenario(w) ? 'Rooms' : 'Map'}</span></button>${isScenario(w) && exitRoom(g, w) ? `<button class="mh-mapbtn mh-glass" data-act="out-open" title="Leave the house for a while">${icon('map')}<span>Go out</span></button>` : ''}` : `<button class="mh-mapbtn mh-glass" data-act="go-home" title="${isScenario(w) ? 'Go to my room' : 'Go home'}">${icon('home')}<span>${isScenario(w) ? 'My room' : 'Home'}</span></button>${isScenario(w) ? `<button class="mh-mapbtn mh-glass" data-act="out-open" title="Leave the house for a while">${icon('map')}<span>Go out</span></button>` : ''}`}
         ${bareBtn()}
         ${menuOpen ? `<nav class="mh-menu-pop mh-glass">
@@ -195,7 +196,7 @@ const pageOpen = (avatar: string) => phone.open && phone.app === 'person' && pho
 // Your party: the people who came along with you (in the scene and on the map). Who is simply in this place is
 // shown at the top ("Here").
 function peopleColumn(g: Save, w: WorldDef) {
-    const list = Object.values(g.cast).filter(r => isWith(g, r.avatar));
+    const list = residentsOf(g).filter(r => isWith(g, r.avatar));
     if (!list.length) return '';
     const now = nowAbs(g);
     return `<aside class="mh-people mh-glass" aria-label="With you">${list.map(r => {
@@ -365,9 +366,9 @@ function phoneButton(w: WorldDef) {
 
 // The cards that come to you and wait for an answer all sit in one place under the top bar, so only one shows at a
 // time; the others wait their turn. A plan coming up goes first (it can't wait), then a storyline's deciding card, what
-// is happening here, a text waiting for your answer (a storyline's last chance), and a chance meeting last (it stays
-// until you answer it or leave).
-const askCard = (g: Save, w: WorldDef) => apptReminderHtml(g, w) || decideHtml(g, w) || lifeAskHtml(g, w) || ventureAskHtml(g, w) || trainOfferHtml(g, w) || nudgeCardHtml(g, w) || bumpHtml() || newPeopleHtml();
+// is happening here, a fan who recognized you or the talk about your work (adult industry), a text waiting for your
+// answer (a storyline's last chance), and a chance meeting last (it stays until you answer it or leave).
+const askCard = (g: Save, w: WorldDef) => apptReminderHtml(g, w) || decideHtml(g, w) || lifeAskHtml(g, w) || takeAskHtml(g, w) || ventureAskHtml(g, w) || trainOfferHtml(g, w) || nudgeCardHtml(g, w) || bumpHtml() || newPeopleHtml();
 
 // (adult) Someone making the move: their card stands in for the event's panel until you answer.
 export function hudHtml() {

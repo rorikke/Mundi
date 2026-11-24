@@ -3,7 +3,7 @@ import { relOverlays, endConfirmHtml } from './relui.js';
 // ui/shopui.ts, the Goals app ui/goalsui.ts), throwing a party, talking with only one person, and playing as someone else.
 import { currentHappening, answer } from '../sim/happenings.js';
 import { storyHtml } from './storyui.js';
-import { esc, game, toast, notify, saveGame, nowAbs, state, settings } from '../core/store.js';
+import { esc, game, toast, notify, saveGame, nowAbs, state, settings, residentsOf } from '../core/store.js';
 import { countUp } from '../sim/skills.js';
 import { getWorld } from '../core/world.js';
 import { styleOf } from '../core/world.js';
@@ -166,7 +166,7 @@ function playAsHtml(g) {
     const card = (who, name, pic, sub) => `<button class="mu-pa-card ${who === cur ? 'is-on' : ''}" data-act="pa-go" data-who="${esc(who)}" ${who === cur ? 'aria-disabled="true"' : ''}>
         <img src="${esc(pic)}" alt=""><b data-notr>${esc(name)}</b><small>${who === cur ? 'Playing now' : esc(sub)}</small></button>`;
     const q = PA.q.trim().toLowerCase();
-    const pool = Object.values(g.cast).filter(r => r.avatar !== s?.origCard && charOf(r.avatar) && (!q || r.name.toLowerCase().includes(q)))
+    const pool = residentsOf(g).filter(r => r.avatar !== s?.origCard && charOf(r.avatar) && (!q || r.name.toLowerCase().includes(q)))
         .sort((a, b) => Number(roster(g).includes(b.avatar)) - Number(roster(g).includes(a.avatar)) || a.name.localeCompare(b.name));
     return `<div class="mu-recap-veil" data-act="pa-bg"><section class="mu-recap mh-glass mu-pa" role="dialog" aria-label="Play as">
         <header class="mu-row"><div><small>Play as</small><h3>Who do you want to be?</h3></div><button class="mu-ibtn mu-ghost mu-right" data-act="pa-close" aria-label="Close">${icon('x')}</button></header>
@@ -321,7 +321,7 @@ Object.assign(ACT, {
         }
         g.player.money -= fee - cateringPrice(g, cater, no.length); // (catering only for those coming)
         const whenTxt = PARTY.day === 0 ? 'tonight' : PARTY.day === 1 ? 'tomorrow' : `on ${weekday(g.day + PARTY.day)}`;
-        note(g, PARTY.title.trim() ? '{u} invited {0} to a party at home {1}: "{2}".' : '{u} invited {0} to a party at home {1}.', [yes.join(', '), whenTxt, PARTY.title.trim()], yes.map(n => Object.values(g.cast).find(r => r.name === n)?.avatar ?? '').filter(Boolean), playerHomeId, 'party');
+        note(g, PARTY.title.trim() ? '{u} invited {0} to a party at home {1}: "{2}".' : '{u} invited {0} to a party at home {1}.', [yes.join(', '), whenTxt, PARTY.title.trim()], yes.map(n => residentsOf(g).find(r => r.name === n)?.avatar ?? '').filter(Boolean), playerHomeId, 'party');
         countUp(g, 'parties');
         PARTY.open = false;
         PARTY.title = '';

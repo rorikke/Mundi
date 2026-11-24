@@ -5,7 +5,7 @@
 import { nowAbs, cfg } from '../core/store.js';
 import { bondOf, bump } from './social.js';
 import { ro, gain, lose, pairOf, pastOf, pastWords, setStatus, setCooldown, attracted, rateOf, idOf, partnersOf as partnersOfId, casualsOf as casualsOfId, YOU } from './rel.js';
-import { tierLink } from './hooks.js';
+import { tierLink, stanceLink } from './hooks.js';
 import { notAttractedWords } from './gender.js';
 import { intimacyReady, intimacyLine, styleOf } from './intimacy.js';
 import { dating, lookingOf } from './feed.js';
@@ -107,7 +107,9 @@ export const coolingDown = (g, avatar) => (romOf(g, avatar).cooldown ?? 0) > now
 export function tierNo(g, avatar, k) {
     if (k === 'baby')
         return null;
-    return tierLink.notYet(g, idOf(g, avatar), k === 'casual' ? 'casual' : ASKS[k].to);
+    const status = k === 'casual' ? 'casual' : ASKS[k].to;
+    // (adult industry) a deal-breaker about your work while you perform says no as a tier does (sim/stance.ts)
+    return tierLink.notYet(g, idOf(g, avatar), status) ?? stanceLink.notYet(g, idOf(g, avatar), status);
 }
 // The engine's own "no", whatever the AI writes: something casual with someone who only gets intimate with a partner,
 // being a couple or something casual with someone not attracted to your gender (G-6), and (museum) what their tier

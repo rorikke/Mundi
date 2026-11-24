@@ -1,6 +1,7 @@
 // Visits: each stay at a place is its own scene. When you leave (or sleep), the lines of that visit are hidden
 // from the AI with SillyTavern's own "hide" (they stay in the chat, readable in SillyTavern) and a short recap
 // is kept, so the next scene starts clean but the story still remembers what happened.
+import { residentsOf } from '../core/store.js';
 import type { Save } from '../core/store.js';
 import type { WorldDef } from '../core/world.js';
 import { chat, hideMessages, setPrompt } from '../st/bridge.js';
@@ -31,7 +32,7 @@ export async function endVisit(g: Save, w: WorldDef): Promise<{ done: Promise<Ve
     await hideMessages(start, end);
     // what is kept is a fact, written by the engine (no AI summary): who you spent time with, and where
     const talked = new Set(lines.filter(m => !m.is_user && !m.extra?.mundi_narrator).map(m => String(m.name ?? '')));
-    const who = Object.values(g.cast).filter(r => talked.has(r.name));
+    const who = residentsOf(g).filter(r => talked.has(r.name));
     if (who.length) note(g, '{u} spent time with {0} at {1}.', [who.map(r => r.name).join(', '), placeName(g, w, g.player.loc)], who.map(r => r.avatar), g.player.loc, 'visit');
     return judged;
 }

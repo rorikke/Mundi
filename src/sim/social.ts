@@ -25,7 +25,8 @@ import { sceneHere } from './homerooms.js';
 export interface Text { me: boolean; text: string; at: number; heart?: boolean; liked?: boolean; tone?: 'ok' | 'wrong' }   // heart: you hearted their message (liked: what it did was done; tone: how a heart lands on it, sim/texting.ts)
 // A plan with you: she goes to `place` from `from` to `to`. "come" plans are "come over to where I am now".
 // (photography) `shoot`: the subject of a photo brief comes to the shoot's place at the time set (sim/assignments.ts).
-export type PlanKind = 'hangout' | 'date' | 'party' | 'shoot';
+// (adult industry) `set`: someone in a title's cast comes to the set at the call time (sim/onset.ts).
+export type PlanKind = 'hangout' | 'date' | 'party' | 'shoot' | 'set';
 export type PlanState = 'set' | 'met' | 'missed' | 'cancelled';
 export interface Appointment { id: string; avatar: string; place: string; from: number; to: number; kind: PlanKind; state: PlanState; come?: boolean; warned?: boolean; title?: string }
 export interface Companion { avatar: string; until: number }

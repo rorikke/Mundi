@@ -6,7 +6,9 @@
 // The save: `g.collection.museum.roy` ({ paidDay, last, said }). With the collection off, no museum, no royalties or
 // the museum not yours yet, nothing here reads or writes anything.
 // (photography) Royalties can come from more than the museum: each source (ROYALTY_SOURCES) is paid on Mondays in its
-// own line with its own guard; the museum is the first, and photobooks (sim/photobooks.ts) add theirs.
+// own line with its own guard; the museum is the first, photobooks (sim/photobooks.ts) add theirs, and the adult
+// industry (sim/titles.ts) its source `industry`: a name director's share of their titles' sales, the star-producer's
+// fan club.
 import type { Save } from '../core/store.js';
 import type { WorldDef, RoyaltyDef } from '../core/world.js';
 import { onDay } from './hooks.js';

@@ -103,7 +103,15 @@ export interface Resident {
     routine: Routine; leisure: string[]; met: boolean;
     /** you've learned what they do (seen them at work, or got to know them: sim/jobknown.ts); absent = not yet */
     jobKnown?: boolean;
+    /** (adult industry) a job-only performer, in the cast only while on a set (sim/onset.ts): the title being shot and
+     *  the set's place. Never one of the world's people (see residentsOf). */
+    onset?: { title: string; place: string };
 }
+// The world's people: everyone in the cast but a job-only performer on a set (adult industry), who is in the cast only
+// for the shoot's scene and never in a routine, a list, a rumor, a plan or a condition. Code that means "every card in
+// the group" (syncing the group chat, speakers' colours, Home mode's guests, repairs) reads g.cast itself.
+export const residentsOf = (g: Save): Resident[] => Object.values(g.cast).filter(r => !r.onset);
+export const residentIds = (g: Save): string[] => Object.keys(g.cast).filter(a => !g.cast[a].onset);
 export interface Save {
     v: 1; world: string; lang: string; day: number; minutes: number; speed: number; asleep?: boolean;
     player: {

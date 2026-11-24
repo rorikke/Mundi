@@ -51,6 +51,11 @@ export function settings() {
 }
 export const UI = () => settings().ui;
 export const saveSettings = () => ctx().saveSettingsDebounced();
+// The world's people: everyone in the cast but a job-only performer on a set (adult industry), who is in the cast only
+// for the shoot's scene and never in a routine, a list, a rumor, a plan or a condition. Code that means "every card in
+// the group" (syncing the group chat, speakers' colours, Home mode's guests, repairs) reads g.cast itself.
+export const residentsOf = (g) => Object.values(g.cast).filter(r => !r.onset);
+export const residentIds = (g) => Object.keys(g.cast).filter(a => !g.cast[a].onset);
 export const cfg = (g) => (g.cfg ??= {});
 // (E15) Adult content, per save: asked at the new game, changeable in the save's settings, off by default. Without it,
 // whatever a world marks `adult` (places, jobs, actions, lore, people, a feeling) is left out of the game.

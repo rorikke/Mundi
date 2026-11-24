@@ -5,7 +5,7 @@
 // photo studio sim/studio.ts. The save: `g.photo` (PhotoState), read with defaults (old saves have none). With the
 // system off, or a world without `photo`, nothing here writes anything.
 import { adultOn, nowAbs } from '../core/store.js';
-import { systemOn, worldFile } from '../core/world.js';
+import { systemOn, worldFile, personPictures } from '../core/world.js';
 import { stricter, looser, stepRule, cameraStepsOf } from '../core/photo.js';
 import { safeUrl } from '../core/safe.js';
 import { relOf, idOf } from './rel.js';
@@ -205,15 +205,18 @@ export const PHOTO_KEEP = { starred: 24, others: 60 };
  *  last 60 others; older ones drop. */
 export function trimPhotos(g) {
     const p = photoOf(g);
-    const must = new Set([...p.portfolio, ...p.books.flatMap(b => b.pages ?? []), ...p.open.map(t => t.shot?.photo).filter((x) => x !== undefined)]);
+    const kept = new Set([...p.portfolio, ...p.books.flatMap(b => b.pages ?? []), ...p.open.map(t => t.shot?.photo).filter((x) => x !== undefined)]);
+    const must = new Set(kept);
     const starred = p.photos.filter(r => r.star && !must.has(r.id)).slice(-PHOTO_KEEP.starred).map(r => r.id);
     for (const id of starred)
         must.add(id);
     const rest = p.photos.filter(r => !must.has(r.id)).slice(-PHOTO_KEEP.others).map(r => r.id);
     for (const id of rest)
         must.add(id);
+    // (a starred photo kept for its own reason, a page or an open brief's shot such as a still that's a title's cover,
+    // keeps its star: only the starred beyond the 24 lose theirs)
     for (const r of p.photos)
-        if (r.star && !starred.includes(r.id) && !p.portfolio.includes(r.id))
+        if (r.star && !starred.includes(r.id) && !kept.has(r.id))
             delete r.star;
     p.photos = p.photos.filter(r => must.has(r.id));
 }
@@ -253,7 +256,7 @@ export function photoSpriteFolders(w, recs) {
     const out = new Set();
     for (const r of recs)
         for (const h of r.who ?? []) {
-            const ex = (w.cast?.examples ?? []).find(e => e.name === h.name);
+            const ex = personPictures(w, h.name);
             const f = h.outfit ? ex?.outfits?.[h.outfit] : ex?.sprites;
             if (f)
                 out.add(folderOf(f));
@@ -293,7 +296,7 @@ export function nearestExpr(want, have) {
 }
 /** The layers of a photo: the place's picture for its part of the day and its looks (a home's or the studio's from
  *  its kind or zone), each person's sprite (their outfit's set if they wore one; the nearest expression the set has),
- *  the camera's look, the frame. A card person (not one of the world's), an outfit the world doesn't have, or a naked
+ *  the camera's look, the frame. People are the world's or the industry's roster's (`personPictures`). A card person (not one of them), an outfit the world doesn't have, or a naked
  *  outfit with adult content off draws nobody and is named in `missing`. Pure: pictures go through `worldFile`. */
 export function photoLayers(g, w, rec) {
     const minute = SLOT_MINUTE[rec.slot] ?? 12 * 60;
@@ -313,7 +316,7 @@ export function photoLayers(g, w, rec) {
     const sprites = [], missing = [];
     const who = rec.who ?? [];
     who.forEach((h, i) => {
-        const ex = (w.cast?.examples ?? []).find(e => e.name === h.name);
+        const ex = personPictures(w, h.name);
         const naked = h.outfit === 'naked' && !adultOn(g);
         const folder = naked ? undefined : h.outfit ? ex?.outfits?.[h.outfit] : ex?.sprites;
         if (h.expr === 'back')

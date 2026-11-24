@@ -54,6 +54,9 @@ export function career(o, path = []) {
 export const INTIMATE_ROLES = ['lead', 'follow', 'switch'];
 export const INTIMATE_DRIVES = ['low', 'average', 'high'];
 export const exampleTag = (w, ex) => `${ex.from ?? w.id}:${ex.name}`;
+/** Whose pictures (sprites, outfits) to draw for someone by name: one of the world's people, else a performer of the
+ *  adult industry's roster (not one of the world's people, drawn the same way: photos, covers). */
+export const personPictures = (w, name) => (w.cast?.examples ?? []).find(e => e.name === name) ?? (w.industry?.roster ?? []).find(p => p.name === name);
 // The phone's apps, as the Modern style has them (a world can rename them, change icons or turn them off).
 export const DEFAULT_APPS = [
     { id: 'messages', name: 'Messages', icon: 'chat', color: '#34c759', on: true },
@@ -70,6 +73,7 @@ export const DEFAULT_APPS = [
     { id: 'business', name: 'Business', icon: 'store', color: '#b86b2e', on: true },
     { id: 'collection', name: 'Collection', icon: 'museum', color: '#c0883a', on: true },
     { id: 'photos', name: 'Lens', icon: 'camera', color: '#3a8fb7', on: true },
+    { id: 'take', name: 'Take', icon: 'film', color: '#c2185b', on: true, adult: true },
     { id: 'sheet', name: 'Character', icon: 'user', color: '#e0533f', on: true, rpg: true },
     { id: 'quests', name: 'Quests', icon: 'map', color: '#c08a2e', on: true, rpg: true },
     { id: 'grimoire', name: 'Grimoire', icon: 'sparkles', color: '#7b5cff', on: true, rpg: true },
@@ -92,18 +96,18 @@ export const appsOf = (w) => {
 };
 // The apps the player sees: on in the world, and their system on too.
 // A scenario's phone is smaller: one house, so no moving, holdings, factions or reputation per region.
-export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'dating', 'workshop', 'jobs', 'bank', 'shop', 'goals', 'collection', 'photos'];
+export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'dating', 'workshop', 'jobs', 'bank', 'shop', 'goals', 'collection', 'photos', 'take'];
 /** Systems a scenario never has: no neighbors (everyone lives in the house), no social network, no crafting. */
 // Home (a scenario): a simpler world made for role-play with your characters in one house. Work, money, courses,
 // the economy and the like are gone; what is left is the house, the people, love and plans.
 export const SCENARIO_SYSTEMS_OFF = ['neighbors', 'social', 'crafting', 'events', 'jobs', 'courses', 'shop', 'consults', 'rumors', 'goals',
     'trade', 'farming', 'dice', 'factions', 'institutions', 'property', 'banks', 'auctions', 'taxes', 'ecology', 'mounts', 'prison', 'trophies', 'identity',
-    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'housing', 'collection', 'homerooms', 'photography'];
+    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'housing', 'collection', 'homerooms', 'photography', 'industry'];
 // Life-Sim keeps to daily life: no groups to join, property to run or recipes to craft (those come with the RPG mode).
 export const LIFESIM_APPS_OFF = ['factions', 'assets', 'workshop'];
 // (the Campus app only where a school offers degrees)
 const hasDegrees = (w) => (w.institutions ?? []).some(i => (i.degrees ?? []).length);
-export const appsShown = (w) => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && (a.id !== 'business' || !!w.ventures?.length) && (a.id !== 'collection' || !!w.collection?.halls?.length) && (a.id !== 'photos' || !!w.photo) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id))) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
+export const appsShown = (w) => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && (a.id !== 'business' || !!w.ventures?.length) && (a.id !== 'collection' || !!w.collection?.halls?.length) && (a.id !== 'photos' || !!w.photo) && (a.id !== 'take' || !!w.industry) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id))) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
 const registry = new Map();
 export const BUILT_IN = ['modern', 'urban', 'medieval', 'house', 'manor', 'tokyo'];
 // The RPG mode waits for a later update: while this is on, nothing of it can be chosen, made or played. Worlds made
@@ -199,6 +203,7 @@ export const SYSTEMS = [
     { id: 'business', name: 'Running a business', desc: 'no café of your own and no executive\'s division: no ventures to open, grow or run.', apps: ['business'], blocks: ['business'] },
     { id: 'collection', name: 'Collection', desc: 'nothing collected: no Collection app and no record of what you have done.', apps: ['collection'], blocks: [] },
     { id: 'photography', name: 'Photography', desc: 'no Lens app, no photo gigs or reputation, no photobooks (taking photos and the skill stay).', apps: ['photos'], blocks: [] },
+    { id: 'industry', name: 'Adult industry', desc: 'no Take app: no bookings, titles, fame or stances, and the adult video job is worked in shifts (only with adult content on).', apps: ['take'], blocks: [], needs: 'jobs' },
     { id: 'property', name: 'Property and businesses', desc: 'you cannot buy houses to rent out or open a business.', apps: ['assets'], blocks: [] },
     { id: 'banks', name: 'Banks and moneylenders', desc: 'nobody lends money.', apps: [], blocks: [] },
     { id: 'farming', name: 'Growing things', desc: 'nothing to plant at home.', apps: [], blocks: [] },

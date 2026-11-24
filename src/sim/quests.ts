@@ -1,7 +1,7 @@
 // Quests born from the simulation (RPG mode): a friend is sick and needs medicine, a town is tense and needs calming,
 // a rumor needs looking into, a worker needs something delivered, a gloomy tavern needs a song. Each comes from the
 // state of the world, from one of its people (a card), and is done at real places, with d20 checks.
-import { nowAbs, type Save, type Resident } from '../core/store.js';
+import { nowAbs, type Save, type Resident, residentsOf } from '../core/store.js';
 import { placeIs, type WorldDef } from '../core/world.js';
 import { onDay } from './hooks.js';
 import { note } from './facts.js';
@@ -32,7 +32,7 @@ const pick = <T>(g: Save, list: T[], salt: string) => list[Math.floor(rnd(g, sal
 
 // What the world needs today (at most one new quest a day, three waiting at a time).
 function makeQuest(g: Save, w: WorldDef): Quest | null {
-    const people = Object.values(g.cast).filter(r => !((g as any).family?.kids ?? []).some((k: any) => k.avatar === r.avatar));
+    const people = residentsOf(g).filter(r => !((g as any).family?.kids ?? []).some((k: any) => k.avatar === r.avatar));
     if (!people.length) return null;
     const ideas: (() => Quest | null)[] = [
         // a sick friend needs medicine (from a healer, a hospital…)

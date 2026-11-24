@@ -483,7 +483,29 @@ export interface Occupation {
     /** A condition to be hired at all, or a list of them where one is enough (`gender: woman`, an introduction, a
      *  skill at the top): without one it isn't among your openings. A track can set its own. */
     hire?: When | When[];
+    /** (adult industry) Worked by bookings, not shifts, from the first rank: offers of one title each, a title counted as
+     *  a shift toward promotion (sim/bookings.ts). Only while the `industry` system and adult content are on; otherwise
+     *  the job is worked on shifts as written. A track can set its own. */
+    bookings?: boolean;
+    /** (adult industry) Ways to be hired straight onto a branch path's first rank (EntryDef: the lens). A track can set
+     *  its own. */
+    entries?: EntryDef[];
+    /** (adult industry) Contracts a booking job's player chooses between (ContractDef: exclusive or freelance). A track
+     *  can set its own. */
+    contracts?: ContractDef[];
+    /** (adult industry) How a coworker recognizing you from adult video goes: 0 or missing, nobody minds; 1 a warning;
+     *  2 a warning, then let go the second time in a season. */
+    stigma?: 0 | 1 | 2;
 }
+/** (adult industry) A way to be hired straight onto a branch path's first rank (`path`: a branch option's id), offered
+ *  when `when` holds and something offers it (a storyline stage's `offer`): a photographer hired as an assistant
+ *  director, never having performed. */
+export interface EntryDef { id: string; name: string; path: string; when?: When }
+/** (adult industry) A contract on a booking job: titles a month (missing: the rank's days a week), the fee and fame per
+ *  title as multiples, how many shifts a title counts for, and the season's sales an exclusive is renewed on. */
+export interface ContractDef { id: string; name: string; exclusive?: boolean; titles?: number; fee?: number; counts?: number; fame?: number; renew?: number }
+/** (adult industry) What someone thinks of the player's work in adult video, by seat (sim/stance.ts). */
+export type Stance = 'fine' | 'uneasy' | 'no';
 /** What a job's track changes (see Occupation.tracks); what it doesn't set is the job's own. `hire`: a condition to be
  *  hired on it, or a list of them where one is enough (an introduction); `fee`: money the job takes when you're hired
  *  (a training fee), waived once you've finished one of the track's `courses`; `pace`: its ranks take this many times
@@ -495,6 +517,7 @@ export interface JobTrack {
     courses?: string[]; skills?: Record<string, number>; likes?: string[]; trains?: string[]; events?: WorkEvent[];
     hire?: When | When[]; fee?: number; pace?: number;
     shift?: number; hours?: [number, number]; offScreen?: boolean; nightPay?: number; cost?: Record<string, number>; overtime?: boolean; startAfter?: number;
+    bookings?: boolean; entries?: EntryDef[]; contracts?: ContractDef[];
 }
 /** (J1) A weekly schedule: how many days a week (the engine picks which) or which weekdays, and a shift's hours
  *  [from, to) (`to` below `from` goes past midnight: 20–6). A job worked round the clock lists its `shifts` instead
@@ -544,6 +567,9 @@ export interface ExampleCharacter {
      *  the player's gender in each game (sim/gender.ts). */
     gender?: string; attraction?: Record<string, { f?: number; r?: number }>; attMode?: 'you' | 'set';
     pace?: { f?: 'slow' | 'normal' | 'fast'; r?: 'slow' | 'normal' | 'fast' }; style?: 'exclusive' | 'open';
+    /** (adult industry) What they think of the player's work in adult video: performing, and directing or running a
+     *  label (missing: from their profile, sim/stance.ts). Directing is never above `uneasy`. */
+    stance?: { perform: Stance; direct?: Stance };
     intimacy?: { preset?: string; r?: string; f?: string; casual?: false };
     /** (E18) Everyone with the same household id shares one home in every game (like the new game's households). */
     household?: string;
@@ -721,7 +747,13 @@ export interface Thread { id: string; hidden: string; known?: string; reveal?: W
 export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hinted' | 'known'; text: string; moment?: string; rumor?: string; fact?: string;
     /** (NE-1) A standing appointment its person keeps while the storyline is at this stage (at the last stage, until it
      *  ends): a person's `rituals` format (Lisa's physio twice a week while her shoulder heals). */
-    ritual?: Ritual }
+    ritual?: Ritual;
+    /** (adult industry) An offer it brings: an entry of the industry's job by id (the lens: `lens`), made when the entry's
+     *  own condition holds (sim/titles.ts). */
+    offer?: string;
+    /** (adult industry) A title it cancels: `true` (or `latest`), the latest title with its person in it, within a year
+     *  of its release (a performer's right: Momo's family). */
+    cancel?: true | 'latest' }
 /** How a thread ends, picked by what happened (`when`, asked once the last stage is over; the first that holds, the
  *  last one without `when` otherwise): the text, and a life that changes (a new job or home: a home zone id). */
 export interface ThreadEnding { id: string; when?: When; text: string; job?: string; home?: string; fact?: string;
@@ -768,8 +800,12 @@ export interface IntimatePool { prefs?: string[]; limits?: string[] }
 /** One of a world's genders: `pronouns` and the `plural` ("women") are what the AI is told. */
 export interface GenderDef { id: string; name: string; plural?: string; pronouns?: string }
 export const exampleTag = (w: WorldDef, ex: ExampleCharacter) => `${ex.from ?? w.id}:${ex.name}`;
+/** Whose pictures (sprites, outfits) to draw for someone by name: one of the world's people, else a performer of the
+ *  adult industry's roster (not one of the world's people, drawn the same way: photos, covers). */
+export const personPictures = (w: WorldDef, name: string): ExampleCharacter | undefined =>
+    (w.cast?.examples ?? []).find(e => e.name === name) ?? (w.industry?.roster ?? []).find(p => p.name === name);
 /** A phone app: which one (`id`), and how it is called and looks in this world. */
-export interface AppDef { id: string; name: string; icon: string; color: string; on: boolean; rpg?: boolean }
+export interface AppDef { id: string; name: string; icon: string; color: string; on: boolean; rpg?: boolean; /** shown only with adult content on (the phone checks) */ adult?: boolean }
 /** A lore entry: keyed (in the lorebook, sent when a key word comes up), or with `when` (sent with the scene while the
  *  condition holds, see When), or a `rumor` (goes around between people once its `when` holds, sim/living.ts).
  *  (E15) `adult`: only with adult content on. (E31) `about`: who a rumor is about (by name; they never "hear" it);
@@ -941,6 +977,10 @@ export interface WorldDef {
     /** (photography) The photo gigs: reputation, the boards' clients and briefs, photobooks, the hourly studio (see
      *  PhotoDef; made safe by core/photo.ts). Missing: no Lens app, no boards, no photobooks. */
     photo?: PhotoDef;
+    /** (adult industry) The AV job as a system of its own: genres, labels, sets, the job-only performers, pay, sales,
+     *  fame, scene pictures (see IndustryDef; made safe by core/industry.ts). Missing: no Take app; the job, if any, is
+     *  worked on shifts. */
+    industry?: IndustryDef;
     /** (E17, E28) Street stories: short one-off stories that happen at a place (see StoryDef). */
     stories?: StoryDef[];
     /** (E14) Outcome tables shared by several actions (Tokyo's `omikuji`: one table for every shrine and temple, each
@@ -1074,9 +1114,14 @@ export interface BriefDef {
     when?: When; book?: string; adult?: boolean;
 }
 /** (photography) Who is in front of the camera: a person by name, `couple` (a wedding's two), `cast` (someone the
- *  board picks among the people you know), `client` (an anonymous one); the expression wanted (one of the 28, `back`:
- *  from behind), the outfit, whether they're asked first, and the scene's words for the AI. */
-export interface SubjectDef { who: string; expr?: string; outfit?: 'clothes' | 'naked'; consent?: boolean; scene?: string }
+ *  board picks among the people you know), `client` (an anonymous one), `roster:<id>` (a performer of the adult
+ *  industry's roster) or `roster` (one whose genres and rank fit the brief); the expression wanted (one of the 28,
+ *  `back`: from behind), the outfit (`clothes`, `naked` or any outfit the person has: `robe`, `lingerie`, `swim-red`…),
+ *  whether they're asked first, and the scene's words for the AI. `title`: a promo brief for one of your titles (adult
+ *  industry, plans/industry-lens.md IQL-3): offered only while the person named is in the cast of one of your titles
+ *  (its label's, when the client is a label), from the offer to two weeks after release; then their camera rule and
+ *  photo limits don't refuse it (filming it was work they agreed to). */
+export interface SubjectDef { who: string; expr?: string; outfit?: string; consent?: boolean; scene?: string; title?: boolean }
 /** (photography) A photobook a publisher can offer: a city, a person (`who`) or a season; `briefs` to shoot (3–5);
  *  `pay`: weekly royalties by sales at the start, fading to nothing over `weeks`; `ai`: what the AI is told once out;
  *  `when`: only offered while this holds (a season book's season, an idol's book through her storyline's hook). */
@@ -1255,6 +1300,7 @@ export const DEFAULT_APPS: AppDef[] = [
     { id: 'business', name: 'Business', icon: 'store', color: '#b86b2e', on: true },
     { id: 'collection', name: 'Collection', icon: 'museum', color: '#c0883a', on: true },
     { id: 'photos', name: 'Lens', icon: 'camera', color: '#3a8fb7', on: true },
+    { id: 'take', name: 'Take', icon: 'film', color: '#c2185b', on: true, adult: true },
     { id: 'sheet', name: 'Character', icon: 'user', color: '#e0533f', on: true, rpg: true },
     { id: 'quests', name: 'Quests', icon: 'map', color: '#c08a2e', on: true, rpg: true },
     { id: 'grimoire', name: 'Grimoire', icon: 'sparkles', color: '#7b5cff', on: true, rpg: true },
@@ -1277,18 +1323,18 @@ export const appsOf = (w: WorldDef): AppDef[] => {
 };
 // The apps the player sees: on in the world, and their system on too.
 // A scenario's phone is smaller: one house, so no moving, holdings, factions or reputation per region.
-export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'dating', 'workshop', 'jobs', 'bank', 'shop', 'goals', 'collection', 'photos'];
+export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'dating', 'workshop', 'jobs', 'bank', 'shop', 'goals', 'collection', 'photos', 'take'];
 /** Systems a scenario never has: no neighbors (everyone lives in the house), no social network, no crafting. */
 // Home (a scenario): a simpler world made for role-play with your characters in one house. Work, money, courses,
 // the economy and the like are gone; what is left is the house, the people, love and plans.
 export const SCENARIO_SYSTEMS_OFF: SystemId[] = ['neighbors', 'social', 'crafting', 'events', 'jobs', 'courses', 'shop', 'consults', 'rumors', 'goals',
     'trade', 'farming', 'dice', 'factions', 'institutions', 'property', 'banks', 'auctions', 'taxes', 'ecology', 'mounts', 'prison', 'trophies', 'identity',
-    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'housing', 'collection', 'homerooms', 'photography'];
+    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'housing', 'collection', 'homerooms', 'photography', 'industry'];
 // Life-Sim keeps to daily life: no groups to join, property to run or recipes to craft (those come with the RPG mode).
 export const LIFESIM_APPS_OFF = ['factions', 'assets', 'workshop'];
 // (the Campus app only where a school offers degrees)
 const hasDegrees = (w: WorldDef) => (w.institutions ?? []).some(i => (i.degrees ?? []).length);
-export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && (a.id !== 'business' || !!w.ventures?.length) && (a.id !== 'collection' || !!w.collection?.halls?.length) && (a.id !== 'photos' || !!w.photo) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
+export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && (a.id !== 'business' || !!w.ventures?.length) && (a.id !== 'collection' || !!w.collection?.halls?.length) && (a.id !== 'photos' || !!w.photo) && (a.id !== 'take' || !!w.industry) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
 const registry = new Map<string, WorldDef>();
 export const BUILT_IN = ['modern', 'urban', 'medieval', 'house', 'manor', 'tokyo'];
 export type GameMode = 'lifesim' | 'rpg' | 'custom';
@@ -1328,7 +1374,7 @@ export const activeStatuses = (w: WorldDef, g?: unknown) => (isScenario(w) && g 
 // the phone or journal, the AI's prompt, and the engine stops running it. What the save holds for it is kept, so
 // turning it back on picks up where it was. `apps`: the apps it owns; `blocks`: the prompt blocks it owns.
 export type SystemId = 'living' | 'neighbors' | 'consults' | 'needs' | 'jobs' | 'bills' | 'courses' | 'shop' | 'breakdowns' | 'plans' | 'romance' | 'relations' | 'family' | 'social' | 'rumors' | 'diary' | 'goals'
-    | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'housing' | 'collection' | 'homerooms' | 'photography' | 'dress' | 'busy';
+    | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'housing' | 'collection' | 'homerooms' | 'photography' | 'dress' | 'busy' | 'industry';
 export interface CityEventDef {
     id: string; name: string; icon?: string; desc?: string; place: string;
     /** 0 = Monday … 6 = Sunday; `every` weeks (1 = every week), starting on week `week`. */
@@ -1464,6 +1510,8 @@ export interface NoteDef { down: number; weeks: number }
  *  `venture` set to this venture), each with what moving in costs and its weekly rent. An executive's division has
  *  neither: the job's rank opens it. */
 export interface VentureWays {
+    /** (adult industry) None of the ways opens until this holds (the label: Naomi's storyline has ended). */
+    when?: When;
     takeover?: { place?: string; when?: When; cost: number; story?: string; tier?: number; rent?: number; start?: Record<string, number>; endsJob?: string; note?: NoteDef };
     lease?: { units: LeaseUnit[]; tier?: number; start?: Record<string, number> };
     /** (hospitality) Buying it from outside, while it's for sale (`when`): the price, the story, the tier it starts at,
@@ -1560,6 +1608,32 @@ export const allTags = (w: WorldDef | null | undefined): WorldTag[] => {
 };
 export const madeFor = (w: WorldDef): 'lifesim' | 'rpg' => w.madeFor ?? (w.mode === 'rpg' ? 'rpg' : 'lifesim');
 export const hasTag = (w: WorldDef | null | undefined, t: WorldTag) => worldTags(w).includes(t);
+/** (adult industry) A kind of title: its name, the skill its scenes lean on, words for the word test against limits,
+ *  the kinds of scene it has, what a label pays for it (×) and its scenes' difficulty. */
+export interface GenreDef { id: string; name: string; skill?: string; words?: string[]; scenes?: string[]; pay?: number; dc?: number; adult?: boolean }
+/** (adult industry) A label of the industry: its tier (1–3), pay (×), genres, its own set and director. */
+export interface LabelDef { id: string; name: string; desc?: string; tier?: number; pay?: number; genres?: string[]; set?: string; director?: string }
+/** (adult industry) Where titles are shot: a place or a home zone, the genres it suits, a fee, and a risk (the caught rules). */
+export interface SetDef { id: string; name: string; place?: string; zone?: string; genres?: string[]; fee?: number; risk?: number }
+/** (adult industry) A job-only performer: an ExampleCharacter's art and profile, never one of the world's people (in
+ *  the cast only on a set), with a rank of their own (0–4), genres, the day they debut and the job stories about them. */
+export interface RosterPerson extends ExampleCharacter { id: string; rank?: number; genres?: string[]; debut?: number; stories?: string[] }
+/** (adult industry) A drawn picture of a scene: whose, for which genre or scene words, and the file. `with`: everyone
+ *  drawn in it (the same ids as `who`), all of whom must be in the scene for it to show. */
+export interface ScenePic { who: string; with?: string[]; genre?: string; words?: string[]; file: string }
+/** (adult industry) The AV job as a system of its own (sim/industry.ts and beside it; core/industry.ts cleans it). */
+export interface IndustryDef {
+    /** the occupation on bookings */
+    job: string;
+    genres?: GenreDef[]; labels?: LabelDef[]; sets?: SetDef[]; roster?: RosterPerson[]; pictures?: ScenePic[];
+    pay?: { share: number[] };
+    sales?: { base: number; weeks: number; hot: number; cold: number };
+    fame?: { titles: number; fade: number; places: Record<string, number> };
+    covers?: { layout?: string };
+    chart?: { names: string[] };
+    /** the venture that is the player's own label (a VentureDef with track `label`) */
+    label?: string;
+}
 export interface SystemDef { id: SystemId; name: string; desc: string; apps: string[]; blocks: string[]; needs?: SystemId; /** only in worlds with this tag */ tag?: WorldTag }
 export const SYSTEMS: SystemDef[] = [
     { id: 'living', name: 'Living world', desc: 'places are never busier or emptier, and no region changes its mood, tension or prices.', apps: [], blocks: ['world', 'threads'] },
@@ -1599,6 +1673,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'business', name: 'Running a business', desc: 'no café of your own and no executive\'s division: no ventures to open, grow or run.', apps: ['business'], blocks: ['business'] },
     { id: 'collection', name: 'Collection', desc: 'nothing collected: no Collection app and no record of what you have done.', apps: ['collection'], blocks: [] },
     { id: 'photography', name: 'Photography', desc: 'no Lens app, no photo gigs or reputation, no photobooks (taking photos and the skill stay).', apps: ['photos'], blocks: [] },
+    { id: 'industry', name: 'Adult industry', desc: 'no Take app: no bookings, titles, fame or stances, and the adult video job is worked in shifts (only with adult content on).', apps: ['take'], blocks: [], needs: 'jobs' },
     { id: 'property', name: 'Property and businesses', desc: 'you cannot buy houses to rent out or open a business.', apps: ['assets'], blocks: [] },
     { id: 'banks', name: 'Banks and moneylenders', desc: 'nobody lends money.', apps: [], blocks: [] },
     { id: 'farming', name: 'Growing things', desc: 'nothing to plant at home.', apps: [], blocks: [] },

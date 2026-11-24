@@ -69,6 +69,9 @@ export function wearOf(g: Save, w: WorldDef, avatar: string): [string, WearDef][
  *  `bump`: a private place and someone close: one level bolder than in public; `room`: a Home's room code, which
  *  nobody follows past their comfort; `outfit`: the very outfit the story says they have on (sim/storydress.ts). */
 export interface DressNeed { code?: string; kind?: string; level?: number; explicit?: boolean; bump?: boolean; room?: boolean; outfit?: string }
+/** Codes other parts of the game set for someone in the scene, before any other (outside a Home): (adult industry) the
+ *  performers of a shoot (sim/onset.ts: undressed for the scene just shot, a robe between takes). Null: no say. */
+export const dressRules: ((g: Save, w: WorldDef, avatar: string) => DressNeed | null)[] = [];
 
 type Act = { a?: { private?: boolean; adult?: boolean; tags?: string[]; dress?: DressDef }; place?: string; with?: string[]; priv?: { notes?: { a?: { who?: string[] } } } };
 const named = (g: Save, names: string[] | undefined, avatar: string) => !!names?.some(n => personNamed(g, n)?.avatar === avatar);
@@ -112,6 +115,7 @@ export const codeFor = (g: Save, w: WorldDef, avatar: string) => wordOf(codeNeed
 export function codeNeed(g: Save, w: WorldDef, avatar: string): DressNeed | null {
     // (your home: someone close goes a level bolder)
     if (isScenario(w)) { const c = dressAt(g, g.player.loc); return c ? { code: c, room: true, bump: closeToYou(g, w, avatar) } : null; }
+    for (const f of dressRules) { const n = f(g, w, avatar); if (n) return n; }
     const on = systemOn(w, 'dress');
     const act = (g as any).act as Act | undefined;
     const doing = act?.a && act.place === g.player.loc ? act : undefined;

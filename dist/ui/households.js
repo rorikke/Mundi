@@ -1,6 +1,6 @@
 // Households (like The Sims): every home of the world, with who lives there, empty ones included. Open one to see
 // its people and move one of them, or the whole household, to another home.
-import { esc, game, notify, saveGame, toast } from '../core/store.js';
+import { esc, game, notify, saveGame, toast, residentsOf } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { thumb, personaThumb, personaName } from '../st/bridge.js';
 import { homeAddress } from '../sim/places.js';
@@ -15,15 +15,15 @@ function spots(g, w) {
     for (const z of w.homes.zones)
         z.spots.forEach(([x, y], i) => {
             const key = homeKey({ zone: z.id, x, y });
-            const members = Object.values(g.cast).filter(r => homeKey(r.home) === key).map(r => r.avatar);
+            const members = residentsOf(g).filter(r => homeKey(r.home) === key).map(r => r.avatar);
             if (homeKey(g.player.home) === key)
                 members.unshift('__you');
             out.push({ key, zone: z.id, zoneName: z.name, kind: z.kind, x, y, n: i + 1, members });
             // more flats at the same address (when every home was taken)
-            const units = [...new Set([g.player.home, ...Object.values(g.cast).map(r => r.home)].filter(h => h.zone === z.id && h.x === x && h.y === y && h.unit).map(h => h.unit))].sort();
+            const units = [...new Set([g.player.home, ...residentsOf(g).map(r => r.home)].filter(h => h.zone === z.id && h.x === x && h.y === y && h.unit).map(h => h.unit))].sort();
             for (const u of units) {
                 const k = homeKey({ zone: z.id, x, y, unit: u });
-                const m = Object.values(g.cast).filter(r => homeKey(r.home) === k).map(r => r.avatar);
+                const m = residentsOf(g).filter(r => homeKey(r.home) === k).map(r => r.avatar);
                 if (homeKey(g.player.home) === k)
                     m.unshift('__you');
                 out.push({ key: k, zone: z.id, zoneName: z.name, kind: z.kind, x, y, n: i + 1, unit: u, members: m });

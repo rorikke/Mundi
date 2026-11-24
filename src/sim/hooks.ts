@@ -1,8 +1,9 @@
 // Places other systems hook into time (kept apart, with no imports, so no module waits on another).
 import type { Save, Resident } from '../core/store.js';
-import type { WorldDef, ActionDef, Place, StatusDef, WorkResult, SlotDef } from '../core/world.js';
+import type { WorldDef, ActionDef, Place, StatusDef, WorkResult, SlotDef, VentureDef, ThreadStage } from '../core/world.js';
 import type { PrivateCtx, ActionDone } from './actions.js';
 import type { ShopItem } from '../core/presets.js';
+import type { SetCall, TitleRec, PhotoCall, PhotoCallResult } from '../core/industry.js';
 import type { RoomHere } from './homerooms.js';
 export const onHour: ((g: Save, w: WorldDef) => string[])[] = [];
 export const onDay: ((g: Save, w: WorldDef) => string[])[] = [];
@@ -13,6 +14,10 @@ export const onLook: ((g: Save, w: WorldDef) => void)[] = [];
 // Things you have, in a shop item's shape: each entry lists what you own right now. Only the shop's (sim/shop.ts) for
 // now; a home's rooms and fixtures can join later. Read through `ownedDefs` in sim/shop.ts, never one by one.
 export const thingsOwned: ((g: Save, w: WorldDef) => ShopItem[])[] = [];
+
+// After you quit a job (sim/work.ts `quitJob`), with the job's id: what was tied to it ends (the adult industry's
+// exclusive contract, sim/bookings.ts).
+export const onQuit: ((g: Save, w: WorldDef, job: string) => void)[] = [];
 
 // After you do an action (interests, pets…).
 export const onAction: ((g: Save, w: WorldDef, a: { id: string; tags?: string[]; name: string }) => void)[] = [];
@@ -199,6 +204,53 @@ export const photoLink: {
     /** a work result's `photorep`: the reputation moved, lines */
     rep: (g: Save, w: WorldDef, n: number) => string[];
 } = { holds: () => false, words: () => '', count: () => null, photo: () => [], act: () => null, rep: () => [] };
+// (adult industry) What the rest of the game asks of the industry (sim/industry.ts and the files beside it fill these
+// in; until then, and with the `industry` system or adult content off, nothing holds). `holds`: the condition keys
+// `titles`, `chart`, `fame`, `stance`, `seat`; `words`: such a key in words for what a goal or a rank still asks
+// ('' when it has none); `count`: how far you are on a counted one (null: not counted); `act`: one of the industry's
+// own actions was done (Play the next scene, Wait for your call, Edit the title: sim/onset.ts, offered through
+// `engineActions`), its lines and what the AI is told, or null for any other action.
+export const industryLink: {
+    holds: (g: Save, w: WorldDef, key: string, v: string) => boolean;
+    words: (g: Save, w: WorldDef, key: string, v: string) => string;
+    count: (g: Save, w: WorldDef, key: string, v: string) => number | null;
+    act: (g: Save, w: WorldDef, a: ActionDef, mates: string[]) => { lines: string[]; ai: string } | null;
+} = { holds: () => false, words: () => '', count: () => null, act: () => null };
+// (adult industry) Someone's stance on your work in adult video (sim/stance.ts fills these in; until then nothing
+// changes). Asked with store ids. `gain`: what a romance gain toward you is multiplied by now (1: as it is; uneasy while
+// you perform: less); `notYet`: why they won't start a couple status with you now (null: nothing in your work stops it;
+// `ever` is never true: a stance always lifts once you stop performing).
+export const stanceLink: {
+    gain: (g: Save, x: string) => number;
+    notYet: (g: Save, x: string, status: 'casual' | 'dating' | 'engaged' | 'married') => { ever: boolean; when: string } | null;
+} = { gain: () => 1, notYet: () => null };
+// (adult industry) A venture kind's own earnings for a day (sim/label.ts: a label's are its titles' sales), before the
+// share, ownership, closed days and effects; null: the usual takings (the tier's base, its fill and the day's demand).
+export const kindEarn: ((g: Save, w: WorldDef, d: VentureDef, day: number) => number | null)[] = [];
+// (adult industry) The set (sim/onset.ts fills `setLink` in; sim/titles.ts calls it on a shoot day). `start`: the call
+// time has come: the roster performers arrive on set, and the scenes can be played; its lines. `current`: the shoot
+// being played now, or null. `wrap`: the shoot ends (all scenes played or skipped, or you left the set): performers
+// leave, its lines; the title's scenes then hold their `q`, `grade`, `parts` and `pic`. `visit`: a photo call (a
+// brief's roster subject, plans/industry-lens.md Part 2) brings a roster performer to a place for a window, the way
+// she comes on set; nobody comes until sim/onset.ts fills it in.
+export const setLink: {
+    start: (g: Save, w: WorldDef, call: SetCall) => string[];
+    current: (g: Save) => SetCall | null;
+    wrap: (g: Save, w: WorldDef) => string[];
+    visit: (g: Save, w: WorldDef, call: PhotoCall) => PhotoCallResult;
+} = { start: () => [], current: () => null, wrap: () => [], visit: () => ({ avatar: null, lines: [] }) };
+// (adult industry) After a shoot wraps (sim/onset.ts calls these; sim/titles.ts counts the title as a shift, sets its
+// quality and release): lines.
+export const onWrap: ((g: Save, w: WorldDef, title: TitleRec) => string[])[] = [];
+// (adult industry) A title is released (sim/titles.ts calls these; sim/fame.ts adds fame, sim/stance.ts may let people
+// learn of it): lines.
+export const onRelease: ((g: Save, w: WorldDef, title: TitleRec) => string[])[] = [];
+// (adult industry) Are you performing now (a performer title in the last 30 days, or a performer offer taken)?
+// sim/titles.ts fills it in; sim/stance.ts reads it. False until then.
+export const performingLink: { now: (g: Save, w: WorldDef) => boolean; lastDay: (g: Save) => number | null } = { now: () => false, lastDay: () => null };
+// (adult industry) What a storyline stage brings besides its moment, rumor and fact (sim/threads.ts calls these as the
+// stage begins; sim/titles.ts reads its `offer`, an entry of the industry's job such as the lens, and its `cancel`).
+export const stageGives: ((g: Save, w: WorldDef, stage: ThreadStage, thread: string, avatar: string) => void)[] = [];
 // (C-7) Lines for the AI about the people here and the place right now, from systems that have them (the market's: the
 // other collector at a sale, the dealer at her van). Called in the scene's focus block (sim/prompt.ts).
 export const sceneLines: ((g: Save, w: WorldDef, present: Resident[]) => string[])[] = [];

@@ -4,7 +4,7 @@
 // them has them bring it up. Meeting them ends the first, feelings rising again end the second. Friends (Friend or
 // above) you haven't seen for a week check in with an invitation. Texts need the phone (the plans system); everything
 // but "we need to talk" waits for the initiative budget.
-import { nowAbs, type Save } from '../core/store.js';
+import { nowAbs, type Save, residentsOf } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onHour } from './hooks.js';
 import { social, bondOf, textFrom } from './social.js';
@@ -31,7 +31,7 @@ function text(g: Save, w: WorldDef, a: string, note: string, fallback: string) {
 export function warnings(g: Save, w: WorldDef): string[] {
     if (!initiativeOn(g) || !systemOn(w, 'romance')) return [];
     const phone = systemOn(w, 'plans'), me = personaName(), warn = warnOf(g);
-    for (const r of Object.values(g.cast)) {
+    for (const r of residentsOf(g)) {
         const a = r.avatar, st = pairOf(g, a, YOU)?.status;
         if (idOf(g, a) === YOU || !st || !PARTNER.includes(st as Status)) { delete warn[a]; continue; }
         const x = (warn[a] ??= {});
@@ -57,7 +57,7 @@ export function warnings(g: Save, w: WorldDef): string[] {
 function checkIns(g: Save, w: WorldDef): string[] {
     const s = social(g) as any, seen = seenOf(g);
     if (!systemOn(w, 'plans') || s.invite) return [];
-    for (const r of Object.values(g.cast)) {
+    for (const r of residentsOf(g)) {
         const a = r.avatar;
         if (!r.met || (r as any).gone || idOf(g, a) === YOU || PARTNER.includes(pairOf(g, a, YOU)?.status as Status)) continue;   // (not someone who left the maps)
         if (seen[a] === undefined) { seen[a] = g.day; continue; }   // first seen: start counting from today

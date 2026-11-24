@@ -12,7 +12,7 @@
 // the neighbours). Wherever it happens, the people with you may have rows of their own (ExampleCharacter.caught: who saw,
 // how they take it, a change in how they feel toward you, the rumor in its own words), drawn instead of the plain line.
 // Everything goes through the hooks in sim/hooks.ts; nothing here does anything with adult content off.
-import { adultOn, nowAbs, type Save, type Resident } from '../core/store.js';
+import { adultOn, nowAbs, type Save, type Resident, residentsOf } from '../core/store.js';
 import { isScenario, systemOn, type WorldDef, type ActionDef, type Occupation, type WorkResult, type CaughtRow } from '../core/world.js';
 import { privateChecks, privateResults, actionGates, onDay, ownedPlaces } from './hooks.js';
 import type { PrivateCtx, ActionDone, ActionLine } from './actions.js';
@@ -95,8 +95,9 @@ onDay.push(g => {
 /* ---------- caught at your own workplace ---------- */
 
 const atMyWork = (g: Save, w: WorldDef, place: string) => { const o = myJob(g, w); return !!o && !!place && jobPlace(g, o) === place; };
-// A warning at work: performance down (it may bring its own consequences when low), and a warning on record.
-function workWarning(g: Save, w: WorldDef, perf: number): string[] {
+// A warning at work: performance down (it may bring its own consequences when low), and a warning on record. (Also
+// sim/fame.ts: a coworker who recognized you from adult video.)
+export function workWarning(g: Save, w: WorldDef, perf: number): string[] {
     const o = myJob(g, w), j = g.player.job as JobState | null;
     if (!o || !j) return [];
     const out = [`Your boss had a word with you about it at ${o.name}: a warning.`];
@@ -246,11 +247,11 @@ function caughtAtYours(g: Save, w: WorldDef, x: PrivateCtx, who: string[]): Acti
 export function homeHearers(g: Save, w: WorldDef, place: string, with_: string[]): string[] {
     const here = homeHere(g, place), out = new Set<string>();
     const other = (r: Resident) => !with_.includes(r.avatar) && !(r as any).gone;
-    for (const r of Object.values(g.cast)) if (other(r) && (homeHere(g, ownHome(g, r)) === here || (here === playerHomeId && (!!(r as any).guest || !!visitOf(g, r.avatar))))) out.add(r.avatar);
+    for (const r of residentsOf(g)) if (other(r) && (homeHere(g, ownHome(g, r)) === here || (here === playerHomeId && (!!(r as any).guest || !!visitOf(g, r.avatar))))) out.add(r.avatar);
     for (const r of presentAt(g, w, place)) if (other(r)) out.add(r.avatar);
     if (out.size) return [...out];
     const zone = homeZoneAt(g, w, here);
-    return zone ? Object.values(g.cast).filter(r => other(r) && homeZoneAt(g, w, homeHere(g, ownHome(g, r))) === zone).map(r => r.avatar) : [];
+    return zone ? residentsOf(g).filter(r => other(r) && homeZoneAt(g, w, homeHere(g, ownHome(g, r))) === zone).map(r => r.avatar) : [];
 }
 /** Caught at a home (yours, theirs, a shared house): nothing of it plays, but it's a home: nobody sends you away or bans
  *  you, and nobody charges a fee. Someone saw or heard (a row of the one with you says who, and how they take it), and

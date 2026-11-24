@@ -18,8 +18,8 @@
 </p>
 
 <p align="center">
-  <b>38</b> people · <b>120</b> places · <b>10</b> districts and getaways · <b>70</b> personal storylines ·
-  <b>50</b> careers · <b>32</b> festivals · <b>166</b> things to buy · <b>~100</b> museum pieces<br>
+  <b>39</b> people · <b>122</b> places · <b>10</b> districts and getaways · <b>72</b> personal storylines ·
+  <b>50</b> careers · <b>34</b> festivals · <b>166</b> things to buy · <b>~100</b> museum pieces<br>
   <sub>Counts include what the adult content switch adds.</sub>
 </p>
 
@@ -45,7 +45,7 @@ behind on rent.
 <p align="center"><img src="docs/readme/year.jpg" alt="Ueno Park in summer, at cherry-blossom time, in autumn and in winter"></p>
 <p align="center"><sub>The year turns too: cherry blossom, summer green, autumn leaves, bare branches and the odd snow day.</sub></p>
 
-- **Tokyo's calendar.** 32 festivals and events, from Sanja Matsuri and the Sumida fireworks to Bon Odori and the
+- **Tokyo's calendar.** 34 festivals and events, from Sanja Matsuri and the Sumida fireworks to Bon Odori and the
   New Year's shrine visit, plus typhoons and heat waves.
 - **It sounds like Tokyo.** Places play field recordings (station crowds, an izakaya, a konbini door, cicadas in
   summer, a temple bell), following the hour and how busy it is.
@@ -78,7 +78,7 @@ shifts, friends, favorite places and a full set of expressions.
   you apologize, get jealous and talk about you to their friends.
 - **They live without you.** The world's people make friends, fall out, date, marry and break up from their own
   feelings, and couples go on dates of their own.
-- **Storylines that wait for you.** 33 people carry a story: a debt, an exam, a visa, a lease, someone leaving. It
+- **Storylines that wait for you.** 34 people carry a story: a debt, an exam, a visa, a lease, someone leaving. It
   runs through the seasons, and at its turning point it waits for you. Help, wait for a better ending, or let it go.
 - **Who people are.** Gender, attraction, intimacy style, exclusive or open: set per person, or let your AI suggest
   it from the card. Not everyone is drawn to everyone.

@@ -1,3 +1,8 @@
+// Legends: your great deeds (finished quests, won fights, titles, an unmasking…) become tales that travel from town
+// to town on their own and grow in the telling. Each day a legend may reach another town and get more exaggerated;
+// told often enough, some start crediting the deed to someone else. The AI tells the tale as the town knows it:
+// bigger, and partly wrong. When you arrive somewhere your legend has grown, your name opens doors (reputation).
+import { residentsOf } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { onDay, onHour } from './hooks.js';
 import { facts, fill } from './facts.js';
@@ -36,7 +41,7 @@ onDay.push((g, w) => {
         if (H(`${l.id}|grow|${g.day}`) < 0.25 && l.level < 3)
             l.level++;
         if (l.level >= 3 && !l.credit && H(`${l.id}|credit`) < 0.3) {
-            const others = Object.values(g.cast);
+            const others = residentsOf(g);
             if (others.length)
                 l.credit = others[Math.floor(H(`${l.id}|who`) * others.length)].name;
         }

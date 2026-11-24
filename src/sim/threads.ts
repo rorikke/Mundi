@@ -23,7 +23,7 @@
 import type { Save, Resident } from '../core/store.js';
 import { systemOn, type WorldDef, type Thread, type ThreadStage, type ThreadEnding, type ThreadHelp } from '../core/world.js';
 import { personaName } from '../st/bridge.js';
-import { onDay, onHour, onLook, tierLink } from './hooks.js';
+import { onDay, onHour, onLook, tierLink, stageGives } from './hooks.js';
 import { exampleOf, adultOn } from './dayplan.js';
 import { residents } from './people.js';
 import { whenHolds, levelHolds, parseWhen, calendarOnly, missingWords, threadOwner, withHere, type Cond } from './when.js';
@@ -151,6 +151,7 @@ function enterStage(g: Save, w: WorldDef, t: Thread, r: Resident, i: number) {
         startRumor(g, w, s.rumor, place, { about: r.name, secret: s.tell !== 'known', thread: t.id, id: `thread:${t.id}:${i}` });
     }
     if (s.fact) note(g, s.fact, [r.name], [r.avatar], `home:${r.avatar}`, 'thread');
+    for (const f of stageGives) f(g, w, s, t.id, r.avatar);   // (adult industry) an offer, a title cancelled
 }
 // A moment written about them ("A collector phones Nanami…"): told as theirs to bring up, in this scene.
 const momentText = (r: Resident, text: string) => `${text.replace(/[.\s]+$/, '')}: ${r.name} brings it up with {{user}} in this scene, in their own way.`;

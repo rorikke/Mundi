@@ -4,7 +4,7 @@
 // An engaged pair whose marriage roll passes sets a wedding day, the first Saturday or Sunday a week or two ahead
 // (`PairState.wedding`), and marries on it, with or without a photographer there (the photo boards offer to shoot it:
 // `weddingsAhead`); a split before the day calls it off.
-import { cfg, type Save } from '../core/store.js';
+import { cfg, type Save, residentsOf } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { seasonDays, isWeekend, weekday } from './time.js';
 import { exampleOf, seedRanks } from './dayplan.js';
@@ -94,7 +94,7 @@ function careersMoveOn(g: Save, w: WorldDef): string[] {
     const out: string[] = [];
     seedRanks(g, w);
     const st = store(g);
-    for (const r of Object.values(g.cast)) {
+    for (const r of residentsOf(g)) {
         const job = w.occupations.find(x => x.id === r.occupation), o = job && trackOf(g, job, r.avatar);   // (their gender's track)
         const ranks = o ? npcCareer(o, r.avatar, g).ranks : [];
         if (!o || ranks.length < 2) continue;

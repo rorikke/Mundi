@@ -2,7 +2,7 @@
 // (what you went through together, from the facts), Circle (the people you know in their life) and Notes (your own
 // note about them, the gifts you gave, what you learned of them). Only what you could know: their week and free time
 // once you're friends, no crushes, no secret couples. Reads the engine, never moves a number; the phone draws the rest.
-import { esc, game, notify, saveGame, type Save } from '../core/store.js';
+import { esc, game, notify, saveGame, type Save, residentIds } from '../core/store.js';
 import { systemOn, isScenario, type WorldDef } from '../core/world.js';
 import { thumb } from '../st/bridge.js';
 import { fmtClock as hm } from '../core/fmt.js';
@@ -121,7 +121,7 @@ export function circleOf(g: Save, w: WorldDef, a: string): Tie[] {
         add(other, familyWord(type), 'family', 0);
     }
     const love = systemOn(w, 'romance');
-    for (const x of Object.keys(g.cast)) {
+    for (const x of residentIds(g)) {
         if (!known(x)) continue;
         const st = statusOf(g, a, x);
         if (love && st && PARTNER.includes(st) && !secretCouple(g, w, a, x)) add(x, STATUS_WORD[st], 'partner', 1);

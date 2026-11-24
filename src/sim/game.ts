@@ -103,24 +103,32 @@ export const sheetOf = (w: WorldDef, h: Hero): PersonaSheet => ({ world: w.id, n
 
 /* ---------- the cast ---------- */
 
+// The card made before for someone in an ExampleCharacter's shape (the world's people, the roster's performers): by
+// the tag it carries, else by its file name; null when there is none yet.
+export function foundCard(w: WorldDef, ex: ExampleCharacter): string | null {
+    const tag = exampleTag(w, ex);
+    const slugName = ex.name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+    const byFile = new RegExp(`^mundi_(?:${[ex.from, w.id].filter(Boolean).map(x => String(x).replace(/[^a-z0-9_-]/gi, '')).join('|')})_${slugName}(?:_?\\d+)?\\.png$`, 'i');
+    const found = characters().find(c => c.data?.extensions?.mundi?.example === tag) ?? characters().find(c => byFile.test(String(c.avatar ?? '')));
+    return found?.avatar ?? null;
+}
+
 // The world's people chosen for this game become real cards (created once, reused by later games). (E3) A card is made
 // with its portrait from the world's folder (initials without one) and its expression sprites; a card made before the
-// world had them gets them once.
-async function exampleCards(w: WorldDef, list: ExampleCharacter[]): Promise<string[]> {
+// world had them gets them once. (adult industry) The roster's job-only performers get theirs the same way, from
+// sim/onset.ts, when they first come on set.
+export async function exampleCards(w: WorldDef, list: ExampleCharacter[]): Promise<string[]> {
     const out: string[] = [];
     let i = 0;
     for (const ex of list) {
-        const tag = exampleTag(w, ex);
-        const slugName = ex.name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-        const byFile = new RegExp(`^mundi_(?:${[ex.from, w.id].filter(Boolean).map(x => String(x).replace(/[^a-z0-9_-]/gi, '')).join('|')})_${slugName}(?:_?\\d+)?\\.png$`, 'i');
-        const found = characters().find(c => c.data?.extensions?.mundi?.example === tag) ?? characters().find(c => byFile.test(String(c.avatar ?? '')));
-        if (found) { out.push(found.avatar); i++; await examplePictures(w, ex, found.avatar); continue; }
+        const found = foundCard(w, ex);
+        if (found) { out.push(found); i++; await examplePictures(w, ex, found); continue; }
         const file = `mundi_${w.id}_${ex.name.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
         const pic = await worldPicture(w, ex.avatar);
         const avatar = await createCharacter({
             name: ex.name, description: ex.description, first_mes: ex.first_mes ?? '', personality: ex.personality ?? '',
             scenario: w.setting, tags: ['Mundi', w.name], file,
-            extensions: { mundi: { example: tag, world: w.id, occupation: ex.occupation, home: ex.home, routine: ex.routine, leisure: ex.leisure ?? [], ...(pic ? { portrait: ex.avatar } : {}) } },
+            extensions: { mundi: { example: exampleTag(w, ex), world: w.id, occupation: ex.occupation, home: ex.home, routine: ex.routine, leisure: ex.leisure ?? [], ...(pic ? { portrait: ex.avatar } : {}) } },
         }, pic ?? await initialsAvatar(ex.name, PALETTE[i % PALETTE.length]));
         i++;
         out.push(avatar);
@@ -157,7 +165,7 @@ export const spriteKey = (folder: string, v = '') => (v ? `${folder}#${v}` : fol
 
 // What a card still lacks from the world (its portrait, its sprites, its outfits), uploaded once: the card remembers
 // what it got (a sprite folder with its version), so a folder whose pictures changed is uploaded again.
-async function examplePictures(w: WorldDef, ex: ExampleCharacter, avatar: string) {
+export async function examplePictures(w: WorldDef, ex: ExampleCharacter, avatar: string) {
     const card = charOf(avatar)?.data?.extensions?.mundi ?? {};
     try {
         if (ex.avatar && card.portrait !== ex.avatar) {
@@ -187,7 +195,7 @@ const cleanOutfit = (name: string) => String(name).trim().replace(/[\\/:*?"<>|]+
 // One outfit of the world's into its subfolder of their Expressions, unless the card has this version already; true
 // when it's there. One person's uploads go one after another (each adds its folder to what the card remembers).
 const cardQueue = new Map<string, Promise<unknown>>();
-function uploadOutfit(w: WorldDef, ex: ExampleCharacter, avatar: string, name: string): Promise<boolean> {
+export function uploadOutfit(w: WorldDef, ex: ExampleCharacter, avatar: string, name: string): Promise<boolean> {
     const run = async () => {
         const outfit = cleanOutfit(name), folder = ex.outfits?.[name];
         if (!outfit || typeof folder !== 'string') return false;
