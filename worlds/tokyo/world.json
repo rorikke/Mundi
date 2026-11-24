@@ -82860,7 +82860,7 @@
      "desc": "a title a month made without you, the rest you make yourself; a rented house, a laptop, a crew of friends",
      "milestone": {
       "upgrade": "lb_own_set",
-      "or": "titles: label 8; chart: label top 10"
+      "or": "titles: mine label 4; chart: mine label top 10"
      }
     },
     {
@@ -82872,7 +82872,7 @@
      "desc": "two titles a month made without you, a set of your own, a name the shops order by",
      "milestone": {
       "upgrade": "lb_distributor",
-      "or": "titles: label 24; chart: label top 3"
+      "or": "titles: mine label 12; chart: mine label weeks 2"
      }
     },
     {
