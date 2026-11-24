@@ -11353,6 +11353,7 @@ const DICT: Record<string, string> = {
  "Performing": "Atuando",
  "Directing": "Dirigindo",
  "Your label": "Seu selo",
+ "Your label's": "Do seu selo",
  "Fame {0}": "Fama {0}",
  "1 fan": "1 fã",
  "{0} fans": "{0} fãs",

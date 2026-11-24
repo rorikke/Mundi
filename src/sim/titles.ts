@@ -869,7 +869,9 @@ export interface OffersView { on: boolean; seat: Seat | null; offers: OfferCard[
 export interface TitleCard { id: string; name: string; label: string; genre: string; you: Seat[]; cast: string[]; set: string; place: string; scenes: SceneView[]; contract: number; shoot: number; release: number; q?: number; edited?: number; cut?: number; sold: number; weeks: number; lastWeek: number; peak?: number; charts: number; fee: number; cancelled: boolean;
     state: 'waiting' | 'shoot' | 'edit' | 'coming' | 'out' | 'done' | 'cancelled'; days: number[]; canEdit: boolean; canCancel: boolean }
 export interface TitlesView { titles: TitleCard[]; totals: IndustryState['totals']; made: number; sold: number }
-export interface ChartView { week: number; rows: { pos: number; name: string; label: string; sales: number; mine?: string }[]; hot: string[]; cold: string; line: string }
+/** A chart row: `mine` the title's id when it's in your record, `by` whose it is: yours (a seat of yours on it) or your
+ *  label's (commissioned, shot without you). */
+export interface ChartView { week: number; rows: { pos: number; name: string; label: string; sales: number; mine?: string; by?: 'you' | 'label' }[]; hot: string[]; cold: string; line: string }
 export interface RosterCard { id: string; name: string; rank: number; genres: string[]; titles: number; last?: number; fame: number; avatar?: string; debut: boolean }
 export interface RosterView { people: RosterCard[]; tokyo: { avatar: string; name: string; titles: number }[] }
 
@@ -902,10 +904,12 @@ export function titlesView(g: Save, w: WorldDef): TitlesView {
     const own = st.titles.filter(t => !isCommissioned(t));
     return { titles, totals: { ...st.totals }, made: own.filter(t => t.q !== undefined).length + st.totals.titles, sold: own.reduce((a, t) => a + t.sold, 0) + st.totals.sales };
 }
-/** Take's Chart tab: this week's top 10, yours marked; the month's hot and cold genres and the news line. */
+/** Take's Chart tab: this week's top 10, yours and your label's commissioned ones marked apart (a title no longer in
+ *  your record, of someone you played before, is a row like the others); the month's hot and cold genres, the news. */
 export function chartView(g: Save, w: WorldDef): ChartView {
     const st = peekIndustry(g), t = st.trend, now = t.month === monthOf(g);
-    return { week: st.chart.week, rows: st.chart.rows.map((r, i) => ({ pos: i + 1, name: r.name, label: labelOf(w, r.label)?.name ?? r.label, sales: r.sales, ...(r.title ? { mine: r.title } : {}) })),
+    const whose = (id?: string) => { const x = id ? titleById(g, id) : undefined; return x ? { mine: x.id, by: isCommissioned(x) && !holdsStills(x) ? 'label' as const : 'you' as const } : {}; };
+    return { week: st.chart.week, rows: st.chart.rows.map((r, i) => ({ pos: i + 1, name: r.name, label: labelOf(w, r.label)?.name ?? r.label, sales: r.sales, ...whose(r.title) })),
         hot: now ? t.hot.map(id => genreOf(w, id)?.name ?? id) : [], cold: now ? genreOf(w, t.cold)?.name ?? '' : '', line: now ? t.line ?? '' : '' };
 }
 /** Take's Roster tab: the roster's performers (those you've worked with first), and Tokyo's people in your titles (not in
