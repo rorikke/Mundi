@@ -1,15 +1,16 @@
 // A title's cover (adult industry, plans/adult-industry.md "Covers and pictures"): layers, not a file, the way a photo
 // is drawn (sim/photo.ts photoLayers): the set's picture for the time of the shoot, up to two stars' sprites (their
 // naked set when the overlay gives them one and adult content is on, else their own sprites; the player is never on
-// it), and the words the layout puts over them (the title, the label, the stars' names). Pure: every picture goes
-// through worldFile and safeUrl; the words are the screen's to escape.
+// it), and the words the layout puts over them (the title, the label, the stars' names); a title with a still for its
+// cover (`cover`, plans/industry-lens.md Part 1) is drawn from that photo instead. Pure: every picture goes through
+// worldFile and safeUrl; the words are the screen's to escape.
 import { adultOn, type Save } from '../core/store.js';
 import { worldFile, type WorldDef, type ExampleCharacter } from '../core/world.js';
 import type { TitleRec } from '../core/industry.js';
 import { safeUrl } from '../core/safe.js';
 import { charOf } from '../st/bridge.js';
 import { pictureAt } from './daynight.js';
-import { photoLayers } from './photo.js';
+import { photoLayers, peekPhoto, type PhotoRec } from './photo.js';
 import { YOU } from './rel.js';
 import { rosterOf, rosterByCard } from './onset.js';
 
@@ -42,21 +43,35 @@ function personOf(g: Save, w: WorldDef, x: string): ExampleCharacter | undefined
     return name ? w.cast.examples.find(e => e.name === name) : undefined;
 }
 
-/** A title's cover. */
+// The still a title is sold with, drawn (null: none, or it's gone or still undeveloped): the photo's place and the
+// people in it, each where the photo has them, with the title's words.
+function stillCover(g: Save, w: WorldDef, t: TitleRec): CoverLayers | null {
+    const rec: PhotoRec | undefined = t.cover === undefined ? undefined : peekPhoto(g).photos.find(r => r.id === t.cover);
+    if (!rec || rec.undeveloped) return null;
+    const who = rec.who ?? [], sprites: CoverLayers['sprites'] = [], missing: string[] = [];
+    who.forEach((h, i) => {
+        if (h.expr === 'back') return;
+        const s = photoLayers(g, w, { ...rec, who: [h] }).sprites[0];
+        if (s) sprites.push({ url: s.url, side: who.length === 1 ? 'center' : i === 0 ? 'left' : 'right', name: h.name });
+        else missing.push(`${h.name}, not on the cover`);
+    });
+    const stars = t.cast.filter(x => x !== YOU).slice(0, 2).map(x => personOf(g, w, x)?.name ?? String(charOf(x)?.name ?? x));
+    return { bg: photoLayers(g, w, { ...rec, who: [] }).bg, sprites, title: t.name, label: w.industry?.labels?.find(l => l.id === t.label)?.name ?? t.label, stars, layout: w.industry?.covers?.layout ?? '', missing };
+}
+
+/** A title's cover: its still when it has one, else the set's picture and its stars. */
 export function coverLayers(g: Save, w: WorldDef, t: TitleRec): CoverLayers {
+    const still = stillCover(g, w, t); if (still) return still;
     const minute = Number.isFinite((t as any).call) ? Number((t as any).call) % 1440 : COVER_MINUTE;
     const stars = t.cast.filter(x => x !== YOU).slice(0, 2);
     const sprites: CoverLayers['sprites'] = [], missing: string[] = [], names: string[] = [];
-    // (the roster's performers aren't the world's people: drawn as if they were, for this picture only)
-    const roster = w.industry?.roster ?? [];
-    const wx: WorldDef = roster.length ? { ...w, cast: { ...w.cast, examples: [...w.cast.examples, ...roster] } } : w;
     stars.forEach((x, i) => {
         const ex = personOf(g, w, x);
         const name = ex?.name ?? String(charOf(x)?.name ?? x);
         names.push(name);
         if (!ex) { missing.push(`${name}, not on the cover`); return; }
         const naked = adultOn(g) && typeof ex.outfits?.naked === 'string';
-        const l = photoLayers(g, wx, { place: '', slot: 'day', look: 'digital', frame: [0, 0, 0], who: [{ name: ex.name, expr: naked ? 'desire' : 'joy', ...(naked ? { outfit: 'naked' } : {}) }] } as any);
+        const l = photoLayers(g, w, { place: '', slot: 'day', look: 'digital', frame: [0, 0, 0], who: [{ name: ex.name, expr: naked ? 'desire' : 'joy', ...(naked ? { outfit: 'naked' } : {}) }] } as any);
         const s = l.sprites[0];
         if (!s) { missing.push(`${name}, not on the cover`); return; }
         sprites.push({ url: s.url, side: stars.length === 1 ? 'center' : i === 0 ? 'left' : 'right', name });

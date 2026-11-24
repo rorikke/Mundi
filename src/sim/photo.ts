@@ -5,7 +5,7 @@
 // photo studio sim/studio.ts. The save: `g.photo` (PhotoState), read with defaults (old saves have none). With the
 // system off, or a world without `photo`, nothing here writes anything.
 import { adultOn, nowAbs, type Save } from '../core/store.js';
-import { systemOn, worldFile, type WorldDef, type CameraRule, type PhotoClient, type BriefDef, type ExampleCharacter } from '../core/world.js';
+import { systemOn, worldFile, personPictures, type WorldDef, type CameraRule, type PhotoClient, type BriefDef, type ExampleCharacter } from '../core/world.js';
 import type { PhotoGear } from '../core/world.js';
 import { stricter, looser, stepRule, cameraStepsOf, type CameraStepAt } from '../core/photo.js';
 import { safeUrl } from '../core/safe.js';
@@ -38,7 +38,7 @@ export interface Taken extends Offer { taken: number; due: number; shot?: Shot; 
     /** the edit's own parts ("editing roll 14 vs 12 → +9", "retouching desk +5") */ editParts?: { name: string; n: number }[] }
 /** A photo kept in the Lens app: the place and its looks at that moment, who was in the frame, the camera's look. */
 export interface PhotoRec {
-    id: number; day: number; min: number; src: 'spot' | 'brief' | 'event' | 'book' | 'private';
+    id: number; day: number; min: number; src: 'spot' | 'brief' | 'event' | 'book' | 'private' | 'set';
     place: string; slot: 'day' | 'afternoon' | 'night'; looks: string[];
     who?: { name: string; expr: string; outfit?: string }[];
     frame: [number, number, number];
@@ -49,6 +49,7 @@ export interface PhotoRec {
     /** the brief's kind (`wedding`, `portrait`…) or `street` for a shot of your own: the portfolio's variety */ kind?: string;
     /** a five-star brief or a shot good enough to show: it can be in the portfolio */ piece?: true;
     /** the caption the AI gave a portfolio piece (kept instead of the engine's when it came back clean) */ ai?: string;
+    /** (a still, src `set`) the title it was taken on (`TitleRec.id`) */ title?: string;
 }
 /** A photobook: offered, in progress or published (`def` its PhotobookDef id). `briefs`: pieces done (★3+); `missed`;
  *  `day`: when it was offered (declined: when it was turned down; published: the day); `pay`: the first week's royalties;
@@ -291,7 +292,7 @@ const folderOf = (f: string) => f.replace(/\/*$/, '/');
 /** The sprite folders some photos need (for `loadPhotoSprites` before drawing them). */
 export function photoSpriteFolders(w: WorldDef, recs: PhotoRec[]): string[] {
     const out = new Set<string>();
-    for (const r of recs) for (const h of r.who ?? []) { const ex = (w.cast?.examples ?? []).find(e => e.name === h.name); const f = h.outfit ? ex?.outfits?.[h.outfit] : ex?.sprites; if (f) out.add(folderOf(f)); }
+    for (const r of recs) for (const h of r.who ?? []) { const ex = personPictures(w, h.name); const f = h.outfit ? ex?.outfits?.[h.outfit] : ex?.sprites; if (f) out.add(folderOf(f)); }
     return [...out].filter(f => !SETS.has(f));
 }
 /** Reads the lists of sprite folders (`sprites.json`) so photos draw the expressions each set really has. */
@@ -323,7 +324,7 @@ export function nearestExpr(want: string, have: string[]): string | undefined {
 }
 /** The layers of a photo: the place's picture for its part of the day and its looks (a home's or the studio's from
  *  its kind or zone), each person's sprite (their outfit's set if they wore one; the nearest expression the set has),
- *  the camera's look, the frame. A card person (not one of the world's), an outfit the world doesn't have, or a naked
+ *  the camera's look, the frame. People are the world's or the industry's roster's (`personPictures`). A card person (not one of them), an outfit the world doesn't have, or a naked
  *  outfit with adult content off draws nobody and is named in `missing`. Pure: pictures go through `worldFile`. */
 export function photoLayers(g: Save, w: WorldDef, rec: PhotoRec): PhotoLayers {
     const minute = SLOT_MINUTE[rec.slot] ?? 12 * 60;
@@ -339,7 +340,7 @@ export function photoLayers(g: Save, w: WorldDef, rec: PhotoRec): PhotoLayers {
     const sprites: PhotoLayers['sprites'] = [], missing: string[] = [];
     const who = rec.who ?? [];
     who.forEach((h, i) => {
-        const ex = (w.cast?.examples ?? []).find(e => e.name === h.name);
+        const ex = personPictures(w, h.name);
         const naked = h.outfit === 'naked' && !adultOn(g);
         const folder = naked ? undefined : h.outfit ? ex?.outfits?.[h.outfit] : ex?.sprites;
         if (h.expr === 'back') return;   // (from behind: nobody's face, no sprite)
