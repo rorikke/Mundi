@@ -173,10 +173,10 @@ function nextBookBrief(g: Save, w: WorldDef, bk: Book): void {
 export const SITTINGS = ['a white shirt and nothing else', 'black lingerie', 'nothing at all'];
 /** Where her sittings are: the hourly rental's studio (the publisher's photographer books it). */
 export const sittingAt = (g: Save, w: WorldDef): string => rentalOpen(g, w)?.at ?? '';
-const ownProject = (g: Save) => peekPhoto(g).books.find(b => b.def === OWN_BOOK && b.state === 'project') as (Book & { sat?: number }) | undefined;
+const ownProject = (g: Save) => (peekPhoto(g).books ?? []).find(b => b.def === OWN_BOOK && b.state === 'project') as (Book & { sat?: number }) | undefined;
 /** Why she can't sit for her book here now ('' when she can): a project under way, at the studio while it's open, once a day. */
 export function sitWhy(g: Save, w: WorldDef): string {
-    const bk = ownProject(g);
+    const bk = (g as any).photo ? ownProject(g) : undefined;   // (asked on every look: a save with no photography has none)
     if (!bk || !ownBooksOpen(g, w)) return 'No photobook of your own under way.';
     const at = sittingAt(g, w);
     if (!at || g.player.loc !== at) return at ? `At ${placeName(g, w, at)}.` : 'No studio to sit in.';

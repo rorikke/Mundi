@@ -113,6 +113,7 @@ setLink.visit = visit;
 /** The calls kept up with: each performer seated while her window is on (her card made if it isn't yet), sent away
  *  once it's over; the calls past their window dropped. Nobody with the industry or adult content off. */
 export function tick(g: Save, w: WorldDef) {
+    if (!peekCalls(g).length && !onCallNow(g).length) return;   // (every look and hour: nothing to do without a call)
     if (!setOn(g, w)) { for (const a of onCallNow(g)) unseat(g, a); if (peekCalls(g).length) setCalls(g, []); return; }
     const now = nowAbs(g), live = new Set<string>();
     for (const c of peekCalls(g)) {
