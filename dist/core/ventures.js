@@ -32,6 +32,14 @@ function cleanTier(t) {
         t.share = num(t.share, 0, 1, 1);
     if (t.costs !== undefined)
         t.costs = num(t.costs, 0, 0.95, 0);
+    // (a milestone's other way, `or`: a condition as text, kept only when there's one)
+    if (t.milestone && 'or' in t.milestone) {
+        const o = typeof t.milestone.or === 'string' ? t.milestone.or.trim() : '';
+        if (o)
+            t.milestone.or = o;
+        else
+            delete t.milestone.or;
+    }
     t.name = str(t.name) ?? t.id;
     return t;
 }

@@ -212,8 +212,8 @@ function badValue(key, v) {
         case 'studio': return ['any', 'cyc', 'dressing'].includes(v.toLowerCase()) ? '' : `"${v}" should be any, cyc or dressing`;
         case 'freelance': return ['any', 'blessing', 'fallout'].includes(v.toLowerCase()) ? '' : `"${v}" should be any, blessing or fallout`;
         // (adult industry)
-        case 'titles': return /^([^\s,;]+\s+)?\d+$/.test(v) ? '' : `"${v}" should be a number of titles, or a seat (perform, direct, label) or a label's id and a number, like perform 3`;
-        case 'chart': return /^([^\s,;]+\s+)?top\s+\d+$/i.test(v) ? '' : `"${v}" should be top and a number, like top 10 (a seat or a label's id first if wanted)`;
+        case 'titles': return /^([^\s,;]+\s+){0,2}\d+$/.test(v) ? '' : `"${v}" should be a number of titles, or a seat (perform, direct, label) or a label's id and a number, like perform 3 (mine first: only titles you hold a seat on, like mine label 8)`;
+        case 'chart': return /^([^\s,;]+\s+){0,2}(top|weeks)\s+\d+$/i.test(v) ? '' : `"${v}" should be top and a number, like top 10, or weeks and a number of weeks in the top 10 (a seat or a label's id first if wanted, and mine: only titles you hold a seat on)`;
         case 'fame': return /^\d+$/.test(v) && Number(v) <= 100 ? '' : `"${v}" should be a fame from 0 to 100`;
         case 'stance': return /^\S.*\s+(fine|uneasy|no)$/i.test(v) ? '' : `"${v}" should be a name and fine, uneasy or no, like Naomi fine`;
         case 'seat': return /^(perform|direct|label)$/i.test(v) ? '' : `"${v}" should be perform, direct or label`;

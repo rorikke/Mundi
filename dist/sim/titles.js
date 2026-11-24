@@ -948,6 +948,13 @@ function fold(g) {
             for (const k of ['any', ...t.you])
                 p[k] = Math.min(p[k] ?? 99, t.peak);
         }
+        // (and by each seat, with its chart weeks: `titles: mine label 4` and `chart: mine label weeks 2` count them)
+        if (t.q !== undefined)
+            for (const k of new Set(t.you)) {
+                const x = ((st.totals.seats ??= {})[k] ??= { n: 0, charts: 0 });
+                x.n++;
+                x.charts += t.charts ?? 0;
+            }
     }
     if (gone.size)
         st.titles = st.titles.filter(t => !gone.has(t));
@@ -1044,24 +1051,41 @@ performingLink.now = (g, w) => {
 performingLink.lastDay = g => { const d = peekIndustry(g).titles.filter(t => t.you.includes('perform') && t.q !== undefined).map(t => t.shoot); return d.length ? Math.max(...d) : null; };
 const SEATS = ['perform', 'direct', 'label'];
 const MINE = new Set(['titles', 'chart', 'seat']);
-// `titles: 3`, `titles: perform 3`, `titles: kurobara 1` (titles made: shot and wrapped, cancelled ones too)
-function titlesCount(g, w, v) {
-    const m = /^\s*(?:(\S+)\s+)?(\d+)\s*$/.exec(v);
-    if (!m)
-        return null;
-    const by = m[1]?.toLowerCase(), need = Number(m[2]), st = peekIndustry(g);
-    const list = st.titles.filter(t => t.q !== undefined && (!by ? !isCommissioned(t) : SEATS.includes(by) ? t.you.includes(by) : t.label.toLowerCase() === by));
-    const folded = !by ? st.totals.titles : 0;
-    return { have: list.length + folded, need, what: by ? (SEATS.includes(by) ? by : labelOf(w, by)?.name ?? by) : '' };
+function readWords(words) {
+    const list = words.trim().toLowerCase().split(/\s+/).filter(Boolean), mine = list.includes('mine'), rest = list.filter(x => x !== 'mine');
+    return rest.length > 1 || list.filter(x => x === 'mine').length > 1 ? null : { mine, ...(rest[0] ? { by: rest[0] } : {}) };
 }
-// `chart: top 10`, `chart: perform top 3` (a title of yours reached that place; the label's commissioned ones only for `label`)
-function chartHolds(g, v) {
-    const m = /^\s*(?:(\S+)\s+)?top\s+(\d+)\s*$/i.exec(v);
-    if (!m)
+const holdsSeat = (t) => t.you.some(s => s !== 'label');
+const fits = (t, x) => (x.mine ? holdsSeat(t) : true) && (x.by ? (SEATS.includes(x.by) ? t.you.includes(x.by) : t.label.toLowerCase() === x.by) : x.mine || !isCommissioned(t));
+// how the words read in a sentence ("titles of yours for your label")
+const titleWhat = (w, x) => `${x.mine && x.by !== 'perform' && x.by !== 'direct' ? ' of yours' : ''}${x.by === 'perform' ? ' you star in' : x.by === 'direct' ? ' you directed' : x.by === 'label' ? ' for your label' : x.by ? ` for ${labelOf(w, x.by)?.name ?? x.by}` : ''}`;
+// `titles: 3`, `titles: perform 3`, `titles: kurobara 1`, `titles: mine label 8` (titles made: shot and wrapped, cancelled
+// ones too; folded ones count without words, with `mine` alone, and for a seat with `mine`)
+const seatOf = (x) => (x.by && SEATS.includes(x.by) ? x.by : undefined);
+function titlesCount(g, w, v) {
+    const m = /^\s*((?:\S+\s+){0,2})(\d+)\s*$/.exec(v), x = m ? readWords(m[1]) : null;
+    if (!m || !x)
         return null;
-    const seat = m[1]?.toLowerCase(), n = Number(m[2]);
-    const st = peekIndustry(g), folded = st.totals.peaks?.[seat ?? 'any'] ?? 99;
-    return { ok: folded <= n || st.titles.some(t => (t.peak ?? 99) <= n && (seat ? t.you.includes(seat) : !isCommissioned(t))), n, seat };
+    const need = Number(m[2]), st = peekIndustry(g), seat = seatOf(x);
+    const list = st.titles.filter(t => t.q !== undefined && fits(t, x));
+    const folded = !x.by ? st.totals.titles : x.mine && seat ? st.totals.seats?.[seat]?.n ?? 0 : 0;
+    return { have: list.length + folded, need, what: titleWhat(w, x) };
+}
+// `chart: top 10`, `chart: perform top 3` (a title of yours reached that place; the label's commissioned ones only for
+// `label` without `mine`); `chart: mine label weeks 4`: weeks in the top 10 of those titles, counted together (folded
+// ones too for a seat with `mine`)
+function chartHolds(g, w, v) {
+    const m = /^\s*((?:\S+\s+){0,2})(top|weeks)\s+(\d+)\s*$/i.exec(v), x = m ? readWords(m[1]) : null;
+    if (!m || !x)
+        return null;
+    const n = Number(m[3]), st = peekIndustry(g), list = st.titles.filter(t => fits(t, x)), what = titleWhat(w, x), seat = seatOf(x);
+    if (m[2].toLowerCase() === 'weeks') {
+        const weeks = list.reduce((a, t) => a + (t.charts ?? 0), 0) + (x.mine && seat ? st.totals.seats?.[seat]?.charts ?? 0 : 0);
+        return { ok: weeks >= n, n, what, weeks };
+    }
+    // (folded titles keep their best place by seat, and only titles with a seat of yours are folded with one)
+    const folded = x.by && !seat ? 99 : st.totals.peaks?.[seat ?? 'any'] ?? 99;
+    return { ok: folded <= n || list.some(t => (t.peak ?? 99) <= n), n, what };
 }
 {
     const prev = { holds: industryLink.holds, words: industryLink.words, count: industryLink.count };
@@ -1075,7 +1099,7 @@ function chartHolds(g, v) {
             return !!c && c.have >= c.need;
         }
         if (k === 'chart')
-            return !!chartHolds(g, v)?.ok;
+            return !!chartHolds(g, w, v)?.ok;
         return seatsNow(g, w).includes(v.trim().toLowerCase());
     };
     industryLink.words = (g, w, k, v) => {
@@ -1083,14 +1107,13 @@ function chartHolds(g, v) {
             return prev.words(g, w, k, v);
         if (k === 'titles') {
             const c = titlesCount(g, w, v);
-            if (!c)
-                return '';
-            const what = c.what === 'perform' ? ' you star in' : c.what === 'direct' ? ' you directed' : c.what === 'label' ? ' for your label' : c.what ? ` for ${c.what}` : '';
-            return `${c.need === 1 ? 'a title' : `${c.need} titles`}${what} (${c.have} now)`;
+            return c ? `${c.need === 1 ? 'a title' : `${c.need} titles`}${c.what} (${c.have} now)` : '';
         }
         if (k === 'chart') {
-            const c = chartHolds(g, v);
-            return c ? `a title${c.seat === 'perform' ? ' you star in' : c.seat === 'direct' ? ' you directed' : ''} in the chart's top ${c.n}` : '';
+            const c = chartHolds(g, w, v);
+            if (!c)
+                return '';
+            return c.weeks !== undefined ? `${c.n === 1 ? 'a week' : `${c.n} weeks`} in the chart's top 10 for titles${c.what} (${c.weeks} now)` : `a title${c.what} in the chart's top ${c.n}`;
         }
         const s = v.trim().toLowerCase();
         return s === 'perform' ? 'performing in adult video' : s === 'direct' ? 'directing adult video' : s === 'label' ? 'a label of your own' : '';
@@ -1100,6 +1123,8 @@ function chartHolds(g, v) {
             return prev.count(g, w, k, v);
         if (k === 'titles')
             return titlesCount(g, w, v)?.have ?? null;
+        if (k === 'chart')
+            return chartHolds(g, w, v)?.weeks ?? null;
         return null;
     };
 }
