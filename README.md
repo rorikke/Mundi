@@ -9,11 +9,12 @@
 </p>
 
 <p align="center">
-  <a href="#install">Install</a> ·
+  <a href="#install"><b>Install</b></a> ·
   <a href="#a-city-with-a-clock">The city</a> ·
   <a href="#people-with-lives-of-their-own">The people</a> ·
   <a href="#a-life-to-build">Your life</a> ·
   <a href="#the-long-game">The long game</a> ·
+  <a href="#after-dark">After dark</a> ·
   <a href="#under-the-hood">Under the hood</a>
 </p>
 
@@ -25,119 +26,125 @@
 
 <p align="center">
   <img src="docs/readme/scene-shrine.jpg" width="49%" alt="Yui at Tsukimi Inari Shrine on a snowy night">
-  <img src="docs/readme/scene-ramen.jpg" width="49%" alt="Genzō and Ayaka at Ramen Kamejirō">
+  <img src="docs/readme/scene-sky.jpg" width="49%" alt="Ayame Mikage at the Meridian Hills Sky Museum at night, Tokyo Tower lit behind her">
+  <img src="docs/readme/scene-beach.jpg" width="49%" alt="Momo, Yui and Kaede in swimwear at Odaiba Seaside Park in summer">
+  <img src="docs/readme/scene-festival.jpg" width="49%" alt="Tamaki and Yui in yukata by the Sumida River on a summer night">
 </p>
+
+<p align="center"><img src="docs/readme/ui-scene.jpg" alt="A scene in Yokohama Chinatown at 20:10 on a Saturday: Kaito, Rina and Akane under the lanterns, the conversation below, the clock and place at the top, your needs and money on the left, and things to do on the right"></p>
+<p align="center"><sub>How it plays: you write what you say or do, your AI answers as the people in the scene, and the
+engine keeps the clock, the money and the feelings around them.</sub></p>
 
 ## A city with a clock
 
 <p align="center"><img src="docs/readme/map.jpg" alt="The map of Tokyo, by day on the left and by night on the right"></p>
 
 Eight districts, from Shibuya and Shinjuku to Asakusa, Akihabara and Odaiba, plus Yokohama and Hakone for a day
-away. Each district has its own illustrated map, by day and by night. You get between them by train: trips take the
-real time for the distance, the last train really is the last, and after it there's a taxi.
-
-Time moves when you act. Shops open and close, people go to work and come home, and you get tired, hungry and
-behind on rent.
+away. You get around by train: trips take real time, and the last train really is the last one. Shops open and close,
+people go to work and come home, and you get tired, hungry and behind on rent.
 
 <p align="center"><img src="docs/readme/day.jpg" alt="The view from the Metropolitan Government Observatory by day, at sunset and at night"></p>
-<p align="center"><sub>Places are drawn for the morning, the afternoon and the night, and outdoors for the rain as well.</sub></p>
+<p align="center"><sub>Every place is drawn for the morning, the afternoon and the night, and outdoors for the rain as well.</sub></p>
 
 <p align="center"><img src="docs/readme/year.jpg" alt="Ueno Park in summer, at cherry-blossom time, in autumn and in winter"></p>
-<p align="center"><sub>The year turns too: cherry blossom, summer green, autumn leaves, bare branches and the odd snow day.</sub></p>
-
-- **Tokyo's calendar.** 34 festivals and events, from Sanja Matsuri and the Sumida fireworks to Bon Odori and the
-  New Year's shrine visit, plus typhoons and heat waves.
-- **It sounds like Tokyo.** Places play field recordings (station crowds, an izakaya, a konbini door, cicadas in
-  summer, a temple bell), following the hour and how busy it is.
-- **Small rituals.** Pray and draw omikuji at the shrines, drink with colleagues after work, and watch names change
-  as you get closer, from family name and -san to first names. Start as a foreigner and there's a language barrier
-  to work through.
+<p align="center"><sub>The year turns: cherry blossom, summer green, autumn leaves, bare branches and the odd snow day.
+34 festivals and events, from Sanja Matsuri and the Sumida fireworks to the New Year's shrine visit.</sub></p>
 
 <p align="center"><img src="docs/readme/districts.jpg" alt="Ten district maps: Shibuya, Shinjuku, Akihabara, Asakusa and Ueno, Odaiba, Marunouchi, Roppongi, Kōenji, Hakone and Yokohama"></p>
+<p align="center"><sub>Each district has its own illustrated map, by day and by night. Every place plays its own sounds
+(station crowds, an izakaya, cicadas in summer, a temple bell), following the hour and how busy it is.</sub></p>
 
 ## People with lives of their own
 
-<p align="center"><img src="docs/readme/cast.jpg" alt="Sixteen of Tokyo's people"></p>
+<p align="center"><img src="docs/readme/cast.jpg" alt="All 39 of Tokyo's people"></p>
 
 An art student working night shifts, a band that can't agree on its future, a ramen master and his daughter, a
-shrine maiden, an English teacher three years in, a host, a section chief, an idol. Each has a home, a job with
-shifts, friends, favorite places and a full set of expressions.
+shrine maiden, a photographer, a rival collector, a dealer with a camper van, a host, a section chief, an idol. Each
+has a home, a job with shifts, friends, favorite places and a storyline that waits for you at its turning point.
 
-<p align="center"><img src="docs/readme/expressions.jpg" alt="Seo-yeon's expressions: calm, joyful, amused, embarrassed, angry, sad, surprised and in love"></p>
+<p align="center"><img src="docs/readme/expressions.jpg" alt="Seo-yeon's expressions: calm, excited, amused, embarrassed, angry, sad, surprised and in love"></p>
 <p align="center"><sub>28 expressions per person, each a pose of its own. The scene shows whichever fits the line.</sub></p>
 
-- **Your cast, your choice.** Choose Tokyo's people one by one when you start a game. Leave out every man, or anyone
-  else, and the world still works: jobs, storylines, businesses and the museum are all built to run with whoever
-  you keep. Then bring in your own SillyTavern characters: each gets a home, a routine and a job in the city, and
-  you say how they know you. Their cards stay as they are.
-- **Feelings go both ways.** Everyone feels their own way about you and about each other. Friendship and romance
-  are separate bars: a best friend can stay a friend, and a rival can still become something more.
-- **Scenes count.** When a scene ends, the engine judges it. Kindness, flirting, a fight or an insult change how
-  people feel. Swiping a reply doesn't stack the effect.
-- **They take the initiative.** People text you, ask you out, confess, warn you before a breakup, hold grudges until
-  you apologize, get jealous and talk about you to their friends.
-- **They live without you.** The world's people make friends, fall out, date, marry and break up from their own
-  feelings, and couples go on dates of their own.
-- **Storylines that wait for you.** 34 people carry a story: a debt, an exam, a visa, a lease, someone leaving. It
-  runs through the seasons, and at its turning point it waits for you. Help, wait for a better ending, or let it go.
-- **Who people are.** Gender, attraction, intimacy style, exclusive or open: set per person, or let your AI suggest
-  it from the card. Not everyone is drawn to everyone.
-- **Dressed for the place.** At the pool, on the beach in summer or at a swimsuit hot spring, people change into
-  their own swimwear, each as bold as they go in public. Tamaki wears her yukata to the summer festivals.
-- **Under one roof.** The Kōenji share house has a room for each of you, a kitchen and a common room, and your
-  housemates keep its rhythm: breakfast in the kitchen, the TV in the evening, a knock on your door. A close friend
-  can come and stay for a few days.
+- **Feelings go both ways.** Friendship and romance are separate bars. Kindness, flirting, a fight or an insult
+  change how people feel once the engine has judged the scene.
+- **They take the initiative.** People text you, ask you out, confess, hold grudges and get jealous. Among themselves
+  they make friends, date, marry and break up.
+- **Your cast, your choice.** Pick Tokyo's people one by one and bring in your own SillyTavern characters. Each one
+  gets a home, a routine and a job.
+
+<p align="center"><img src="docs/readme/outfits.jpg" alt="Tamaki Kurahashi in six outfits: her everyday clothes, off duty, an opening-night dress, at home, a yukata and a swimsuit"></p>
+<p align="center"><sub>What people wear follows the place and the story: swimwear at the beach and the pool, yukata at
+the summer festivals, a gown for an opening night, and their own clothes at home.</sub></p>
 
 <p align="center">
-  <img src="docs/readme/scene-bar.jpg" width="49%" alt="Kyōko behind the counter of Bar Kotori in Golden Gai">
-  <img src="docs/readme/scene-kura.jpg" width="49%" alt="Ayame, Tamaki and Kaede in the Kurahashi kura">
+  <img src="docs/readme/scene-share.jpg" width="49%" alt="Haru, Mio, Ren and Chloe in the common room of the Kōenji share house at night">
+  <img src="docs/readme/scene-arcade.jpg" width="49%" alt="Nanami and Linh among the claw machines at Pixel Castle in Akihabara">
 </p>
+<p align="center"><sub>The Kōenji share house, where your housemates keep the house's rhythm, and Nanami and Linh at an
+Akihabara arcade on their day off.</sub></p>
 
 ## A life to build
 
 Pick one of seven starts (up from the countryside, a university student, new in Japan, down on your luck…) or write
 your own, and go from there.
 
+<p align="center">
+  <img src="docs/readme/scene-studio.jpg" width="32%" alt="Erika Mizushima with her camera at Studio MIZU in Shibuya">
+  <img src="docs/readme/work-idol.jpg" width="32%" alt="Hina on stage at Stage Starlight in Akihabara">
+  <img src="docs/readme/work-office.jpg" width="32%" alt="Daisuke and Reiko on the office floor of Asahina Trading">
+  <img src="docs/readme/work-game.jpg" width="32%" alt="Natsuki and Hannah at Mochi Byte Games, a game studio in Akihabara">
+  <img src="docs/readme/work-kissa.jpg" width="32%" alt="Seo-yeon at Kissa Shirakaba, an old coffee house">
+  <img src="docs/readme/work-ryokan.jpg" width="32%" alt="Shizuka at Ryokan Kasumi-sō in Hakone">
+</p>
+<p align="center"><sub>Six of 50 careers, each with its own people: the photographer at Studio MIZU, the idol at Stage
+Starlight, the office at Asahina Trading, the game developers at Mochi Byte Games, the kissaten and the ryokan in Hakone.</sub></p>
+
 | | |
 |---|---|
-| **Work** | 50 careers with ranks, shifts and days off. Interviews are earned with skills and the right traits, not by asking again tomorrow. Promotions say what they still need. One career is a streamer, starting from your room; another is a photographer, assisting at a studio until you go freelance. |
-| **Skills** | 16 skills that level up from practice, courses and the people around you. A friend can teach you what they know, or you trade: your English for their Japanese. |
-| **Study** | Courses that run for weeks on a timetable. Or Hijiri University: terms, modules, coursework, grades and a GPA, a scholarship you can lose, and graduation. |
-| **Goals** | 38 life goals for Tokyo, from *make it in Tokyo* to *find love*. Finish one for a perk that changes the numbers for good; its steps earn points for a small rewards shop, shrine charms included. |
+| **Work** | 50 careers with ranks, shifts and days off. Interviews are earned with skills and the right traits. Ramen cook, nurse, animator, idol, rickshaw puller, streamer… |
+| **Skills** | 16 skills that level up from practice, courses and the people around you. A friend can teach you, or you trade: your English for their Japanese. |
+| **Study** | Courses on a timetable, or Hijiri University: terms, coursework, grades, a GPA and a scholarship you can lose. |
+| **Goals** | 38 life goals, from *make it in Tokyo* to *find love*, each with a perk for good, and life points for a small rewards shop. A storyline that ended badly can even get a second chance. |
 
 ## The long game
 
 Once rent stops being the worry, Tokyo has something to aim for.
 
-- **Run a business.** Take over an old kissaten when its master retires, or lease a unit and name your own café,
-  then grow it from a stand to a roastery. Climb past the top rank to the executive floor and run a division. Or
-  own hotels: a capsule hotel in Shinjuku, and a ryokan in Hakone as a partner of the family that runs it.
-- **Own your home.** Buy a flat or a villa, fit it out with saunas, a grand piano or a hot-spring bath, and let the
-  homes you don't live in. A tenant's rent arrives every Monday.
-- **Shop.** About 165 things, from a ¥1,000 charm to a car with a driver that takes you home after the last train.
-  The AI knows what people can see on you and what's in your home.
-- **Make a name with a camera.** Everyone gets Lens, a phone app for their photos, each a picture of the place as it
-  was and the people in it. A camera opens a board of small paid gigs; assist Erika Mizushima at Studio MIZU, then go
-  freelance in editorial, weddings and events or studio portraits: briefs with a window of light and weather, a
-  deadline and a client's stars, a portfolio, a photo studio of your own and photobooks that pay royalties.
-- **Build a museum.** Collect art, crafts and antiques from finds, festival stalls, a dealer's camper van and four
-  auctions a year. Catch insects and fish in their season, join the university's autumn dig, and turn an old Yanaka
-  storehouse into a private museum.
+<p align="center"><img src="docs/readme/items.jpg" alt="Forty-eight of Tokyo's things: keepsakes, gifts, instruments, cameras, cars, watches, home fixtures and charms"></p>
+<p align="center"><sub>Tokyo's 339 keepsakes, shop items, rewards, home fixtures and museum upgrades each have a picture, from
+a ¥1,000 charm to a car that drives you home after the last train.</sub></p>
+
+- **Run a business.** Take over an old kissaten or open your own café and grow it into a roastery. You can also run a
+  division on the executive floor, or own a capsule hotel in Shinjuku and be a partner in a ryokan in Hakone.
+- **Own your home.** Buy a flat or a villa, fit it out with a sauna, a grand piano or a hot-spring bath, and let the
+  homes you don't live in.
+- **Build a museum.** Collect art, antiques, insects and fish, join a university dig, outbid a rival at four auctions
+  a year, and turn an old Yanaka storehouse into a private museum.
 
 <p align="center"><img src="docs/readme/museum.jpg" alt="Sixteen museum pieces: prints, armor, a katana, pottery, a dogū, a haniwa, Naumann's elephant, insects, a koi and toys"></p>
+<p align="center"><img src="docs/readme/scene-kura.jpg" width="70%" alt="Ayame, Tamaki and Kaede in the Kurahashi kura"></p>
+<p align="center"><sub>The museum has its own people: Tamaki the curator, Kaede the dealer and Ayame the rival, each
+with storylines of their own.</sub></p>
 
-The museum has its own people. **Tamaki Kurahashi**, a former child TV appraiser, curates it and lets you closer
-as it fills. **Kaede Utsumi** sells from her van and warms to you with every purchase. **Ayame Mikage**, heir to a
-rival foundation, bids against you, and lets you a little closer with every lot you take from her. All three have
-storylines of their own.
+## After dark
 
-A **Tokyo memories** record fills itself as you play: every storyline, festival, district and milestone you've
-lived through.
+One switch, off by default. Leave it off and none of this is in your game. Turn it on and Tokyo's night life opens
+up: more people, places, careers and storylines, private moments with their own rules, and a career in the adult
+film industry.
 
-### Adult content, if you want it
+<p align="center"><img src="docs/readme/industry.jpg" alt="Naomi Reid-Kagami, the director, and the industry's ten actresses and two actors"></p>
 
-One switch, off by default. Turn it on and Tokyo's night life opens up: more people, places, careers, storylines,
-and a Sensuality skill with its own rules. Leave it off and none of it is in your game.
+<p align="center">
+  <img src="docs/readme/scene-set.jpg" width="32%" alt="Naomi Reid-Kagami on Kurobara Visual's set in Nakano">
+  <img src="docs/readme/night-house.jpg" width="32%" alt="Two of the industry's actresses at the rented house in Setagaya used as a set">
+  <img src="docs/readme/night-expo.jpg" width="32%" alt="Three of the industry's actresses, the cosplayer, the rookie and the idol, at the Tokyo Bay Exhibition Center">
+  <img src="docs/readme/night-kabuki.jpg" width="32%" alt="Shiori and Kaoru under the Kabukichō gate at night">
+  <img src="docs/readme/night-hostess.jpg" width="32%" alt="Sayuri and Tsubaki at Club Hibiscus, a hostess club in Yokohama">
+  <img src="docs/readme/night-club.jpg" width="32%" alt="Lisa and Airi at Club Undertow in Roppongi">
+</p>
+<p align="center"><sub>Naomi Reid-Kagami runs Kurobara Visual in Nakano: work title by title as a performer, become a
+name director, or start a label of your own, and meet the fans at the industry's expo. Around it, Kabukichō, a hostess
+club in Yokohama and Roppongi's clubs, each with people of their own.</sub></p>
 
 ## Under the hood
 
@@ -147,17 +154,21 @@ are cards, you are a persona, the world's lore is a lorebook, and **a save is a 
 - **The engine owns the numbers, the AI plays the scenes.** The AI is told the state of the world each turn. When
   the engine needs an answer (how did that scene go?), it asks a short follow-up question and reads the reply, so
   free text never sets money, time or feelings.
-- **A visual-novel scene.** Say, Do, Story or See. Type `@` to choose who answers. Each speaker's dialogue gets their
-  own color.
-- **A phone** that unfolds to twice its width: Messages (with the news of the town and the people you know, and
-  texts that make plans), People, Work (Jobs, Campus, Business and Lens), Money, Homes, a Calendar that's an agenda,
-  Goals, Collection, and a dating app (Spark) where a like might be answered days later, or never.
+- **A visual-novel scene.** Say, Do, Story or See, `@` to choose who answers, a color for each speaker, and an eye to
+  hide the interface and just look.
+- **A phone** that unfolds to twice its width: Messages, People, Work (Jobs, Campus, Business), Lens, Money, Homes,
+  a Calendar that can wait until it's time to go, Goals, Collection, and Spark, a dating app with real profiles.
+
+<p align="center">
+  <img src="docs/readme/phone-messages.jpg" width="49%" alt="The phone unfolded on Messages: the news and conversations on the left, a conversation with Yui on the right">
+  <img src="docs/readme/phone-people.jpg" width="49%" alt="The phone unfolded on People: the people you know on the left, Kyōko's page with her memories on the right">
+  <img src="docs/readme/phone-shop.jpg" width="49%" alt="The phone unfolded on the Shop: categories on the left, tech items with their pictures and prices on the right">
+  <img src="docs/readme/phone-home.jpg" width="49%" alt="The phone's home screen: the Today card and the apps">
+</p>
+
 - **A diary.** Each night the day becomes a short entry, so the story remembers.
-- **Households and "Play as".** Live with family or roommates, and (with Play as turned on in Settings) switch to playing any of them.
-- **A World creator that edits everything,** Tokyo included: places, people, jobs, storylines, rules, pictures.
-  Overlay files let you add to a built-in world without touching it.
-- **Layouts and themes.** Visual novel, Classic or Cards, glass colors and transparency, and upright or sideways
-  phone layouts.
+- **A World creator that edits everything,** Tokyo included. Overlay files add to a built-in world without touching
+  it.
 - **In English, Portuguese and Spanish.**
 
 <p align="center">
