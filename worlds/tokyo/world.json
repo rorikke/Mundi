@@ -72579,6 +72579,18 @@
      "perform": "fine",
      "direct": "fine"
     },
+    "camera": "ask",
+    "cameraSteps": [
+     {
+      "when": "knows: naomi_story; feels: Naomi crush",
+      "camera": "ask",
+      "lifts": [
+       "no recording"
+      ],
+      "adult": true,
+      "line": "Naomi has said yes to your camera, off her own set, as long as you ask her first."
+     }
+    ],
     "feelings": [
      {
       "to": "Airi",
@@ -92645,7 +92657,7 @@
      "charisma": 2
     },
     "hours": 3,
-    "text": "Stills for a Kurobara release, shot on the set between takes: the cast in robes and costume, the crew, the light. Nothing the shop posters can't carry, and nothing the cast hasn't seen first."
+    "text": "Stills for a Kurobara release, shot on the set on one of its shoot days, between scenes: the stars as they are, the crew, the light. Nothing the shop posters can't carry, and nothing the cast hasn't seen first."
    },
    {
     "board": "full",
@@ -92669,7 +92681,334 @@
      "fashion": 2
     },
     "hours": 2,
-    "text": "The poster for a new release: the actress in an evening dress on a white wall, shot like a film star. She chooses the frame that goes to print."
+    "subject": {
+     "who": "roster",
+     "expr": "pride",
+     "outfit": "clothes",
+     "consent": true,
+     "scene": "a performer of the label in her own clothes on a white wall, lit like a film star for her new release's poster"
+    },
+    "text": "The poster for a new release: the actress in her own clothes on a white wall, shot like a film star. She chooses the frame that goes to print."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "adult": true,
+    "client": "kurobara",
+    "kind": "portrait",
+    "branches": [
+     "ph_studio",
+     "ph_editorial"
+    ],
+    "id": "br_kuro_robe",
+    "name": "Between takes",
+    "places": [
+     "ws_kurobara"
+    ],
+    "window": "period: midmorning or afternoon",
+    "floor": 35,
+    "pay": 22000,
+    "needs": {
+     "photography": 4,
+     "charisma": 2
+    },
+    "hours": 2,
+    "subject": {
+     "who": "roster",
+     "expr": "amusement",
+     "outfit": "robe",
+     "consent": true,
+     "scene": "an actress in the set's white robe between takes, a coffee in her hand, laughing with the crew under the work lights"
+    },
+    "text": "The making-of page for a release: an actress in the set's robe between takes, joking with the crew. Nothing from the scenes, and she sees every frame first."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "adult": true,
+    "client": "kurobara",
+    "kind": "portrait",
+    "branches": [
+     "ph_studio",
+     "ph_editorial"
+    ],
+    "id": "br_kuro_swim_glam",
+    "name": "Marika at the seaside",
+    "places": [
+     "bay_beach"
+    ],
+    "window": "season: summer; period: midmorning or afternoon; weather: sunny or fair or partly or cloudy",
+    "days": 10,
+    "floor": 40,
+    "pay": 26000,
+    "needs": {
+     "photography": 5,
+     "fashion": 2
+    },
+    "hours": 2,
+    "subject": {
+     "who": "roster:rs_glam",
+     "expr": "joy",
+     "outfit": "swim-wine",
+     "consent": true,
+     "scene": "Marika Tōdō in her wine-red swimsuit on the sand at Odaiba, Rainbow Bridge behind her, posing like the star she is"
+    },
+    "text": "A summer poster for Marika Tōdō's new title: her own swimsuit, the bay behind her, a dry day. Her manager approves every frame."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "adult": true,
+    "client": "kurobara",
+    "kind": "portrait",
+    "branches": [
+     "ph_studio",
+     "ph_editorial"
+    ],
+    "id": "br_kuro_swim_mature",
+    "name": "Yōko's summer poster",
+    "places": [
+     "bay_beach"
+    ],
+    "window": "season: summer; period: midmorning or afternoon; weather: sunny or fair or partly or cloudy",
+    "days": 10,
+    "floor": 40,
+    "pay": 26000,
+    "needs": {
+     "photography": 5,
+     "fashion": 2
+    },
+    "hours": 2,
+    "subject": {
+     "who": "roster:rs_mature",
+     "expr": "joy",
+     "outfit": "swim-navy",
+     "consent": true,
+     "scene": "Yōko Shirasagi in her navy swimsuit on the boardwalk at Odaiba, relaxed and smiling at the photographer"
+    },
+    "text": "Kurobara wants a summer poster of Yōko Shirasagi, unhurried and warm: her own swimsuit, the boardwalk, the afternoon light."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "adult": true,
+    "client": "kurobara",
+    "kind": "portrait",
+    "branches": [
+     "ph_studio",
+     "ph_editorial"
+    ],
+    "id": "br_kuro_swim_nordic",
+    "name": "Ingrid on the sand",
+    "places": [
+     "bay_beach"
+    ],
+    "window": "season: summer; period: midmorning or afternoon; weather: sunny or fair or partly or cloudy",
+    "days": 10,
+    "floor": 40,
+    "pay": 26000,
+    "needs": {
+     "photography": 5,
+     "fashion": 2
+    },
+    "hours": 2,
+    "subject": {
+     "who": "roster:rs_nordic",
+     "expr": "joy",
+     "outfit": "swim-white",
+     "consent": true,
+     "scene": "Ingrid Lindqvist in her white swimsuit by the water at Odaiba, windswept and laughing"
+    },
+    "text": "A summer promotion for a title on location: Ingrid Lindqvist in her own swimsuit by the water, all energy, before the wind gets up."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "adult": true,
+    "client": "machi",
+    "kind": "magazine",
+    "branches": [
+     "ph_editorial"
+    ],
+    "id": "br_machi_swim_gravure",
+    "name": "Misaki's summer page",
+    "places": [
+     "bay_beach"
+    ],
+    "window": "season: summer; period: midmorning or afternoon; weather: sunny or fair or partly or cloudy",
+    "days": 10,
+    "floor": 40,
+    "pay": 28000,
+    "needs": {
+     "photography": 5,
+     "fashion": 3
+    },
+    "hours": 2,
+    "subject": {
+     "who": "roster:rs_gravure",
+     "expr": "joy",
+     "outfit": "swim-yellow",
+     "consent": true,
+     "scene": "Misaki Takamine in her yellow swimsuit on the beach at Odaiba, the gravure model she was, finding every angle"
+    },
+    "text": "Machi's summer issue has a gravure page again, and Misaki Takamine wants it: her own swimsuit, the beach, the angles she knows better than you."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "adult": true,
+    "client": "machi",
+    "kind": "magazine",
+    "branches": [
+     "ph_editorial"
+    ],
+    "id": "br_machi_offposter",
+    "name": "Off the poster",
+    "places": [
+     "ws_koenji"
+    ],
+    "window": "period: midmorning or afternoon",
+    "floor": 30,
+    "pay": 22000,
+    "needs": {
+     "photography": 4,
+     "charisma": 2
+    },
+    "hours": 2,
+    "subject": {
+     "who": "roster",
+     "expr": "neutral",
+     "outfit": "clothes",
+     "consent": true,
+     "scene": "an adult video performer on a day off in Kōenji's covered arcade, in their own clothes, interviewed between shops"
+    },
+    "text": "A page in Machi's series on the people behind the shop posters: a performer on a day off, in their own clothes, on their own terms. They choose the name it runs under."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "adult": true,
+    "client": "machi",
+    "kind": "magazine",
+    "branches": [
+     "ph_editorial"
+    ],
+    "id": "br_machi_queen",
+    "name": "Knitting between orders",
+    "places": [
+     "ws_kissaten"
+    ],
+    "window": "period: midmorning or afternoon",
+    "floor": 35,
+    "pay": 24000,
+    "needs": {
+     "photography": 4,
+     "charisma": 2
+    },
+    "hours": 2,
+    "subject": {
+     "who": "roster:rs_queen",
+     "expr": "amusement",
+     "outfit": "clothes",
+     "consent": true,
+     "scene": "Mitsuki Himuro in her own clothes in a 1970s coffee house, knitting, amused by the questions"
+    },
+    "text": "Machi's profile of Mitsuki Himuro, the industry's best-known dominant performer, over coffee and her knitting. Off set she is nothing like her titles, and she wants that in the picture."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "adult": true,
+    "client": "machi",
+    "kind": "magazine",
+    "branches": [
+     "ph_editorial"
+    ],
+    "id": "br_machi_mature",
+    "name": "Two hundred titles",
+    "places": [
+     "sj_goldengai"
+    ],
+    "window": "period: night",
+    "floor": 35,
+    "pay": 26000,
+    "needs": {
+     "photography": 4
+    },
+    "gear": [
+     "flash"
+    ],
+    "hours": 2,
+    "subject": {
+     "who": "roster:rs_mature",
+     "expr": "gratitude",
+     "outfit": "clothes",
+     "consent": true,
+     "scene": "Yōko Shirasagi in her own clothes at a six-seat bar in Golden Gai, a glass in her hand, telling stories"
+    },
+    "text": "A late interview with Yōko Shirasagi, a veteran of over two hundred titles, at a bar in Golden Gai: the stories, the laugh, one bulb over the counter."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "adult": true,
+    "client": "machi",
+    "kind": "magazine",
+    "branches": [
+     "ph_editorial"
+    ],
+    "id": "br_machi_actor",
+    "name": "Fifteen years on call",
+    "places": [
+     "sj_omoide"
+    ],
+    "window": "period: evening",
+    "floor": 35,
+    "pay": 24000,
+    "needs": {
+     "photography": 4
+    },
+    "hours": 2,
+    "subject": {
+     "who": "roster:rs_actor1",
+     "expr": "neutral",
+     "outfit": "clothes",
+     "consent": true,
+     "scene": "Takumi Kanzaki in his own clothes at a yakitori counter in Omoide Yokochō, smoke in the lantern light"
+    },
+    "text": "Machi's profile of Takumi Kanzaki, the actor every label calls first: fifteen years, never late, over yakitori after a day on set."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "adult": true,
+    "client": "machi",
+    "kind": "magazine",
+    "branches": [
+     "ph_editorial",
+     "ph_studio"
+    ],
+    "id": "br_machi_naomi",
+    "name": "A director's profile",
+    "places": [
+     "ws_kurobara"
+    ],
+    "window": "period: evening",
+    "floor": 35,
+    "pay": 28000,
+    "needs": {
+     "photography": 5,
+     "charisma": 2
+    },
+    "hours": 2,
+    "subject": {
+     "who": "Naomi",
+     "expr": "pride",
+     "outfit": "clothes",
+     "consent": true,
+     "scene": "Naomi Reid-Kagami in her turtleneck in Kurobara's cramped office upstairs after the day's shoot, contracts on the desk"
+    },
+    "text": "Machi is profiling the director everyone at Kurobara calls Kagami-kantoku. Her office upstairs after the day's shoot, never the set: she reads you the terms first."
    }
   ],
   "books": [
