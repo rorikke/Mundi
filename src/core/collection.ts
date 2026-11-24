@@ -197,7 +197,7 @@ export function draftRecord(w: WorldDef, { night = true } = {}): WorldCollection
         else add({ id: `mem_sl_${t.id}`, hall: 'memories', group: 'storylines', ...(adult ? { adult: true } : {}), ...base });
     }
     if (slots.some(s => s.hall === 'night')) halls.push({ id: 'night', name: 'The night world', adult: true, groups: [{ id: 'mementos', name: 'Mementos' }] });
-    for (const f of w.festivals ?? []) add({ id: `mem_fe_${f.id}`, hall: 'memories', group: 'festivals', name: f.name, when: `attended: ${f.id}`, needs: ['festivals'] });
+    for (const f of w.festivals ?? []) add({ id: `mem_fe_${f.id}`, hall: 'memories', group: 'festivals', name: f.name, when: `attended: ${f.id}`, needs: ['festivals'], ...(f.adult ? { adult: true } : {}) });
     for (const x of w.cityEvents ?? []) add({ id: `mem_ev_${x.id}`, hall: 'memories', group: 'events', name: x.name, ...(x.icon ? { icon: x.icon } : {}), when: `attended: ${x.id}`, needs: ['events'] });
     for (const m of w.maps ?? []) {
         if (!(w.places ?? []).some(p => p.map === m.id && !p.link && !String(p.id).startsWith('link_'))) continue;
