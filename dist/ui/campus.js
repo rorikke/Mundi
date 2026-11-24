@@ -11,7 +11,7 @@ import { money } from '../sim/needs.js';
 import { weekday, advance } from '../sim/time.js';
 import { courseOf, stateOf, classWindow, windowText, clashCount } from '../sim/courses.js';
 import { skillName } from '../sim/hobbies.js';
-import { degreeOf, degreesOffered, findDegree, uniOf, enrollBlock, enrollDegree, choosePicks, leaveDegree, payTuition, tuitionFor, termsOf, perTermOf, creditsOf, minGpaOf, workCapOf, modulesOf, offeredFor, pickRange, picksBlock, defaultPicks, pickingNow, canChangeNow, termEndOf, daysToNextTerm, gpaOf, passedCount, creditsLeft, coreLeft, studyShare, studyWanted, classTimes, clashes, joinsNow, DISTINGUISHED, PICK_DAYS, joinDegreeClub, leaveDegreeClub, degreeClubMeeting, clubMeetsNow, } from '../sim/degrees.js';
+import { degreeOf, degreesOffered, findDegree, uniOf, enrollBlock, enrollDegree, choosePicks, leaveDegree, payTuition, tuitionFor, termsOf, perTermOf, creditsOf, minGpaOf, workCapOf, modulesOf, offeredFor, pickRange, picksBlock, defaultPicks, pickingNow, canChangeNow, termEndOf, daysToNextTerm, gpaOf, passedCount, creditsLeft, coreLeft, studyShare, studyWanted, classTimes, clashes, joinsNow, DISTINGUISHED, PICK_DAYS, joinDegreeClub, leaveDegreeClub, degreeClubMeeting, clubMeetsNow, canEnrollAny, } from '../sim/degrees.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { ACT } from './reg.js';
 /** What the app shows (memory only): the modules being picked (null: not touched, so the saved or suggested ones), the
@@ -20,10 +20,11 @@ export const CA = { picks: null, open: '', leave: false };
 const bar = (v) => `<span class="mu-bond"><i style="width:${Math.max(0, Math.min(100, Math.round(v)))}%"></i></span>`;
 const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 const dayWords = (g, d) => (d === g.day ? 'today' : d === g.day + 1 ? 'tomorrow' : weekday(d));
-/** The badge on the phone's icon: next term's modules waiting to be chosen, or tuition to pay. */
+/** The badge on the phone's icon: next term's modules waiting to be chosen, tuition to pay, or (not a student) a
+ *  degree here you could enroll in. */
 export function campusBadge(g, w) {
     const s = degreeOf(g, w);
-    return !!s && (s.due > 0 || (pickingNow(g, s) && !s.next.length && creditsLeft(g, w, s) > 0));
+    return s ? s.due > 0 || (pickingNow(g, s) && !s.next.length && creditsLeft(g, w, s) > 0) : canEnrollAny(g, w);
 }
 export function campusApp(g, w, head) {
     const s = degreeOf(g, w);
@@ -35,7 +36,10 @@ function chooseHtml(g, w) {
     if (!list.length)
         return '<p class="mu-muted">No degrees here.</p>';
     const start = joinsNow(g) ? 'Enrolling now joins this term.' : `The next term begins in ${plural(daysToNextTerm(g), 'day')}; you can enroll now and choose its modules.`;
-    return `<p class="mu-muted">A degree takes a few modules each term (a term is a season): classes on campus, coursework at home or in a library, and a grade for each module at the end of the term. ${esc(start)}</p>
+    const text = `A degree takes a few modules each term (a term is a season): classes on campus, coursework at home or in a library, and a grade for each module at the end of the term. ${esc(start)}`;
+    // a degree here is open to the player: a card like Goals' "Pick a life goal", since it's nothing required otherwise
+    const intro = canEnrollAny(g, w) ? `<section class="mu-ph-card mu-campus-alert"><b>Enroll in a degree <em class="mu-gl-badge">!</em></b><small>${text}</small></section>` : `<p class="mu-muted">${text}</p>`;
+    return `${intro}
         ${list.map(({ inst, d }) => {
         const why = enrollBlock(g, w, d.id), open = CA.open === d.id, mods = modulesOf(g, w, d.id);
         const fee = tuitionFor(g, w, { id: d.id, scholarship: undefined, aid: undefined }, true);

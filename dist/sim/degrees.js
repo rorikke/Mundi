@@ -230,6 +230,8 @@ export function enrollBlock(g, w, id) {
         return 'This degree has no modules yet.';
     return '';
 }
+/** Not a student, but a degree offered here is open to you: the Campus badge and nudge while you have none. */
+export const canEnrollAny = (g, w) => !uniOf(g).cur && degreesOffered(w).some(x => !enrollBlock(g, w, x.d.id));
 /** Enroll in a degree: its first term starts now when the season is young, else when the next one begins. `scholarship`:
  *  the tuition is paid while your grades hold (the student start). A place on a school's old ladder there ends. */
 export function enrollDegree(g, w, id, opts = {}) {
@@ -316,6 +318,7 @@ export function leaveDegree(g, w, how = 'left') {
         endModule(g, id);
     u.past.push({ inst: s.inst, id: s.id, day: g.day, gpa: gpaOf(s) ?? 0, distinguished: false, how });
     u.cur = null;
+    u.toldEnroll = false;
     const name = degreeName(w, s.id);
     note(g, how === 'expelled' ? '{u} was expelled from {0}.' : '{u} dropped out of {0}.', [name], [], g.player.loc, 'study');
     return how === 'expelled' ? `You were expelled from ${name}: three weak terms.` : `You left ${name}.`;
@@ -467,6 +470,7 @@ function graduate(g, w, s, inst, d, out) {
     const u = uniOf(g);
     u.past.push({ inst: inst.id, id: d.id, day: g.day, gpa, distinguished, how: 'graduated' });
     u.cur = null;
+    u.toldEnroll = false;
     note(g, distinguished ? '{u} graduated from {0} with distinction (GPA {1}).' : '{u} graduated from {0} (GPA {1}).', [`${d.name}, ${inst.name}`, gpa.toFixed(2)], [], inst.place, 'study');
     const jobs = (d.gives?.jobs ?? []).map(id => w.occupations.find(o => o.id === id)?.name).filter(Boolean);
     out.push(`You graduated: ${d.name}${distinguished ? ', with distinction' : ''} (GPA ${gpa.toFixed(2)})! A ceremony at ${inst.name}, a photo with the class.${distinguished && jobs.length ? ` A distinguished degree starts you a rank up as: ${jobs.join(', ')}.` : ''}`);
@@ -479,14 +483,16 @@ export const GRADUATE_POINTS = 100;
 onDay.push((g, w) => {
     if (!on(w))
         return [];
-    const s = uniOf(g).cur;
+    const u = uniOf(g);
+    const s = u.cur;
     if (!s)
-        return [];
+        return enrollNotice(g, w, u);
     const out = [];
     if (!findDegree(w, s.id)) {
         for (const id of s.picks)
             endModule(g, id);
-        uniOf(g).cur = null;
+        u.cur = null;
+        u.toldEnroll = false;
         return ['A degree you studied for is not offered any more.'];
     }
     // a term ended (one or more seasons may have passed): grade it, then start the one beginning today
@@ -501,6 +507,13 @@ onDay.push((g, w) => {
         out.push(`Choose next term's modules in the Campus app (term ${cur.term + 1} begins in ${PICK_DAYS} days).`);
     return out;
 });
+// Once, while a degree is open to you and you aren't studying (a new game, or one left or finished): a nudge to enroll.
+function enrollNotice(g, w, u) {
+    if (u.toldEnroll || !canEnrollAny(g, w))
+        return [];
+    u.toldEnroll = true;
+    return ['A degree is open to you at a school here: enroll whenever you like in the Campus app.'];
+}
 /* ---------- clubs ---------- */
 /** Join one of your school's clubs ('' when it's not one of them); a meeting a week, at the school. */
 export function joinDegreeClub(g, w, club) {
