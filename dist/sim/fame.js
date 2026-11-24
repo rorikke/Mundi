@@ -1,7 +1,8 @@
 // Fame and being recognized (adult industry, the life outside the shoots): a fame number per seat (performing most,
-// directing a third, the label a tenth) that grows with each release and each week on the chart and fades a week
-// without one; strangers who recognize you in public (by fame and the place's tags, once a day at most): a fan's
-// approach waiting for its card, or someone who tells the people around (a rumor about you, adult); a day job whose
+// directing a third, the label a tenth) that grows with each release and each week on the chart, ever more slowly
+// near the top, which slips a little each week (newer names), and fades faster a week without one; strangers who
+// recognize you in public (by fame and the place's tags, once a day at most): a fan's approach waiting for its card,
+// or someone who tells the people around (a rumor about you, adult); a day job whose
 // `stigma` minds (a coworker recognizing you: a warning, and with stigma 2 let go the second time in a season; a
 // university student gets a quiet word and nothing more); and your family learning of it (a message and a cool season
 // of approval that recovers, never a block). Who knows and what they think is sim/stance.ts's; the two meet through
@@ -31,6 +32,10 @@ export const FAME = {
     seat: { perform: 1, direct: 1 / 3, label: 0.1, stills: 0 },
     chart: 1, // a week with a title of yours in the chart's top 10 (× the seat's share)
     top3: 2, // …in its top 3, instead
+    /** the top is hard to hold: above `soft` a release's or a chart week's fame shrinks toward 100 (to `least` of it at
+     *  most), and each week fame above it slips by up to `slip` (× the seat's share) at 100, newer names taking the
+     *  posters; a week without a release fades the world's `fade` × (1 + fame/`fadeAt`) */
+    soft: 60, least: 0.1, slip: 8, fadeAt: 50,
     recognize: 0.08, // a public place's chance: fame/100 × the place's weight × this (L: 0.25 recognized a famous player every other day)
     fan: 0.6, // of those recognized, a fan's approach (else a stranger tells someone present; always a fan when nobody is)
     clingy: 0.2, // a fan who won't let go
@@ -79,6 +84,8 @@ export function addFame(g, seat, n) {
 const STEPS = [[20, 'People in the industry\'s circles know your face now.'], [40, 'Strangers recognize you now and then.'],
     [60, 'You\'re well known: most people you know have heard of your work.'], [80, 'You\'re famous: people recognize you all over town.']];
 const crossed = (before, after) => STEPS.filter(([at]) => before < at && after >= at).map(([, t]) => t);
+// (how much of a gain counts at this fame: all of it up to `soft`, less and less toward 100)
+const climb = (f) => (f <= FAME.soft ? 1 : Math.max(FAME.least, (100 - f) / (100 - FAME.soft)));
 /** A title released (sim/titles.ts through `onRelease`): fame for each seat you held on it, by its quality. Lines. */
 export function fameOnRelease(g, w, t) {
     if (!industryOn(g, w) || t.cancelled)
@@ -87,7 +94,7 @@ export function fameOnRelease(g, w, t) {
     for (const seat of new Set(t.you)) {
         if (!FAME.seat[seat])
             continue;
-        addFame(g, seat, per * FAME.seat[seat]);
+        addFame(g, seat, per * FAME.seat[seat] * climb(fameOf(g, seat)));
         (o.rel ??= {})[seat] = g.day;
     }
     return crossed(before, fameOf(g));
@@ -108,13 +115,18 @@ function weekly(g, w, rnd) {
     o.wk = wk;
     const before = fameOf(g);
     for (const seat of SEATS) {
-        const k = FAME.seat[seat];
+        const k = FAME.seat[seat], f = ind.fame[seat] ?? 0;
+        let d = 0;
         if (industryLink.holds(g, w, 'chart', `${seat} top 3`))
-            addFame(g, seat, FAME.top3 * k);
+            d += FAME.top3 * k * climb(f);
         else if (industryLink.holds(g, w, 'chart', `${seat} top 10`))
-            addFame(g, seat, FAME.chart * k);
-        else if ((ind.fame[seat] ?? 0) > 0 && g.day - (o.rel?.[seat] ?? -Infinity) > 7)
-            addFame(g, seat, -fameDef(w).fade * k);
+            d += FAME.chart * k * climb(f);
+        else if (f > 0 && g.day - (o.rel?.[seat] ?? -Infinity) > 7)
+            d -= fameDef(w).fade * k * (1 + f / FAME.fadeAt);
+        if (f > FAME.soft)
+            d -= FAME.slip * k * (f - FAME.soft) / (100 - FAME.soft);
+        if (d)
+            addFame(g, seat, d);
     }
     return [...crossed(before, fameOf(g)), ...dayJob(g, w, rnd)];
 }

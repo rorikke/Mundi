@@ -11363,6 +11363,7 @@ const DICT = {
     "Performing": "Actuando",
     "Directing": "Dirigiendo",
     "Your label": "Tu sello",
+    "Your label's": "De tu sello",
     "Fame {0}": "Fama {0}",
     "1 fan": "1 fan",
     "{0} fans": "{0} fans",
@@ -12294,6 +12295,12 @@ const DICT = {
     "Someone saw the crew setting up at {0}: the shoot for \"{1}\" is stopped.": "Alguien vio al equipo montando en {0}: el rodaje de \"{1}\" se suspende.",
     "{0} is closed to shoots for {1} days.": "{0} queda cerrado a los rodajes durante {1} días.",
     "{0} is closed to shoots this week: the shoot for \"{1}\" is called off.": "{0} está cerrado a los rodajes esta semana: el rodaje de \"{1}\" se cancela.",
+    // a tier's other way to the next (ui/business.ts, ui/creator.ts)
+    "Or instead: {0}": "O bien: {0}",
+    "Or instead: done": "O bien: hecho",
+    "Or instead (optional): a condition that opens the next tier alone": "O bien (opcional): una condición que abre por sí sola el siguiente nivel",
+    // a risky set on an offer (ui/takeui.ts)
+    "A risky set: a {0}% chance of being caught at the call, and the shoot stopped": "Un set arriesgado: un {0}% de probabilidad de que te descubran en la llamada, y el rodaje suspendido",
     // the label's commissioned titles apart in Take (ui/takeui.ts)
     "Made for your label": "Hechos para tu sello",
     "1 title your label commissioned, shot without you": "1 título encargado por tu sello, rodado sin ti",

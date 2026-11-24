@@ -25,7 +25,7 @@ import { fr, YOU } from './rel.js';
 import { FRIEND_TIERS, shutOut } from './romance.js';
 import { isMinor } from './family.js';
 import { genderOf } from './gender.js';
-import { rollBonus, rollD20 } from './dice.js';
+import { rollBonus, rollD20, riskRoll } from './dice.js';
 import { npcRank } from './longlife.js';
 import { placeOf } from './places.js';
 import { atHomeNow, photoOn, peekPhoto, briefOf, photoById } from './photo.js';
@@ -61,6 +61,9 @@ export const TITLES = {
     search: 10, choices: 3,
     /** the star-producer's own brief: one every this many weeks (L: every week put her branch above a name director's) */
     ownEvery: 2,
+    /** the chance an offer or brief names a risky set (one with a `risk`) instead of the label's: one suiting its genre
+     *  (the beach after dark for On location), any other */
+    risky: { fits: 0.15, other: 0.02 },
 };
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -188,11 +191,22 @@ function genreFor(g, w, label, salt) {
     const pool = own.length ? own : genresOf(w), mine = topGenres(g), t = peekIndustry(g).trend, now = t.month === monthOf(g);
     return pickW(pool, x => (now && t.hot.includes(x.id) ? TITLES.hotPick : now && t.cold === x.id ? TITLES.coldPick : 1) * (mine.includes(x.id) ? TITLES.minePick : 1), H(salt));
 }
-/** Where a label shoots a genre: its own set, else one suiting the genre, else the first; one with a place first. */
+/** Where a label shoots a genre: its own set, else one suiting the genre, else the first; one with a place first, never
+ *  a risky one unless it's all there is (those come only by `offerSet`'s roll or a brief planned there). */
 export function setFor(w, label, genre) {
-    const sets = setsOf(w), placed = sets.filter(s => s.place);
+    const sets = setsOf(w), placed0 = sets.filter(s => s.place), safe = placed0.filter(s => !((Number(s.risk) || 0) > 0)), placed = safe.length ? safe : placed0;
     const own = label?.set ? setOf(w, label.set) : undefined;
     return (own?.place ? own : undefined) ?? placed.find(s => !!genre && (s.genres ?? []).includes(genre.id)) ?? placed[0] ?? own ?? sets[0];
+}
+/** The set an offer or brief names: where its label shoots the genre (`setFor`), or now and then a risky set at a place
+ *  (one with a `risk`: caught there, the shoot is stopped), more often one suiting the genre. */
+export function offerSet(w, label, genre, salt) {
+    const base = setFor(w, label, genre);
+    const risky = setsOf(w).filter(s => (Number(s.risk) || 0) > 0 && setPlace(w, s) && s.id !== base?.id);
+    if (!risky.length)
+        return base;
+    const fits = risky.filter(s => !!genre && (s.genres ?? []).includes(genre.id)), pool = fits.length ? fits : risky;
+    return H(`${salt}|risky`) < (fits.length ? TITLES.risky.fits : TITLES.risky.other) ? pool[Math.floor(H(`${salt}|risky|set`) * pool.length)] : base;
 }
 /** The place a set's shoot is at ('' none: an off-screen shoot, begun wherever you are). */
 export const setPlace = (w, set) => (set?.place && w.places.some(p => p.id === set.place) ? set.place : '');
@@ -288,7 +302,7 @@ export function drawOffer(g, w, kind, label, salt, own = false) {
     const genre = genreFor(g, w, label, `${salt}|g`);
     if (!genre)
         return null;
-    const set = setFor(w, label, genre), st = industryOf(g);
+    const set = offerSet(w, label, genre, salt), st = industryOf(g);
     const name = titleName(g, w, `${salt}|name`);
     if (kind === 'brief') {
         const star = own ? undefined : H(`${salt}|star`) < 1 / 3 ? rosterNow(g, w).filter(p => (p.genres ?? []).includes(genre.id) || !p.genres?.length)[0]?.id : undefined;
@@ -1094,11 +1108,12 @@ const scenesView = (g, w, list) => list.map(s => ({ kind: s.kind, with: s.with.m
 export function offersView(g, w) {
     const st = peekIndustry(g), seats = seatsNow(g, w), seat = seats.find(s => s !== 'label') ?? (seats.includes('label') ? 'label' : null);
     const t = st.trend, now = t.month === monthOf(g), c = st.seats.perform?.contract;
+    const riskOf = (o) => { const set = setOf(w, o.set), risk = Number(set?.risk) || 0; return set && risk > 0 ? { risk: riskRoll(g, w, { id: set.id, tags: ['set', 'work', o.genre ?? ''], risk }, () => 1).chance } : {}; };
     const offers = industryOn(g, w) ? st.offers.map((o) => {
         const why = o.kind === 'title' && testDue(g) ? 'Your monthly test is overdue.' : o.kind === 'title' && !inIndustry(g, w) ? 'Not while you are out of the job.' : '';
         return { id: o.id, kind: o.kind, label: labelOf(w, o.label)?.name ?? '', genre: genreOf(w, o.genre)?.name ?? '', name: o.name ?? '', set: setOf(w, o.set)?.name ?? '', fee: o.fee ?? 0, until: o.until, days: Math.max(0, o.until - g.day),
             scenes: scenesView(g, w, o.scenes ?? []), cast: (o.cast ?? []).map(x => performerName(g, w, x)), dropped: o.dropped ?? [], ...(o.star ? { star: rosterPerson(w, o.star)?.name ?? '' } : {}), ...(o.own ? { own: true } : {}),
-            ...(o.result ? { result: o.result } : {}), ...(o.amount !== undefined ? { amount: o.amount } : {}), can: !why, ...(why ? { why } : {}) };
+            ...(o.result ? { result: o.result } : {}), ...(o.amount !== undefined ? { amount: o.amount } : {}), can: !why, ...(why ? { why } : {}), ...riskOf(o) };
     }) : [];
     return { on: industryOn(g, w), seat, offers, testDue: inIndustry(g, w) && testDue(g), testNext: testNext(g), limits: [...st.limits], hot: now ? t.hot.map(id => genreOf(w, id)?.name ?? id) : [], cold: now ? genreOf(w, t.cold)?.name ?? '' : '',
         perWeek: offersAWeek(g, w), ...(c ? { contract: { label: labelOf(w, c.label)?.name ?? c.label, since: c.since, fee: c.fee } } : {}), fans: st.seats.perform?.fans ?? 0 };
@@ -1118,10 +1133,12 @@ export function titlesView(g, w) {
     const own = st.titles.filter(t => !isCommissioned(t));
     return { titles, totals: { ...st.totals }, made: own.filter(t => t.q !== undefined).length + st.totals.titles, sold: own.reduce((a, t) => a + t.sold, 0) + st.totals.sales };
 }
-/** Take's Chart tab: this week's top 10, yours marked; the month's hot and cold genres and the news line. */
+/** Take's Chart tab: this week's top 10, yours and your label's commissioned ones marked apart (a title no longer in
+ *  your record, of someone you played before, is a row like the others); the month's hot and cold genres, the news. */
 export function chartView(g, w) {
     const st = peekIndustry(g), t = st.trend, now = t.month === monthOf(g);
-    return { week: st.chart.week, rows: st.chart.rows.map((r, i) => ({ pos: i + 1, name: r.name, label: labelOf(w, r.label)?.name ?? r.label, sales: r.sales, ...(r.title ? { mine: r.title } : {}) })),
+    const whose = (id) => { const x = id ? titleById(g, id) : undefined; return x ? { mine: x.id, by: isCommissioned(x) && !holdsStills(x) ? 'label' : 'you' } : {}; };
+    return { week: st.chart.week, rows: st.chart.rows.map((r, i) => ({ pos: i + 1, name: r.name, label: labelOf(w, r.label)?.name ?? r.label, sales: r.sales, ...whose(r.title) })),
         hot: now ? t.hot.map(id => genreOf(w, id)?.name ?? id) : [], cold: now ? genreOf(w, t.cold)?.name ?? '' : '', line: now ? t.line ?? '' : '' };
 }
 /** Take's Roster tab: the roster's performers (those you've worked with first), and Tokyo's people in your titles (not in

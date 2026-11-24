@@ -1,8 +1,9 @@
 // Playing as someone else ("Play as"). You take that person's place; the one you were becomes a person of the world
 // (with a card of their own, created once) and stays with you as company.
 // Shared by everyone you play: the needs (energy, mood…) and the money. Each person has their own: approval,
-// feelings, texts, plans, dating, diary and job (their "seat", swapped in and out). Friendship, romance and couples
-// live in the relationships store (sim/rel.ts), where `'__you'` is whoever you play: switching rewrites its ids like
+// feelings, texts, plans, dating, diary, job and their part in the adult industry (their "seat", swapped in and
+// out; the label's part is shared, like the money: sim/industry.ts). Friendship, romance and couples live in the
+// relationships store (sim/rel.ts), where `'__you'` is whoever you play: switching rewrites its ids like
 // the ties'. While you play someone their own feelings are frozen; when you leave them, a per-save setting decides
 // whether they now feel about each person what that person came to feel about them (default) or keep what they felt.
 import { nowAbs } from '../core/store.js';
@@ -14,6 +15,7 @@ import { familyBlocked } from './family.js';
 import { note } from './facts.js';
 import { resident } from './game.js';
 import { verdictNow } from './verdict.js';
+import { swapIndustry } from './industry.js';
 const ORIG = '__orig';
 export const swapOf = (g) => (g.swap ?? null);
 const ensure = (g) => (g.swap ??= { avatar: '', orig: persona(), origName: personaName(), files: {} });
@@ -108,6 +110,11 @@ export async function switchTo(g, w, target) {
     delete s.persp[toKey];
     putIn(g, theirs);
     g.player.job = s.jobs[toKey] ?? null;
+    s.industry ??= {};
+    const leftInd = swapIndustry(g, s.industry[toKey]);
+    delete s.industry[toKey];
+    if (leftInd)
+        s.industry[fromKey] = leftInd;
     // the household follows who you play: you live in their home; the one you were keeps theirs (and their family)
     s.homes ??= {};
     s.homes[fromKey] = { ...g.player.home };
