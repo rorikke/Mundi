@@ -15,9 +15,15 @@
 // closing) rolls once at the call, by the caught rules (sim/caught.ts): caught, the shoot is stopped, word may get
 // around, the place is closed for a week and the label warns you; not caught, performing there is a little thrill. With
 // the `industry` system or adult content off nothing here happens and nobody is ever on set.
+// The stills (plans/industry-lens.md Part 1): between scenes, the director or the photographer in the title's `stills`
+// seat can *Take the stills*, rolled as a photo shoot (Photography, the camera and gear, the set's lights) and kept in
+// Lens as real photos of the performers as they are (their robe, lingerie or naked set, an expression from the last
+// take); the best one becomes the title's cover at the wrap, and a photo brief that wants it is shot by it. A photo call
+// (`setLink.visit`) brings a roster performer to a photo shoot's place the set's way, for its window.
 import { nowAbs, adultOn, game, type Save, type Resident } from '../core/store.js';
-import { systemOn, exampleTag, type WorldDef, type ActionDef, type RosterPerson, type GenreDef, type LabelDef } from '../core/world.js';
-import type { TitleRec, TitleScene, SceneGrade, ShotPart, SetCall } from '../core/industry.js';
+import { systemOn, exampleTag, type WorldDef, type ActionDef, type RosterPerson, type GenreDef, type LabelDef, type BriefDef, type WearDef } from '../core/world.js';
+import type { TitleRec, TitleScene, SceneGrade, ShotPart, SetCall, PhotoCall, PhotoCallResult } from '../core/industry.js';
+import { BRIEF_DC } from '../core/photo.js';
 import { setLink, onWrap, industryLink, engineActions, sceneLines, onLook, onHour, onDay, roomRules, onRoll } from './hooks.js';
 import { characters, charOf, personaName } from '../st/bridge.js';
 import { presentAt } from './people.js';
@@ -34,12 +40,14 @@ import { placeName } from './facts.js';
 import { cleanPerson, applyPerson } from './gender.js';
 import { ensureProfile } from './profiles.js';
 import { tallyEvent } from './tally.js';
-import { dressRules } from './dress.js';
+import { dressRules, adultWear } from './dress.js';
 import { riskRoll } from './dice.js';
 import { CAUGHT, banPlace, bannedUntil, workWarning } from './caught.js';
 import { startCaughtRumor } from './living.js';
 import { social } from './social.js';
 import { addStatus, statusDef } from './needs.js';
+import { photoOn, peekPhoto, hasCamera, recordPhoto, placeCaption, briefOf, clientOf, trimPhotos, photoById, type Taken, type PhotoRec } from './photo.js';
+import { shotParts, starsOf, stillsShot } from './assignments.js';
 
 /** The set's numbers (minutes, roll parts, quality). First guesses, tuned by the long run (L). */
 export const SET = {
@@ -69,10 +77,14 @@ export interface ShootState {
     title: string; place: string; call: number; roster: string[]; next: number; ready: number;
     here?: boolean; last?: { n: number; kind: string; grade: SceneGrade; q: number; at: number };
     take?: { who: string[]; until: number }; stopped?: { kind: string; who: string; limit: string }[]; rec?: TitleRec;
+    /** the stills taken (photo ids in Lens), and the scene they were last taken before (one round between two scenes) */
+    stills?: number[]; stillsAt?: number;
 }
 /** What the set remembers between shoots: the live shoot, each roster performer's card (id → avatar), how often each
  *  drawn picture has been shown, and whether you were noted (a poor scene) last time you performed. */
-export interface OnsetState { live?: ShootState; cards: Record<string, string>; shown: Record<string, number>; noted?: boolean }
+export interface OnsetState { live?: ShootState; cards: Record<string, string>; shown: Record<string, number>; noted?: boolean; visits?: Visit[] }
+/** A photo call being kept (setLink.visit): the performer's roster id and card, the place, until when (absolute minutes). */
+export interface Visit { who: string; avatar: string; place: string; from: number; to: number }
 export const peekOnset = (g: Save): OnsetState | undefined => (g as any).onset;
 export function onsetOf(g: Save): OnsetState {
     const o = ((g as any).onset ??= {}) as OnsetState;
@@ -158,7 +170,10 @@ function leave(g: Save, avatar: string) {
     delete g.cast[avatar];
 }
 /** The roster performers on set now (avatars). */
-export const onSetNow = (g: Save): string[] => Object.keys(g.cast).filter(a => !!g.cast[a].onset);
+export const onSetNow = (g: Save): string[] => Object.keys(g.cast).filter(a => !!g.cast[a].onset && !isVisit(g.cast[a].onset!.title));
+// (a photo call's performer is marked `onset` with this title: the set's way, never one of the shoot's)
+const VISIT = 'photo:';
+const isVisit = (title: string) => title.startsWith(VISIT);
 
 // Cards still being made or their pictures uploaded (one job per performer), the ones done this session (a card's
 // pictures are looked at once a session, as the world's people's are), and the promise the tests wait on.
@@ -452,7 +467,7 @@ function shoot(g: Save, w: WorldDef, x: { s: ShootState; t: TitleRec }, rnd: () 
     s.take = { who: take, until: now + SET.take };
     const lines = [`Scene ${i + 1} of ${t.scenes.length} (${sc.kind})${others(sc).length ? ` with ${whoLine(g, w, { ...sc, with: others(sc) })}` : ''}: ${grade} — quality ${q}.${tellParts(parts, r.head?.length ?? 0) ? ` (${tellParts(parts, r.head?.length ?? 0)})` : ''}`];
     if (performing || directing) lines.push(...trainSkill(g, w, directing ? 'charisma' : craftSkill(w), grade === 'great' ? 6 : grade === 'good' ? 4 : 2));
-    const seat = directing ? (performing ? 'directing and performing in' : 'directing') : performing ? 'performing in' : 'watching';
+    const seat = directing ? (performing ? 'directing and performing in' : 'directing') : performing ? 'performing in' : t.you?.includes('stills') ? 'taking the stills on' : 'watching';
     const takes = (r.takes ?? []).filter(k => k.who !== YOU).map(k => `${castName(g, w, k.who)}'s take ${k.grade}`);
     const ai = `On the set of "${t.name}" (${genreOf(w, t.genre)?.name ?? t.genre}) for ${labelOf(w, t.label)?.name ?? t.label}, they shoot scene ${i + 1} of ${t.scenes.length}: ${sc.kind}, with ${whoLine(g, w, sc)}; {{user}} is ${seat} it. ${HOW[grade]}${takes.length ? ` (${takes.join('; ')}.)` : ''}`;
     return { lines, ai };
@@ -506,9 +521,151 @@ export function wrapShoot(g: Save, w: WorldDef, how: 'done' | 'left' | 'late' = 
     const shot = t.scenes.filter(x => x.q !== undefined);
     const q = shot.length ? Math.round(shot.reduce((n, x) => n + (x.q ?? 0), 0) / shot.length) : 0;
     lines.push(`That's a wrap on "${t.name}"${shot.length ? `: ${shot.length} scene${shot.length === 1 ? '' : 's'}, quality ${q} before the edit` : ''}.`);
+    lines.push(...coverFromStills(g, s, t));
     for (const f of onWrap) lines.push(...f(g, w, t));
     if (game() === g) void import('./game.js').then(G => G.syncScene());
     return lines;
+}
+
+/* ---------- the stills (plans/industry-lens.md Part 1) ---------- */
+
+/** The stills' numbers: a round's minutes and energy, the set's lights (a set is lit for video), the last take's part
+ *  (a great take shows in the faces). The cover's sales bonus is sim/titles.ts's. */
+export const STILLS = { minutes: 30, energy: 3, light: 2, take: { great: 3, good: 0, poor: -3 } as Record<SceneGrade, number> };
+export const STILLS_ID = 'x-set-stills';
+// (the expression the last take leaves on their faces; before any take, a calm one)
+const STILLS_EXPR: Record<SceneGrade, string> = { great: 'desire', good: 'joy', poor: 'nervousness' };
+/** The photo brief that booked you onto a title's stills seat (sim/titles.ts writes `stills`: the taken brief's id). */
+export const stillsBrief = (g: Save, t: TitleRec): Taken | undefined => { const id = (t as { stills?: number }).stills; return id === undefined ? undefined : peekPhoto(g).open.find(x => x.id === id); };
+// A roster performer's outfit of a kind from her entry (the set's robe, her lingerie) with a picture folder, an adult one
+// only with adult content on; the naked set is its own name.
+function setOutfit(g: Save, w: WorldDef, avatar: string, kind: string): string | undefined {
+    const p = rosterByCard(g, w, avatar); if (!p) return undefined;
+    if (kind === 'naked') return typeof p.outfits?.naked === 'string' && adultOn(g) ? 'naked' : undefined;
+    const wear = (p.wear ?? {}) as Record<string, WearDef>;
+    return Object.keys(wear).find(o => wear[o]?.kind === kind && typeof p.outfits?.[o] === 'string' && (adultOn(g) || !adultWear(wear[o])));
+}
+const takeOn = (g: Save, s: ShootState) => !!s.take && nowAbs(g) < s.take.until;
+// The next scene's performers once the crew is ready for it: they wait for the call in lingerie (if they have one).
+function readyFor(g: Save, w: WorldDef, x: { s: ShootState; t: TitleRec }, avatar: string): boolean {
+    const sc = x.t.scenes[x.s.next];
+    return !!sc && x.s.ready <= nowAbs(g) && !takeOn(g, x.s) && sc.with.some(y => castAvatar(g, w, y) === avatar);
+}
+// You were in the scene whose take is still playing: mid-scene.
+const midScene = (g: Save, s: ShootState, t: TitleRec) => takeOn(g, s) && !!s.last && !!t.scenes[s.last.n - 1]?.with.includes(YOU);
+/** What someone on set is wearing now, as the stills record it (the set's dress rule): undressed in the take still
+ *  playing (`naked`), in lingerie waiting for the next scene, else the set's robe; one of Tokyo's people between takes
+ *  wears their own clothes (undefined). */
+export function stillOutfit(g: Save, w: WorldDef, x: { s: ShootState; t: TitleRec }, avatar: string): string | undefined {
+    if (takeOn(g, x.s) && x.s.take!.who.includes(avatar)) return adultOn(g) ? 'naked' : undefined;
+    if (g.cast[avatar]?.onset?.title !== x.s.title) return undefined;
+    return (readyFor(g, w, x, avatar) ? setOutfit(g, w, avatar, 'lingerie') : undefined) ?? setOutfit(g, w, avatar, 'robe');
+}
+/** Who the stills can show now (avatars on set, two at most, never you): the people of the take still playing, else
+ *  the next scene's, else anyone of the cast; never the label's own director (nothing of her on her own set). */
+export function stillsWho(g: Save, w: WorldDef, x: { s: ShootState; t: TitleRec }): string[] {
+    const { s, t } = x, here = new Set(presentAt(g, w, s.place).map(r => r.avatar));
+    const director = String(labelOf(w, t.label)?.director ?? '').trim().toLowerCase();
+    const sc = t.scenes[s.next];
+    const pool = takeOn(g, s) ? s.take!.who : [...(sc ? others(sc) : []), ...t.cast.filter(y => y !== YOU)].map(y => castAvatar(g, w, y));
+    const notDirector = (a: string) => { const n = castName(g, w, a).toLowerCase(); return !director || (n !== director && n.split(/\s+/)[0] !== director); };
+    return [...new Set(pool)].filter((a): a is string => !!a && a !== YOU && here.has(a) && notDirector(a)).slice(0, 2);
+}
+/** Why you can't take the stills now ('' you can): on set in a world with photography, directing or in the stills
+ *  seat, a camera of your own, not in the middle of a scene you're in, one round between two scenes, someone to shoot. */
+export function stillsWhy(g: Save, w: WorldDef): string {
+    const x = liveShoot(g, w);
+    if (!x || g.player.loc !== x.s.place || !photoOn(w)) return 'Only on set.';
+    const { s, t } = x;
+    if (!t.you?.includes('direct') && !t.you?.includes('stills')) return 'The director or the stills photographer takes the stills.';
+    if (!hasCamera(g, w)) return 'You need a camera.';
+    if (midScene(g, s, t)) return 'Not in the middle of a scene.';
+    if (!t.scenes[s.next]) return 'Every scene is shot.';
+    if (s.stillsAt === s.next) return 'This round\'s stills are taken: the next ones after the next scene.';
+    if (!stillsWho(g, w, x).length) return 'Nobody on set to photograph yet.';
+    return '';
+}
+/** The stills' roll, a photo shoot's: d20 + Photography (half of it for a director who didn't come through the lens)
+ *  against the brief's DC (12 without one); quality 50 + 6 a point over it plus every part by name: the camera and
+ *  gear as sim/assignments.ts's `shotParts` names them (the set lit as a studio is), the set's lights, the last take. */
+export function stillsRoll(g: Save, w: WorldDef, x: { s: ShootState; t: TitleRec }, rnd: () => number = Math.random) {
+    const { s, t } = x, tk = stillsBrief(g, t), b = tk ? briefOf(w, tk.brief) : undefined;
+    const dc = b?.dc ?? BRIEF_DC, lens = !!(g as any).industry?.seats?.direct?.lens, lvl = levelOf(g, 'photography');
+    const half = t.you?.includes('direct') && !lens && has(w, 'photography') ? Math.floor(lvl / 2) - Math.floor(lvl / 4) : 0;
+    const bonus = rollBonus(g, w, { skill: 'photography', tags: ['shoot', 'portrait', 'set'] }) - half;
+    const d20 = rollD20(g, w, bonus, dc, rnd), total = d20 + bonus, ok = d20 === 20 || (d20 > 1 && total >= dc);
+    const base = 50 + 6 * (total - dc);
+    const brief = { ...(b ?? { id: 'set', client: t.label, name: 'Stills', text: '', board: 'full', kind: 'portrait', places: [s.place], pay: 0 }), studio: true, window: undefined } as BriefDef;
+    const parts = shotParts(g, w, { place: s.place, lane: 'full' } as Taken, brief);
+    parts.push({ name: 'The set\'s lights', n: STILLS.light });
+    const take = s.last ? STILLS.take[s.last.grade] : 0;
+    if (take) parts.push({ name: 'The last take', n: take });
+    const q = Math.round(Math.max(0, Math.min(100, base + parts.reduce((a, p) => a + p.n, 0))));
+    const skill = has(w, 'photography') ? skillName(w, 'photography') : 'Photography';
+    return { d20, bonus, total, dc, ok, base, q, parts, head: [{ name: 'The die', n: d20 }, { name: half ? `${skill} (half: a director's eye)` : skill, n: bonus }] };
+}
+const OUTFIT_WORDS: Record<string, string> = { naked: 'naked', robe: 'in a robe', lingerie: 'in lingerie' };
+/** Takes a round of stills: a photo kept in Lens (src `set`, adult, the title's) of the performers as they are, what it
+ *  does for a brief that wants it (sim/assignments.ts's `stillsShot`), Photography trained. Lines and the AI's. */
+export function takeStills(g: Save, w: WorldDef, rnd: () => number = Math.random): { lines: string[]; ai: string } {
+    const why = stillsWhy(g, w);
+    if (why) return { lines: [why], ai: '' };
+    const x = liveShoot(g, w)!, { s, t } = x;
+    const people = stillsWho(g, w, x), r = stillsRoll(g, w, x, rnd);
+    const expr = s.last ? STILLS_EXPR[s.last.grade] : 'neutral';
+    const who = people.map(a => { const outfit = stillOutfit(g, w, x, a); return { name: castName(g, w, a), expr, ...(outfit ? { outfit } : {}) }; });
+    const tk = stillsBrief(g, t), b = tk ? briefOf(w, tk.brief) : undefined, now = nowAbs(g);
+    const rec = recordPhoto(g, w, { src: 'set', place: s.place, who, q: r.q, stars: starsOf(r.q), adult: true, kind: 'portrait', ...(b ? { brief: b.id } : {}), ...(clientOf(w, t.label) ? { client: t.label } : {}),
+        cap: `Stills · "${t.name}" · ${placeCaption(g, w, s.place, ((now % 1440) + 1440) % 1440, [])}` });
+    if (!rec) return { lines: [], ai: '' };
+    rec.title = t.id;
+    (s.stills ??= []).push(rec.id); s.stillsAt = s.next;
+    const names = listed(who.map(h => `${h.name}${h.outfit && OUTFIT_WORDS[h.outfit] ? ` ${OUTFIT_WORDS[h.outfit]}` : ''}`));
+    const told = r.parts.filter(p => p.n).map(p => `${p.name} ${p.n > 0 ? '+' : '−'}${Math.abs(p.n)}`).join(', ');
+    const lines = [`Stills of ${names}: quality ${r.q} (${'★'.repeat(starsOf(r.q))}).${told ? ` (${told})` : ''}`];
+    lines.push(...stillsShot(g, w, t, rec, { day: Math.floor(now / 1440), min: rec.min, place: s.place, total: r.total, dc: r.dc, ok: r.ok, q: r.q, parts: r.parts, d20: r.d20, bonus: r.bonus, base: r.base, look: rec.look, photo: rec.id }));
+    lines.push(...trainSkill(g, w, 'photography', r.ok ? 4 : 2));
+    const how = r.q >= 85 ? 'brilliantly' : r.q >= 70 ? 'very well' : r.q >= 55 ? 'well' : r.q >= 35 ? 'unevenly' : 'badly';
+    return { lines, ai: `Between takes on the set of "${t.name}", {{user}} takes the stills: ${names}, under the set's lights, the crew out of frame. It goes ${how}.` };
+}
+// At the wrap: the best still taken on this shoot (still kept in Lens, and developed) becomes the title's cover,
+// starred so Lens keeps it.
+function coverFromStills(g: Save, s: ShootState, t: TitleRec): string[] {
+    const recs = (s.stills ?? []).map(id => photoById(g, id)).filter((r): r is PhotoRec => !!r && !r.undeveloped);
+    if (!recs.length) return [];
+    const best = recs.reduce((a, b) => ((b.q ?? 0) > (a.q ?? 0) ? b : a));
+    t.cover = best.id;
+    best.star = true; trimPhotos(g);
+    return [`The best still (${'★'.repeat(best.stars ?? starsOf(best.q ?? 0))}) is the cover of "${t.name}".`];
+}
+
+/* ---------- a photo call (plans/industry-lens.md Part 2: setLink.visit) ---------- */
+
+/** A roster performer comes to a photo shoot's place the set's way: in the cast marked `onset` (titled `photo:<from>`,
+ *  never one of a shoot's), with no home, for the window, and gone once it's over. Her card is made the first time
+ *  (`waiting`: ask again once it's there). Nothing with the industry or adult content off. */
+export function visit(g: Save, w: WorldDef, call: PhotoCall): PhotoCallResult {
+    const p = call && rosterOf(w, call.who);
+    if (!p || !setOn(g, w) || !call.place || !(call.to > call.from) || nowAbs(g) >= call.to) return { avatar: null, lines: [] };
+    const card = rosterCard(g, w, p.id);
+    if (!card) { bringIn(g, w, p.id); return { avatar: null, waiting: true, lines: [] }; }
+    const had = g.cast[card];
+    if (had && !had.onset) return { avatar: null, lines: [] };
+    if (had?.onset && !isVisit(had.onset.title)) return { avatar: null, lines: [`${p.name} is on a shoot right now.`] };
+    const o = onsetOf(g), title = `${VISIT}${call.from}`;
+    o.visits = [...(o.visits ?? []).filter(v => v.avatar !== card), { who: p.id, avatar: card, place: call.place, from: call.from, to: call.to }];
+    if (had) { had.onset = { title, place: call.place }; return { avatar: card, lines: [] }; }
+    arrive(g, w, { title, place: call.place } as ShootState, p, card);
+    bringIn(g, w, p.id);   // (her pictures and outfits, once a session)
+    return { avatar: card, lines: [`${p.name} is here for the shoot.`] };
+}
+// Photo calls whose window is over: the performer leaves.
+function visitsOver(g: Save) {
+    const o = peekOnset(g); if (!o?.visits?.length) return;
+    const now = nowAbs(g);
+    for (const v of o.visits) if (now >= v.to && g.cast[v.avatar]?.onset && isVisit(g.cast[v.avatar].onset!.title)) leave(g, v.avatar);
+    o.visits = o.visits.filter(v => now < v.to && !!g.cast[v.avatar]);
+    if (!o.visits.length) delete o.visits;
 }
 
 /* ---------- the hooks ---------- */
@@ -520,9 +677,11 @@ setLink.current = (g) => {
     return { title: t, place: s.place, call: s.call, roster: [...s.roster] };
 };
 setLink.wrap = (g, w) => wrapShoot(g, w, 'late');
+setLink.visit = visit;
 
 // You walked away from the set (once you'd been on it): it wraps. On it: anyone called who isn't there yet is sent for.
 function watch(g: Save, w: WorldDef) {
+    visitsOver(g);
     const s = liveOf(g);
     if (!s) { for (const a of onSetNow(g)) leave(g, a); return; }   // (nobody stays on a set with no shoot on)
     if (!setOn(g, w)) { wrapShoot(g, w, 'late'); return; }
@@ -544,7 +703,9 @@ dressRules.push((g, w, avatar) => {
     if (!x || g.player.loc !== x.s.place || !adultOn(g)) return null;
     const take = x.s.take;
     if (take && nowAbs(g) < take.until && take.who.includes(avatar)) return { code: 'naked' };
-    return g.cast[avatar]?.onset?.title === x.s.title ? { kind: 'robe' } : null;
+    if (g.cast[avatar]?.onset?.title !== x.s.title) return null;
+    const lingerie = readyFor(g, w, x, avatar) ? setOutfit(g, w, avatar, 'lingerie') : undefined;
+    return lingerie ? { code: lingerie } : { kind: 'robe' };
 });
 
 // The engine's actions on set.
@@ -564,6 +725,7 @@ export function setActions(g: Save, w: WorldDef): ActionDef[] {
         out.push(act({ id: 'x-set-scene', name: 'Play the next scene', label: `Play the next scene: ${sc.kind} (${s.next + 1} of ${t.scenes.length})`, minutes: stop ? SET.stop : SET.scene, effects: stop ? {} : { energy: -SET.energy, hunger: -SET.hunger } }));
     } else out.push(act({ id: 'x-set-wait', name: 'Wait for your call', label: miss.length && wait <= 0 ? `Wait for your call (waiting for ${listed(miss)})` : 'Wait for your call', icon: '⏳', minutes: step5(Math.min(60, Math.max(5, wait > 0 ? wait : 30))), effects: { energy: -1 } }));
     const left = t.scenes.length - s.next;
+    if (!stillsWhy(g, w)) out.push(act({ id: STILLS_ID, name: 'Take the stills', label: `Take the stills (${s.next ? `after scene ${s.next}` : 'before the first scene'})`, icon: '📷', minutes: STILLS.minutes, effects: { energy: -STILLS.energy }, tags: ['set', 'photo'] }));
     out.push(act({ id: 'x-set-skip', name: 'Skip to the result', label: `Skip to the result (${left} scene${left === 1 ? '' : 's'} left)`, icon: '⏭️', minutes: step5(Math.max(0, wait) + left * SET.scene + (left - 1) * SET.setup), effects: { energy: -SET.energy * left, hunger: -SET.hunger * left } }));
     return out;
 }
@@ -572,6 +734,7 @@ const before = industryLink.act;
 industryLink.act = (g, w, a, mates) => {
     if (a.id === 'x-set-scene') return playScene(g, w);
     if (a.id === 'x-set-skip') return skipShoot(g, w);
+    if (a.id === STILLS_ID) return takeStills(g, w);
     if (a.id === 'x-set-wait') {
         const x = liveShoot(g, w); if (!x) return { lines: [], ai: '' };
         const sc = x.t.scenes[x.s.next], miss = sc ? missing(g, w, x.s, sc) : [];
@@ -589,7 +752,7 @@ sceneLines.push((g, w, present) => {
     if (!x || g.player.loc !== x.s.place) return [];
     const { s, t } = x, sc = t.scenes[s.next], n = t.scenes.length;
     const label = labelOf(w, t.label)?.name ?? t.label, genre = genreOf(w, t.genre)?.name ?? t.genre;
-    const seat = t.you?.includes('direct') ? (t.you.includes('perform') ? 'directing and performing' : 'directing') : 'performing';
+    const seat = t.you?.includes('direct') ? (t.you.includes('perform') ? 'directing and performing' : 'directing') : t.you?.includes('stills') ? 'taking the stills (a photographer, in no scene)' : 'performing';
     const out = [`This is a shoot for ${label}'s "${t.name}" (${genre}): ${sc ? `scene ${s.next + 1} of ${n}, ${sc.kind}, with ${whoLine(g, w, sc)}` : 'every scene is shot'}; {{user}} is ${seat}${s.last ? `; the last scene went ${GRADE_WORDS[s.last.grade]}` : ''}.`];
     const set = present.filter(r => r.onset?.title === s.title).map(r => r.name);
     if (set.length) out.push(`${listed(set)} ${set.length > 1 ? 'are performers' : 'is a performer'} here only for this shoot (not one of the city's people).`);
@@ -606,17 +769,18 @@ export interface SceneView { n: number; kind: string; with: string[]; q?: number
 /** The shoot being played, as the app shows it: the title, the set's place, your seat, the scenes (played ones with
  *  their results), the next one (ready in minutes, or who it waits for), the performers on set, the scenes a hard limit
  *  stopped. Null: no shoot on. */
-export interface ShootView { title: string; name: string; label: string; genre: string; place: string; at: boolean; seat: 'perform' | 'direct' | 'both' | 'watch';
-    scenes: SceneView[]; next: { n: number; kind: string; with: string[]; ready: number; waiting: string[] } | null; onSet: string[]; stopped: { kind: string; who: string }[] }
+export interface ShootView { title: string; name: string; label: string; genre: string; place: string; at: boolean; seat: 'perform' | 'direct' | 'both' | 'watch' | 'stills';
+    scenes: SceneView[]; next: { n: number; kind: string; with: string[]; ready: number; waiting: string[] } | null; onSet: string[]; stopped: { kind: string; who: string }[];
+    /** the stills taken on this shoot (photo ids in Lens), and why you can't take them now ('' you can) */ stills: number[]; stillsWhy: string }
 export function shootView(g: Save, w: WorldDef): ShootView | null {
     const x = liveShoot(g, w); if (!x) return null;
     const { s, t } = x, sc = t.scenes[s.next];
-    const seat = t.you?.includes('direct') ? (t.you.includes('perform') ? 'both' : 'direct') : t.you?.includes('perform') ? 'perform' : 'watch';
+    const seat = t.you?.includes('direct') ? (t.you.includes('perform') ? 'both' : 'direct') : t.you?.includes('perform') ? 'perform' : t.you?.includes('stills') ? 'stills' : 'watch';
     return { title: t.id, name: t.name, label: labelOf(w, t.label)?.name ?? t.label, genre: genreOf(w, t.genre)?.name ?? t.genre, place: placeName(g, w, s.place), at: g.player.loc === s.place, seat,
         scenes: scenesView(g, w, t),
         next: sc ? { n: s.next + 1, kind: sc.kind, with: sc.with.map(y => castName(g, w, y, 'You')), ready: Math.max(0, s.ready - nowAbs(g)), waiting: missing(g, w, s, sc) } : null,
         onSet: onSetNow(g).filter(a => g.cast[a].onset?.title === s.title).map(a => g.cast[a].name),
-        stopped: (s.stopped ?? []).map(y => ({ kind: y.kind, who: castName(g, w, y.who) })) };
+        stopped: (s.stopped ?? []).map(y => ({ kind: y.kind, who: castName(g, w, y.who) })), stills: (s.stills ?? []).filter(id => !!photoById(g, id)), stillsWhy: stillsWhy(g, w) };
 }
 /** A title's scenes as the app shows them (any title: played ones carry their results, the parts adding up to the roll). */
 export const scenesView = (g: Save, w: WorldDef, t: TitleRec): SceneView[] =>
