@@ -18,11 +18,11 @@
 // The stills (plans/industry-lens.md Part 1): between scenes, the director or the photographer in the title's `stills`
 // seat can *Take the stills*, rolled as a photo shoot (Photography, the camera and gear, the set's lights) and kept in
 // Lens as real photos of the performers as they are (their robe, lingerie or naked set, an expression from the last
-// take); the best one becomes the title's cover at the wrap, and a photo brief that wants it is shot by it. A photo call
-// (`setLink.visit`) brings a roster performer to a photo shoot's place the set's way, for its window.
+// take); the best one becomes the title's cover at the wrap, and a photo brief that wants it is shot by it. A photo
+// call's performer (sim/photocall.ts, `setLink.visit`: `onset` with an empty title) is never sent home by the set.
 import { nowAbs, adultOn, game, type Save, type Resident } from '../core/store.js';
 import { systemOn, exampleTag, type WorldDef, type ActionDef, type RosterPerson, type GenreDef, type LabelDef, type BriefDef, type WearDef } from '../core/world.js';
-import type { TitleRec, TitleScene, SceneGrade, ShotPart, SetCall, PhotoCall, PhotoCallResult } from '../core/industry.js';
+import type { TitleRec, TitleScene, SceneGrade, ShotPart, SetCall } from '../core/industry.js';
 import { BRIEF_DC } from '../core/photo.js';
 import { setLink, onWrap, industryLink, engineActions, sceneLines, onLook, onHour, onDay, roomRules, onRoll } from './hooks.js';
 import { characters, charOf, personaName } from '../st/bridge.js';
@@ -82,9 +82,7 @@ export interface ShootState {
 }
 /** What the set remembers between shoots: the live shoot, each roster performer's card (id → avatar), how often each
  *  drawn picture has been shown, and whether you were noted (a poor scene) last time you performed. */
-export interface OnsetState { live?: ShootState; cards: Record<string, string>; shown: Record<string, number>; noted?: boolean; visits?: Visit[] }
-/** A photo call being kept (setLink.visit): the performer's roster id and card, the place, until when (absolute minutes). */
-export interface Visit { who: string; avatar: string; place: string; from: number; to: number }
+export interface OnsetState { live?: ShootState; cards: Record<string, string>; shown: Record<string, number>; noted?: boolean }
 export const peekOnset = (g: Save): OnsetState | undefined => (g as any).onset;
 export function onsetOf(g: Save): OnsetState {
     const o = ((g as any).onset ??= {}) as OnsetState;
@@ -170,10 +168,8 @@ function leave(g: Save, avatar: string) {
     delete g.cast[avatar];
 }
 /** The roster performers on set now (avatars). */
-export const onSetNow = (g: Save): string[] => Object.keys(g.cast).filter(a => !!g.cast[a].onset && !isVisit(g.cast[a].onset!.title));
-// (a photo call's performer is marked `onset` with this title: the set's way, never one of the shoot's)
-const VISIT = 'photo:';
-const isVisit = (title: string) => title.startsWith(VISIT);
+// (a photo call's performer, sim/photocall.ts's, is `onset` with an empty title: never one of a shoot's)
+export const onSetNow = (g: Save): string[] => Object.keys(g.cast).filter(a => !!g.cast[a].onset?.title);
 
 // Cards still being made or their pictures uploaded (one job per performer), the ones done this session (a card's
 // pictures are looked at once a session, as the world's people's are), and the promise the tests wait on.
@@ -639,35 +635,6 @@ function coverFromStills(g: Save, s: ShootState, t: TitleRec): string[] {
     return [`The best still (${'★'.repeat(best.stars ?? starsOf(best.q ?? 0))}) is the cover of "${t.name}".`];
 }
 
-/* ---------- a photo call (plans/industry-lens.md Part 2: setLink.visit) ---------- */
-
-/** A roster performer comes to a photo shoot's place the set's way: in the cast marked `onset` (titled `photo:<from>`,
- *  never one of a shoot's), with no home, for the window, and gone once it's over. Her card is made the first time
- *  (`waiting`: ask again once it's there). Nothing with the industry or adult content off. */
-export function visit(g: Save, w: WorldDef, call: PhotoCall): PhotoCallResult {
-    const p = call && rosterOf(w, call.who);
-    if (!p || !setOn(g, w) || !call.place || !(call.to > call.from) || nowAbs(g) >= call.to) return { avatar: null, lines: [] };
-    const card = rosterCard(g, w, p.id);
-    if (!card) { bringIn(g, w, p.id); return { avatar: null, waiting: true, lines: [] }; }
-    const had = g.cast[card];
-    if (had && !had.onset) return { avatar: null, lines: [] };
-    if (had?.onset && !isVisit(had.onset.title)) return { avatar: null, lines: [`${p.name} is on a shoot right now.`] };
-    const o = onsetOf(g), title = `${VISIT}${call.from}`;
-    o.visits = [...(o.visits ?? []).filter(v => v.avatar !== card), { who: p.id, avatar: card, place: call.place, from: call.from, to: call.to }];
-    if (had) { had.onset = { title, place: call.place }; return { avatar: card, lines: [] }; }
-    arrive(g, w, { title, place: call.place } as ShootState, p, card);
-    bringIn(g, w, p.id);   // (her pictures and outfits, once a session)
-    return { avatar: card, lines: [`${p.name} is here for the shoot.`] };
-}
-// Photo calls whose window is over: the performer leaves.
-function visitsOver(g: Save) {
-    const o = peekOnset(g); if (!o?.visits?.length) return;
-    const now = nowAbs(g);
-    for (const v of o.visits) if (now >= v.to && g.cast[v.avatar]?.onset && isVisit(g.cast[v.avatar].onset!.title)) leave(g, v.avatar);
-    o.visits = o.visits.filter(v => now < v.to && !!g.cast[v.avatar]);
-    if (!o.visits.length) delete o.visits;
-}
-
 /* ---------- the hooks ---------- */
 
 setLink.start = startShoot;
@@ -677,11 +644,9 @@ setLink.current = (g) => {
     return { title: t, place: s.place, call: s.call, roster: [...s.roster] };
 };
 setLink.wrap = (g, w) => wrapShoot(g, w, 'late');
-setLink.visit = visit;
 
 // You walked away from the set (once you'd been on it): it wraps. On it: anyone called who isn't there yet is sent for.
 function watch(g: Save, w: WorldDef) {
-    visitsOver(g);
     const s = liveOf(g);
     if (!s) { for (const a of onSetNow(g)) leave(g, a); return; }   // (nobody stays on a set with no shoot on)
     if (!setOn(g, w)) { wrapShoot(g, w, 'late'); return; }
