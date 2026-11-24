@@ -8,9 +8,10 @@
 // comes from the views at the end. Freelance work (sim/freelance.ts) and photobooks (sim/photobooks.ts) hook in through
 // `afterDelivery`/`afterMissed`/`youParts`, so this file imports neither.
 import { adultOn, nowAbs, residentsOf } from '../core/store.js';
-import { systemOn, WEEKDAY_IDS } from '../core/world.js';
-import { cameraAllows, BRIEF_DAYS, BRIEF_DC, BRIEF_HOURS, BRIEF_REP, ANY_STUDIO } from '../core/photo.js';
-import { onDay, onHour, onAction, photoLink, sceneLines, engineActions } from './hooks.js';
+import { systemOn, WEEKDAY_IDS, personPictures } from '../core/world.js';
+import { cameraAllows, rosterSubject, SUBJECT_KINDS, BRIEF_DAYS, BRIEF_DC, BRIEF_HOURS, BRIEF_REP, ANY_STUDIO } from '../core/photo.js';
+import { onDay, onHour, onAction, photoLink, sceneLines, engineActions, setLink } from './hooks.js';
+import { LENS_WORDS, filmedFor } from './camera.js';
 import { photoOn, peekPhoto, photoOf, repOf, repWords, smallCap, addRep, clientOf, briefOf, isContact, contactsOf, holdsPhotoJob, noteContacts, gearOf, hasCamera, recordPhoto, photoById, addToPortfolio, portfolioOf, portfolioStrength, shownPhotos, photoKeepsakes, placeCaption, cameraOf, trimPhotos, atHomeNow, photoNote, studioWith, } from './photo.js';
 import { studioOf, inStudio, STUDIO_ID, studioZones, rentalOpen } from './studio.js';
 import { weddingsAhead } from './longlife.js';
@@ -60,7 +61,8 @@ const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h = Math.imul(h, 16777619);
 } return (h >>> 0) / 4294967296; };
 const def = (w) => w.photo;
-const nameOf = (g, a) => (a && g.cast[a]?.name) || '';
+// (a roster performer by her roster entry: she's in the cast only on a call or a set)
+const nameOf = (g, w, a) => subjectName(g, w, a);
 /* ---------- what other files add ---------- */
 /** After a delivery (freelance: a shift, perf, the week; photobooks: the project's count): lines to show. */
 export const afterDelivery = [];
@@ -101,21 +103,104 @@ export function openMost(g, w) {
 }
 /* ---------- subjects ---------- */
 const PHOTO_LIMITS = ['photos', 'camera', 'being photographed', 'recording'];
+/** Is this one of a person's adult outfits: `naked`, or an outfit her `wear` marks adult (lingerie)? */
+export const adultOutfit = (ex, o) => o === 'naked' || !!ex?.wear?.[o ?? '']?.adult;
+/** Can a brief's outfit be worn by this person (by name): `clothes` or none always; `naked` (with adult content on);
+ *  any other outfit she has (an adult one only with adult content on). */
+export function outfitOk(g, w, name, b) {
+    const o = b.subject?.outfit, ex = personPictures(w, name);
+    if (!o || o === 'clothes')
+        return true;
+    if (adultOutfit(ex, o) && !adultOn(g))
+        return false;
+    return o === 'naked' || typeof ex?.outfits?.[o] === 'string';
+}
+/** Is a promo brief (`subject.title`, Part 4, IQL-3) one she can be in now: an adult brief naming one of the world's
+ *  people who's in the cast of one of your titles (that label's, when the client is a label), up to two weeks after
+ *  its release (sim/camera.ts `filmedFor`)? Then her agreeing to be filmed is agreeing to it: her camera rule and
+ *  private limits don't block it. Out of that window the brief isn't offered at all. */
+const promoFor = (g, w, avatar, b) => !!b.adult && adultOn(g) && !!b.subject && !SUBJECT_KINDS.includes(b.subject.who) && !rosterSubject(b.subject.who) && filmedFor(g, w, avatar, { client: b.client });
 /** Can this person be in front of the camera for this brief: in the game and not gone, their `camera` rule allowing it
  *  (`never` no; `noface` only from behind; `work` never an adult brief), someone you've met who doesn't shut you out;
- *  for an adult brief also never a minor, nobody you can't have romance with, nobody whose limits rule out photos. */
+ *  for an adult brief also never a minor, nobody you can't have romance with, nobody whose limits rule out photos; the
+ *  brief's outfit one they have. A promo brief (`subject.title`, Part 4) only while they're in the cast of one of your
+ *  titles, and then not held by their camera rule or limits: being filmed was work they agreed to. */
 export function subjectOk(g, w, avatar, b) {
     const r = g.cast[avatar];
-    if (!r || r.gone || !r.met || shutOut(g, avatar))
+    if (!r || r.gone || !r.met || shutOut(g, avatar) || r.onset)
         return false;
-    if (!cameraAllows(cameraOf(g, w, avatar), b))
+    if (!outfitOk(g, w, r.name, b))
         return false;
-    if (b.adult && (!adultOn(g) || isMinor(g, avatar) || romanceBlocked(g, avatar) || !!matchIn(g, PHOTO_LIMITS, limitsOf(g, avatar))))
+    const work = b.subject?.title === true;
+    if (work && !promoFor(g, w, avatar, b))
+        return false;
+    if (!work && !cameraAllows(cameraOf(g, w, avatar), b))
+        return false;
+    if (b.adult && (!adultOn(g) || isMinor(g, avatar) || romanceBlocked(g, avatar) || (!work && !!matchIn(g, PHOTO_LIMITS, limitsOf(g, avatar)))))
         return false;
     return true;
 }
+/* ---------- subjects from the industry's roster (plans/industry-lens.md Part 2) ---------- */
+/** The roster's numbers: the rank a client's floor asks for (one rank for each 20 points of the client's or the
+ *  brief's floor, at most 4). */
+export const ROSTER_SUBJECTS = { floorPerRank: 20, topRank: 4 };
+const industryHere = (g, w) => !!w.industry && systemOn(w, 'industry') && adultOn(g);
+/** A performer of the world's roster by id (bare or `roster:<id>`). */
+export const rosterPerformer = (w, who) => {
+    const id = who.startsWith('roster:') ? who.slice(7) : who;
+    return (w.industry?.roster ?? []).find(p => p.id === id);
+};
+/** The rank a brief asks of a performer: from its client's or its own floor. */
+export const rankFor = (w, b) => Math.min(ROSTER_SUBJECTS.topRank, Math.floor(Math.max(clientOf(w, b.client)?.floor ?? 0, b.floor ?? 0) / ROSTER_SUBJECTS.floorPerRank));
+/** Can this roster performer be the subject of this brief now: the industry in play (its system and adult content),
+ *  debuted, her rank up to what the client asks, her camera rule (none: a professional, free) allowing it, an adult
+ *  brief not past her hard limits, the outfit one she has. */
+export function rosterOk(g, w, p, b) {
+    if (!p || !industryHere(g, w) || (p.debut ?? 0) > g.day)
+        return false;
+    if ((p.rank ?? 0) < rankFor(w, b))
+        return false;
+    if (!cameraAllows(p.camera, b))
+        return false;
+    if ((b.adult || clientOf(w, b.client)?.adult) && matchIn(g, PHOTO_LIMITS, (p.intimate?.limits ?? []).filter(s => typeof s === 'string')))
+        return false;
+    // (a performer only in an outfit she has, her naked set too: the actors have none)
+    const o = b.subject?.outfit;
+    if (o && o !== 'clothes' && typeof p.outfits?.[o] !== 'string')
+        return false;
+    return outfitOk(g, w, p.name, b);
+}
+// How well a performer's genres fit a brief: a genre whose name, id or own words (not the camera's) are in the brief's
+// name, text or scene counts one.
+function genreFit(w, p, b) {
+    const text = `${b.name} ${b.text} ${b.subject?.scene ?? ''}`.toLowerCase();
+    const has = (s) => s.length >= 4 && !LENS_WORDS.includes(s.toLowerCase()) && text.includes(s.toLowerCase());
+    return (p.genres ?? []).filter(id => { const x = w.industry?.genres?.find(gx => gx.id === id); return has(id) || (!!x && (has(x.name) || (x.words ?? []).some(has))); }).length;
+}
+/** The performers a `roster` brief could photograph now, the best fits first (genres, then rank, then id). */
+export function rosterFits(g, w, b) {
+    return (w.industry?.roster ?? []).filter(p => rosterOk(g, w, p, b))
+        .map(p => ({ p, n: genreFit(w, p, b) })).sort((a, c) => c.n - a.n || (c.p.rank ?? 0) - (a.p.rank ?? 0) || a.p.id.localeCompare(c.p.id)).map(x => x.p);
+}
+/** Is the subject a roster performer (`roster:<id>` on an offer)? */
+export const isRosterWho = (who) => !!who && who.startsWith('roster:');
+/** Can this subject (an avatar, or `roster:<id>`) be in front of the camera for this brief? */
+export const subjectAllows = (g, w, who, b) => (isRosterWho(who) ? rosterOk(g, w, rosterPerformer(w, who), b) : subjectOk(g, w, who, b));
+/** A subject's card in the cast now ('' none): one of the world's people as they are; a roster performer's card while
+ *  she's here (on a photo call or on set). */
+export function subjectCard(g, who) {
+    if (!who)
+        return '';
+    if (!isRosterWho(who))
+        return g.cast[who] ? who : '';
+    const a = g.onset?.cards?.[who.slice(7)];
+    return a && g.cast[a]?.onset ? a : '';
+}
+/** A subject's name: one of the world's people's, a roster performer's. */
+export const subjectName = (g, w, who) => (isRosterWho(who) ? rosterPerformer(w, who)?.name ?? '' : (who && g.cast[who]?.name) || '');
 // Who a brief would photograph if it were offered now: nobody (no subject, or an anonymous client), a person by name,
-// or someone you know the board picks (`cast`). `couple` comes only with a wedding. null: nobody fits.
+// or someone you know the board picks (`cast`); a roster performer (`roster:<id>`) or the best fit the roster has
+// (`roster`, among the best fits by the day's draw). `couple` comes only with a wedding. null: nobody fits.
 function subjectFor(g, w, b, salt) {
     const s = b.subject;
     if (!s || s.who === 'client')
@@ -125,6 +210,15 @@ function subjectFor(g, w, b, salt) {
     if (s.who === 'cast') {
         const list = residentsOf(g).filter(r => subjectOk(g, w, r.avatar, b)).sort((a, c) => a.avatar.localeCompare(c.avatar));
         return list.length ? { who: list[Math.floor(H(salt) * list.length)].avatar } : null;
+    }
+    if (s.who === 'roster') {
+        const list = rosterFits(g, w, b), top = genreFit(w, list[0] ?? {}, b);
+        const best = list.filter(p => genreFit(w, p, b) === top);
+        return best.length ? { who: `roster:${best[Math.floor(H(salt) * best.length)].id}` } : null;
+    }
+    if (rosterSubject(s.who)) {
+        const p = rosterPerformer(w, s.who);
+        return p && rosterOk(g, w, p, b) ? { who: `roster:${p.id}` } : null;
     }
     const r = personNamed(g, s.who);
     return r && subjectOk(g, w, r.avatar, b) ? { who: r.avatar } : null;
@@ -343,6 +437,8 @@ export const takenById = (g, id) => peekPhoto(g).open.find(t => t.id === id);
 // Whether the subject says yes to this brief (their `camera: ask`, or a brief that asks first): yes as a friend, half
 // the time as an acquaintance (the day's draw), never below.
 function subjectYes(g, w, b, who, id) {
+    if (isRosterWho(who))
+        return true; // (a performer is booked through her agency)
     if (cameraOf(g, w, who) !== 'ask' && !b.subject?.consent)
         return true;
     const f = fr(g, who, YOU), friend = FRIEND_TIERS.find(t => t.id === 'friend').lo, acq = FRIEND_TIERS.find(t => t.id === 'acquaintance').lo;
@@ -361,12 +457,12 @@ export function takeBrief(g, w, id) {
     if (o.who && !subjectYes(g, w, b, o.who, o.id)) {
         p.board = p.board.filter(x => x !== o);
         (p.recent ??= {})[b.id] = g.day - PHOTO_RULES.recent + 14; // (the client asks someone else: not offered for two weeks)
-        return `${nameOf(g, o.who)} would rather not be photographed for this. ${c.name} will find someone else.`;
+        return `${nameOf(g, w, o.who)} would rather not be photographed for this. ${c.name} will find someone else.`;
     }
     p.board = p.board.filter(x => x !== o);
     const t = { ...o, taken: g.day, due: o.day + (o.days ?? b.days ?? BRIEF_DAYS), yes: true };
     p.open.push(t);
-    const who = o.who ? ` Set the shoot with ${nameOf(g, o.who)}${o.who2 ? ` and ${nameOf(g, o.who2)}` : ''} in Lens.` : '';
+    const who = o.who ? ` Set the shoot with ${nameOf(g, w, o.who)}${o.who2 ? ` and ${nameOf(g, w, o.who2)}` : ''} in Lens.` : '';
     return `You took ${c.name}'s brief: ${b.name}. Due ${dueWords(g, t.due)}.${o.lane === 'wedding' ? '' : who}`;
 }
 const dueWords = (g, due) => (due === g.day ? 'today' : due === g.day + 1 ? 'tomorrow' : `in ${due - g.day} days (${weekday(due)})`);
@@ -421,8 +517,10 @@ export function setShoot(g, w, id, place, from) {
         return { ok: false, text: 'That is after the deadline.' };
     if (t.on !== undefined && Math.floor(from / 1440) !== t.on)
         return { ok: false, text: 'A wedding is shot on its day.' };
+    if (isRosterWho(t.who))
+        return callShoot(g, w, t, b, place, from);
     const ans = inviteShoot(g, w, t.who, place, from, (b.hours ?? BRIEF_HOURS) * 60 + 30, b.name);
-    const n = nameOf(g, t.who);
+    const n = nameOf(g, w, t.who);
     if (!ans.ok)
         return { ok: false, text: `${n} can't then: ${ans.why.replace(/^They (are|do|work|already have) /, (_m, v) => `${n} ${{ are: 'is', do: 'does', work: 'works', already: 'already has' }[v.split(' ')[0]]} `).replace(/^They /, `${n} `)}` };
     t.plan = ans.id;
@@ -431,9 +529,27 @@ export function setShoot(g, w, id, place, from) {
     return { ok: true, text: `${n} will be at ${ans.where} ${ans.when} for the shoot.` };
 }
 const planOf = (g, t) => (t.plan ? social(g).appts.find(a => a.id === t.plan) : undefined);
+// The shoot with a roster performer: a photo call (sim/photocall.ts through `setLink.visit`): she comes to the place
+// for the brief's hours, in its outfit, with no plan of her own.
+function callShoot(g, w, t, b, place, from) {
+    const n = nameOf(g, w, t.who), to = from + (b.hours ?? BRIEF_HOURS) * 60 + 30;
+    const at = place === STUDIO_ID ? STUDIO_ID : place;
+    const ans = setLink.visit(g, w, { who: t.who, place: at, from, to, ...(b.subject?.outfit && b.subject.outfit !== 'clothes' ? { outfit: b.subject.outfit } : {}) });
+    if (!ans.avatar && !ans.waiting)
+        return { ok: false, text: ans.lines[0] ? `${n} can't then: ${ans.lines[0].replace(new RegExp(`^${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} `), '')}` : `${n} can't come then.` };
+    t.plan = 'call';
+    t.call = { place: at, from, to };
+    if (place !== STUDIO_ID && b.places.includes(place))
+        t.place = place;
+    const day = Math.floor(from / 1440), when = `${day === g.day ? 'today' : day === g.day + 1 ? 'tomorrow' : `on ${weekday(day)}`} at ${hm(from % 1440)}`;
+    return { ok: true, text: `${n} will be at ${place === STUDIO_ID ? 'your photo studio' : placeOf(g, w, at)?.name ?? at} ${when} for the shoot (her agency books her).` };
+}
+/** The photo call of a taken brief, when it has one still to come or under way. */
+const callOf = (g, t) => { const c = t.call; return t.plan === 'call' && c && c.to > nowAbs(g) ? c : undefined; };
 /* ---------- shooting ---------- */
 // ((homerooms) at home with rooms inside, only the room you are in)
-const here = (g, w, a) => isWith(g, a) || sceneHere(g, w).some(r => r.avatar === a);
+// (a roster performer: her card, while she's here on her photo call)
+const here = (g, w, who) => { const a = subjectCard(g, who); return !!a && (isWith(g, a) || sceneHere(g, w).some(r => r.avatar === a)); };
 const studioNeed = (b) => (b.studio === 'cyc' || b.studio === 'dressing' ? b.studio : undefined);
 // At the brief's place (a studio brief: in a photo studio, with its fixture when it asks for one)?
 function atPlace(g, w, t, b) {
@@ -468,7 +584,7 @@ export function shootWhy(g, w, t, at = nowAbs(g)) {
     if (!windowHolds(g, w, b, at))
         return windowWords(g, w, b) ? `Not now: ${windowWords(g, w, b)}.` : 'Not now.';
     if (t.who && t.lane !== 'wedding' && !here(g, w, t.who))
-        return `${nameOf(g, t.who)} has to be here (set the shoot).`;
+        return `${nameOf(g, w, t.who)} has to be here (set the shoot).`;
     return '';
 }
 const GEAR_WORDS = { camera: 'a camera', lens: 'a better lens', flash: 'a flash', drone: 'a camera drone', housing: 'a waterproof housing', rig: 'a lighting rig', cyc: 'a cyclorama wall', dressing: 'a dressing room', desk: 'a retouching desk', darkroom: 'a darkroom' };
@@ -504,10 +620,10 @@ export function shotParts(g, w, t, b, at = nowAbs(g)) {
         .find(r => Math.max(personLevel(g, w, r, 'photography'), personLevel(g, w, r, 'fashion')) >= 3);
     if (helper)
         parts.push({ name: `${helper.name} assisting`, n: PHOTO_RULES.assistant });
-    if (t.who && t.lane !== 'wedding') {
+    if (t.who && t.lane !== 'wedding' && !isRosterWho(t.who)) {
         const n = PHOTO_RULES.feel[feelTier(fr(g, t.who, YOU))] ?? 0;
         if (n)
-            parts.push({ name: `How ${nameOf(g, t.who)} feels about you`, n });
+            parts.push({ name: `How ${nameOf(g, w, t.who)} feels about you`, n });
     }
     if (studio && rig)
         parts.push({ name: rig.name, n: rig.photo.shoot ?? PHOTO_RULES.rig });
@@ -543,8 +659,12 @@ export function shootNow(g, w, id, began = nowAbs(g), rnd = Math.random) {
     const q = Math.round(Math.max(0, Math.min(100, base + parts.reduce((a, x) => a + x.n, 0))));
     const look = gearOf(g, w).camera?.look ?? 'digital';
     const expr = ok ? (b.subject?.expr ?? 'joy') : b.subject?.expr === 'back' ? 'back' : H(`${g.world}|${t.id}|${g.minutes}|expr`) < 0.5 ? 'nervousness' : 'embarrassment';
-    const outfit = b.subject?.outfit === 'naked' ? 'naked' : undefined;
-    const who = [t.who, t.who2].filter((a) => !!a && !!g.cast[a]).map(a => ({ name: g.cast[a].name, expr: t.lane === 'wedding' ? (ok ? 'joy' : 'nervousness') : expr, ...(outfit ? { outfit } : {}) }));
+    // (the brief's outfit when it's one they have: naked, or any of theirs; never `clothes`, never an adult one with adult
+    // content off; a roster performer by her name, which the photo finds through personPictures, even once her call is over:
+    // the shot was judged as it began)
+    const o = b.subject?.outfit, dressed = (name) => (o && o !== 'clothes' && outfitOk(g, w, name, b) ? { outfit: o } : {});
+    const who = [t.who, t.who2].filter((a) => !!a && (isRosterWho(a) || !!g.cast[a])).map(a => subjectName(g, w, a)).filter(Boolean)
+        .map(name => ({ name, expr: t.lane === 'wedding' ? (ok ? 'joy' : 'nervousness') : expr, ...dressed(name) }));
     const placeId = g.player.loc;
     const rec = recordPhoto(g, w, { src: t.lane === 'book' ? 'book' : 'brief', place: placeId, who, q, brief: b.id, client: c.id, adult: !!(b.adult || c.adult), kind, look, at: began,
         cap: `${b.name} · ${placeCaption(g, w, placeId, ((began % 1440) + 1440) % 1440, [])}` });
@@ -798,11 +918,13 @@ sceneLines.push((g, w, present) => {
     const p = peekPhoto(g), now = nowAbs(g), out = [];
     for (const t of p.open) {
         const a = planOf(g, t), b = briefOf(w, t.brief), c = b && clientOf(w, b.client);
-        if (!a || !b || !c || !t.who || a.kind !== 'shoot' || !livePlan(a) || now < a.from || now >= a.to || g.player.loc !== a.place)
+        // (a shoot plan, or a roster performer's photo call)
+        const k = a && a.kind === 'shoot' && livePlan(a) ? a : callOf(g, t);
+        if (!k || !b || !c || !t.who || now < k.from || now >= k.to || g.player.loc !== k.place)
             continue;
-        if (!present.some(r => r.avatar === t.who) || ((b.adult || c.adult) && !adultOn(g)))
+        if (!present.some(r => r.avatar === subjectCard(g, t.who)) || ((b.adult || c.adult) && !adultOn(g)))
             continue;
-        out.push(`This is a photo shoot for ${c.name}: {{user}} is photographing ${nameOf(g, t.who)} for "${b.name}"${b.subject?.expr && b.subject.expr !== 'back' ? `; the brief wants ${b.subject.expr}` : ''}${b.subject?.scene ? ` (${b.subject.scene})` : ''}.`);
+        out.push(`This is a photo shoot for ${c.name}: {{user}} is photographing ${nameOf(g, w, t.who)} for "${b.name}"${b.subject?.expr && b.subject.expr !== 'back' ? `; the brief wants ${b.subject.expr}` : ''}${b.subject?.scene ? ` (${b.subject.scene})` : ''}.`);
     }
     if (p.last && now - p.last.at < 60 && g.player.loc === p.last.place)
         out.push(`Just now: ${p.last.line}`);
@@ -832,7 +954,7 @@ function card(g, w, o) {
     const mul = (c.pay ?? 1) * effectMul(g, w, 'pay', ['photo', b.kind]);
     const due = 'due' in o ? o.due : o.day + (o.days ?? b.days ?? BRIEF_DAYS);
     const rep = repFor(b, 5, false), capped = o.lane === 'small' && repOf(g) >= smallCap(w);
-    const subject = o.who ? [o.who, o.who2].filter(Boolean).map(a => nameOf(g, a)).join(' and ') : b.subject?.who === 'client' ? 'a model the client sends' : undefined;
+    const subject = o.who ? [o.who, o.who2].filter(Boolean).map(a => nameOf(g, w, a)).join(' and ') : b.subject?.who === 'client' ? 'a model the client sends' : undefined;
     const why = 'due' in o ? '' : takeWhy(g, w, o);
     return { offer: o, brief: b, client: c, place: o.place === ANY_STUDIO ? 'A photo studio' : placeOf(g, w, o.place)?.name ?? o.place, placeId: o.place, window: o.on !== undefined ? `on ${weekday(o.on)} (the wedding)` : windowWords(g, w, b),
         due: due - g.day, dueDay: due, pay50: payOf(g, b.pay * mul), pay100: payOf(g, b.pay * mul * 1.5), rep, ...(capped ? { capped } : {}), needs: needsOf(g, w, b, c),
@@ -853,14 +975,15 @@ export function openView(g, w) {
         const base = card(g, w, t);
         if (!base)
             return null;
-        const b = base.brief, why = shootWhy(g, w, t), pv = deliveryPreview(g, w, t), a = planOf(g, t);
+        const b = base.brief, why = shootWhy(g, w, t), pv = deliveryPreview(g, w, t), a = planOf(g, t), call = callOf(g, t);
         const canEdit = editHere && editable(g, w, t, kinds);
         const editWhy = !t.shot ? 'Shoot it first.' : t.edited !== undefined ? 'Already edited.' : t.shot.day !== g.day ? 'Edited on the day it was shot.' : t.shot.look === 'film' && !kinds.has('darkroom') ? 'Film needs a darkroom.' : !editHere ? 'At home or in a studio.' : '';
         const out = { ...base, open: windowHolds(g, w, b), ...(t.shot ? { shot: t.shot, q: pv?.q } : {}), parts: [...(t.shot?.parts ?? []), ...(t.editParts ?? [])],
             canShoot: !why && !t.shot, ...(why ? { shootWhy: why } : {}), canRedo: !!t.shot && !why, canEdit, ...(editWhy && !canEdit ? { editWhy } : {}), canDeliver: !!pv,
             ...(pv ? { stars: pv.stars, payNow: pv.pay } : {}), late: Math.max(0, g.day - t.due), extended: !!t.extended,
             ...(a && a.state === 'set' ? { plan: `${weekday(Math.floor(a.from / 1440))} at ${hm(a.from % 1440)}, ${placeOf(g, w, a.place)?.name ?? ''}` } : {}),
-            needsPlan: !!t.who && t.lane !== 'wedding' && !t.shot && !(a && livePlan(a)) };
+            ...(call ? { plan: `${weekday(Math.floor(call.from / 1440))} at ${hm(call.from % 1440)}, ${call.place === STUDIO_ID ? 'your photo studio' : placeOf(g, w, call.place)?.name ?? ''}` } : {}),
+            needsPlan: !!t.who && t.lane !== 'wedding' && !t.shot && !(a && livePlan(a)) && !call };
         return out;
     }).filter((x) => !!x);
     return { cards };
