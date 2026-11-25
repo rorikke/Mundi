@@ -18,6 +18,13 @@
 #mundi-root .mu-ph-today h5 { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; opacity: .65; }
 #mundi-root .mu-ph-today h5 small { font-size: 11px; font-weight: 700; text-transform: none; letter-spacing: 0; }
 #mundi-root .mu-ph-today p { margin: 0; font-size: 12.5px; opacity: .7; }
+/* the card's own text colour for its small print and titles (dark on the light glass, white over a wallpaper), a
+   little lighter for what's secondary, instead of the theme's muted grey and accent, too pale on the glass */
+#mundi-root .mu-ph-today :is(small, .mu-muted), #mundi-root .mu-ph-today .mu-pt-title { color: inherit; }
+#mundi-root .mu-ph-today .mu-pt-part > small, #mundi-root .mu-ph-today .mu-pt-kv { opacity: .82; }
+#mundi-root .mu-ph-today .mu-pt-part > small.mu-muted { opacity: .68; }
+#mundi-root .mu-ph-today .mu-pt-title { opacity: .88; }
+#mundi-root .mu-ph-today h5 { opacity: .72; }
 
 /* rows: today's list and what's coming up */
 #mundi-root .mu-pt-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
