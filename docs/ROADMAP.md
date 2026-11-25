@@ -22,6 +22,9 @@ Tokyo jobs that are shifts and ranks today, grown into systems of their own the 
 - **Creator:** the streamer's job as channels (games, cooking, the city on foot, a virtual avatar), streams on the
   Calendar, viewers, subscribers and paid chat, collabs with Tokyo's people, clips that spread like rumors, sponsors,
   burnout, fans who find out where you live; followers shared with Lens.
+- **Night bars' staff jobs:** the jobs only Tokyo's people hold today at its adult night bars (an SM bar's mistress, a
+  members' bar's door hostess) opened to the player: ranks to climb, work events, the bar's regulars, and its
+  mistress or hostess as the boss.
 
 ## Business
 

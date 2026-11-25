@@ -10,12 +10,12 @@
 //  - A save made by a newer Mundi (schema above SCHEMA) is played as a detached copy and never written.
 import { SAVE, toast } from './store.js';
 import { ctx } from '../st/bridge.js';
-import { getWorld, career } from './world.js';
+import { getWorld, career, systemOn } from './world.js';
 import { relOf, idOf, setFr, setRo, setStatus, setCooldown, statusOf, hasMeter, setPast, pastOf, PARTNER, COUPLE_ROMANCE, YOU } from '../sim/rel.js';
 import { isFamily } from './feel.js';
 import { settleTraits } from '../sim/traits.js';
 import { trackOf } from '../sim/tracks.js';
-import { repairProfiles } from '../sim/profiles.js';
+import { repairProfiles, exampleOf } from '../sim/profiles.js';
 import { settleStartRent } from '../sim/bills.js';
 import { settleThreads } from '../sim/threads.js';
 import { settleModules } from '../sim/degrees.js';
@@ -347,6 +347,29 @@ export function migrate(g) {
 const HOME = 'home:player';
 const isPlace = (g, w, id) => id === HOME || (id === SECOND_HOME_ID && !!secondHome(g)) || (id === STUDIO_ID ? !!myStudio(g, w) : id.startsWith('home:') && !!g.cast[id.slice(5)]) || w.places.some(p => p.id === id && !p.link);
 const firstSpot = (w, zoneId) => { const z = w.homes.zones.find(x => x.id === zoneId); const s = z?.spots?.[0]; return { x: s?.[0] ?? 0, y: s?.[1] ?? 0, n: 1 }; };
+// The world's people who stay themselves (`anchored`) and have no job take the job their world gives them, once per
+// job: a job added to the world after the save began (Saki's and Kurenai's bars) reaches them, while one they lost in
+// play (the player in This world) isn't handed back on the next load, and one holding another job (from a storyline)
+// keeps it. `g.worldJobs` remembers each person and job seen. Returns who took one ("Saki (Door hostess)").
+export function settleWorldJobs(g, w) {
+    if (!systemOn(w, 'jobs'))
+        return [];
+    const seen = (g.worldJobs ??= []), took = [];
+    for (const r of Object.values(g.cast)) {
+        const ex = exampleOf(w, r.avatar), o = ex?.occupation ? w.occupations.find(x => x.id === ex.occupation) : undefined;
+        if (!ex || ex.anchored === false || !o)
+            continue;
+        const key = `${r.avatar}|${o.id}`;
+        if (seen.includes(key))
+            continue;
+        seen.push(key);
+        if (!r.occupation) {
+            r.occupation = o.id;
+            took.push(`${r.name} (${o.name})`);
+        }
+    }
+    return took;
+}
 // Repairs what in the save points to things the world no longer has. Safe to run on every load.
 export function repair(g, w) {
     const notes = [];
@@ -592,6 +615,20 @@ export function checkSave(g) {
             changed = true;
             if (said)
                 later(() => toast(`${said} A backup of the save was kept (Settings → Game → This save).`, 'info'));
+        }
+        // (E25) the world's people without a job take the one their world gives them; only remembering who was seen
+        // needs no backup
+        const jobs = structuredClone(g);
+        if (settleWorldJobs(jobs, w).length) {
+            if (!backedUp)
+                backup(g, 'before giving people their jobs');
+            backedUp = true;
+        }
+        if (JSON.stringify(jobs) !== JSON.stringify(g)) {
+            const took = settleWorldJobs(g, w);
+            changed = true;
+            if (took.length)
+                later(() => toast(`People in this world took up the jobs it gives them: ${took.join(', ')}. A backup of the save was kept (Settings → Game → This save).`, 'info'));
         }
         // the collection's record (only its own key is written: no backup); the first time, it fills from what the
         // save remembers

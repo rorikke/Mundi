@@ -8706,6 +8706,7 @@ const DICT = {
     "car": "coche",
     "vehicle": "vehículo",
     "Modules you passed now teach what they teach today: {0}.": "Las asignaturas que aprobaste ahora enseñan lo que enseñan hoy: {0}.",
+    "People in this world took up the jobs it gives them: {0}. A backup of the save was kept (Settings → Game → This save).": "La gente de este mundo tomó los trabajos que le da: {0}. Se guardó una copia de la partida (Ajustes → Juego → Esta partida).",
     "2 left": "quedan 2",
     "3 left": "quedan 3",
     "4 left": "quedan 4",
