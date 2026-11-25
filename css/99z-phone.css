@@ -58,7 +58,7 @@
 #mundi-root .mu-phone .mu-ph-app i { width: 68px !important; height: 68px !important; border-radius: 20px !important; }
 #mundi-root .mu-phone .mu-ph-app i .mu-ic { width: 32px; height: 32px; }
 #mundi-root .mu-phone .mu-ph-app span { font-size: 12px; }
-#mundi-root .mu-ph-today, #mundi-root .mu-ph-today:hover:not(:disabled) { grid-column: 1 / -1; display: grid; gap: 8px; justify-items: stretch; justify-content: stretch !important; align-items: start !important; padding: 14px 16px; margin-bottom: 4px; text-align: left !important;
+#mundi-root .mu-ph-today { grid-column: 1 / -1; display: grid; gap: 8px; justify-items: stretch; justify-content: stretch !important; align-items: start !important; padding: 14px 16px; margin-bottom: 4px; text-align: left !important;
     border-radius: 22px !important; color: #24304a; background: rgba(255, 255, 255, .55) !important; border: 1px solid rgba(255, 255, 255, .75) !important;
     box-shadow: 0 6px 18px rgba(40, 50, 90, .12), inset 0 1px 0 #fff !important; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transform: none !important; }
 #mundi-root .mu-pt-clock { display: flex; align-items: baseline; gap: 10px; }

@@ -5284,7 +5284,7 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-phone .mu-ph-app i { width: 68px !important; height: 68px !important; border-radius: 20px !important; }
 #mundi-root .mu-phone .mu-ph-app i .mu-ic { width: 32px; height: 32px; }
 #mundi-root .mu-phone .mu-ph-app span { font-size: 12px; }
-#mundi-root .mu-ph-today, #mundi-root .mu-ph-today:hover:not(:disabled) { grid-column: 1 / -1; display: grid; gap: 8px; justify-items: stretch; justify-content: stretch !important; align-items: start !important; padding: 14px 16px; margin-bottom: 4px; text-align: left !important;
+#mundi-root .mu-ph-today { grid-column: 1 / -1; display: grid; gap: 8px; justify-items: stretch; justify-content: stretch !important; align-items: start !important; padding: 14px 16px; margin-bottom: 4px; text-align: left !important;
     border-radius: 22px !important; color: #24304a; background: rgba(255, 255, 255, .55) !important; border: 1px solid rgba(255, 255, 255, .75) !important;
     box-shadow: 0 6px 18px rgba(40, 50, 90, .12), inset 0 1px 0 #fff !important; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transform: none !important; }
 #mundi-root .mu-pt-clock { display: flex; align-items: baseline; gap: 10px; }
@@ -5411,7 +5411,7 @@ body.mundi-open #completion_prompt_manager_popup {
 
 /* rows: today's list and what's coming up */
 #mundi-root .mu-pt-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
-#mundi-root .mu-pt-list li, #mundi-root .mu-pt-list .mu-pt-row, #mundi-root .mu-pt-list .mu-pt-row:hover:not(:disabled) { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 0; padding: 0; margin: 0;
+#mundi-root .mu-pt-list li, #mundi-root .mu-pt-list .mu-pt-row { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 0; padding: 0; margin: 0;
     font-size: 12.5px; font-weight: 600; text-align: left; color: inherit; background: none !important; border: 0 !important; box-shadow: none !important; transform: none !important; }
 #mundi-root .mu-pt-list .mu-pt-row:hover:not(:disabled) > span { text-decoration: underline; }
 #mundi-root .mu-pt-list i { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; background: rgba(10, 132, 255, .14); color: #0a63c9; font-style: normal; }
@@ -5424,7 +5424,7 @@ body.mundi-open #completion_prompt_manager_popup {
 
 /* the week: seven days, each with up to three marks and the shift's start */
 #mundi-root .mu-pt-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
-#mundi-root .mu-pt-days button, #mundi-root .mu-pt-days button:hover:not(:disabled) { display: grid; justify-items: center; align-content: start; gap: 2px; min-height: 0; min-width: 0; padding: 5px 1px 4px; margin: 0;
+#mundi-root .mu-pt-days button { display: grid; justify-items: center; align-content: start; gap: 2px; min-height: 0; min-width: 0; padding: 5px 1px 4px; margin: 0;
     border-radius: 11px !important; color: inherit; background: rgba(255, 255, 255, .45) !important; border: 1px solid rgba(36, 48, 74, .08) !important; box-shadow: none !important; transform: none !important; }
 #mundi-root .mu-pt-days button:hover:not(:disabled) { border-color: rgba(10, 132, 255, .5) !important; }
 #mundi-root .mu-pt-days button.is-today { background: rgba(10, 132, 255, .16) !important; border-color: rgba(10, 132, 255, .35) !important; }
@@ -5473,7 +5473,7 @@ body.mundi-open #completion_prompt_manager_popup {
 
 /* the pager: dots folded (the current one long), labelled tabs unfolded; arrows at the ends */
 #mundi-root .mu-pt-pager { display: flex; align-items: center; justify-content: center; gap: 2px; padding: 2px 0 2px; border-top: 1px solid rgba(36, 48, 74, .12); }
-#mundi-root .mu-pt-pager button, #mundi-root .mu-pt-pager button:hover:not(:disabled) { display: grid; place-items: center; min-height: 0; min-width: 0; padding: 7px 4px; margin: 0; color: inherit;
+#mundi-root .mu-pt-pager button { display: grid; place-items: center; min-height: 0; min-width: 0; padding: 7px 4px; margin: 0; color: inherit;
     background: none !important; border: 0 !important; box-shadow: none !important; transform: none !important; }
 #mundi-root .mu-pt-dot i { display: block; width: 7px; height: 7px; border-radius: 4px; background: currentColor; opacity: .25; transition: width .2s ease, opacity .2s ease; }
 #mundi-root .mu-pt-dot:hover i { opacity: .5; }
@@ -5497,13 +5497,13 @@ body.mundi-open #completion_prompt_manager_popup {
 
 /* the week, day by day */
 #mundi-root .mu-pt-wdays { display: grid; gap: 4px; padding: 10px 0; }
-#mundi-root .mu-pt-wday, #mundi-root .mu-pt-wday:hover:not(:disabled) { display: grid; gap: 4px; align-content: start; min-height: 0; min-width: 0; padding: 7px 10px; margin: 0; text-align: left; color: inherit;
+#mundi-root .mu-pt-wday { display: grid; gap: 4px; align-content: start; min-height: 0; min-width: 0; padding: 7px 10px; margin: 0; text-align: left; color: inherit;
     border-radius: 12px !important; background: rgba(255, 255, 255, .4) !important; border: 1px solid rgba(36, 48, 74, .08) !important; box-shadow: none !important; transform: none !important; }
 #mundi-root .mu-pt-wday:hover:not(:disabled) { border-color: rgba(10, 132, 255, .5) !important; }
 #mundi-root .mu-pt-wday.is-today { background: rgba(10, 132, 255, .12) !important; border-color: rgba(10, 132, 255, .3) !important; }
 #mundi-root .mu-pt-wday.is-free { grid-template-columns: auto 1fr; align-items: baseline; gap: 10px; }
 #mundi-root .mu-pt-wday.is-free p { font-size: 11.5px; }
-#mundi-root .mu-pt-wday, #mundi-root .mu-pt-wday:hover:not(:disabled) { justify-items: stretch !important; justify-content: stretch !important; align-items: start !important; }
+#mundi-root .mu-pt-wday { justify-items: stretch !important; justify-content: stretch !important; align-items: start !important; }
 #mundi-root .mu-pt-wday h5 { justify-content: flex-start; }
 #mundi-root .mu-pt-wday h5 > span { flex: 1; }
 #mundi-root .mu-pt-more { font-style: normal; font-weight: 700; text-transform: none; letter-spacing: 0; opacity: .8; }
@@ -5567,7 +5567,7 @@ body.mundi-open #completion_prompt_manager_popup {
     #mundi-root .mu-pt-skills li small { font-size: 10.5px; }
     /* the calendar: a line a day, its things one after the other */
     #mundi-root .mu-pt-wdays { gap: 3px; padding-bottom: 6px; }
-    #mundi-root .mu-pt-wday, #mundi-root .mu-pt-wday:hover:not(:disabled), #mundi-root .mu-pt-wday.is-free { grid-template-columns: 96px minmax(0, 1fr); align-items: center !important; gap: 8px; padding: 4px 9px; border-radius: 9px !important; }
+    #mundi-root .mu-pt-wday, #mundi-root .mu-pt-wday.is-free { grid-template-columns: 96px minmax(0, 1fr); align-items: center !important; gap: 8px; padding: 4px 9px; border-radius: 9px !important; }
     #mundi-root .mu-pt-wday h5 { font-size: 10px; }
     #mundi-root .mu-pt-wday .mu-pt-more { display: none; }
     #mundi-root .mu-pt-wday .mu-pt-list { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11.5px; font-weight: 600; }
@@ -5610,7 +5610,7 @@ body.mundi-open #completion_prompt_manager_popup {
     #mundi-root .mu-pt-page:not(.is-overview) > :not(.mu-pt-title) { grid-row: 2; }
     #mundi-root .mu-pt-page.is-goal { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
     #mundi-root .mu-pt-wdays { grid-template-columns: repeat(7, minmax(0, 1fr)); padding: 10px 8px; }
-    #mundi-root .mu-pt-wday, #mundi-root .mu-pt-wday:hover:not(:disabled) { min-height: 130px; padding: 8px 7px; }
+    #mundi-root .mu-pt-wday { min-height: 130px; padding: 8px 7px; }
     #mundi-root .mu-pt-wday.is-free { grid-template-columns: none; align-items: start; gap: 4px; }
     #mundi-root .mu-pt-wday .mu-pt-list { gap: 6px; }
     #mundi-root .mu-pt-wday .mu-pt-list > :nth-child(n + 4) { display: grid; }
