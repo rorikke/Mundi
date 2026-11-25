@@ -15,8 +15,8 @@ import { GOAL_CATEGORIES, GOAL_POINTS, isOwnGoal } from '../core/goals.js';
 import { goalsState, offeredGoals, activeGoal, canPick, pickGoal, goalProgress, stepProgress, suggestedGoals, perksOf, needsPick } from '../sim/goals.js';
 import { pointsOf } from '../sim/points.js';
 import { shopItems, peopleFor, traitChoices, rumorsToQuiet, piecesFor, buyReward } from '../sim/rewards.js';
-import { countedOf, homeMap, endgameWords } from '../sim/when.js';
-import { placesBeen, beenTo, isRegular } from '../sim/tally.js';
+import { countedOf, homeMap, endgameWords, visitablePlaces } from '../sim/when.js';
+import { beenTo, isRegular } from '../sim/tally.js';
 import { placeOf } from '../sim/places.js';
 import { bannedUntil } from '../sim/caught.js';
 import { courseOf } from '../sim/courses.js';
@@ -182,9 +182,9 @@ function valueWords(w, key, v) {
     }
     return `${cap(key)}: ${v}`;
 }
-// Places you've been to among the world's visitable ones (as sim/when.ts counts them), for the counts the engine's
-// `stepProgress` leaves without numbers ("Visited 4 of 9 places in Asakusa", "regular at 2 of 3").
-const visitable = (w) => w.places.filter(p => !p.link && !p.private && !p.adult);
+// Places you've been to among the world's visitable ones (sim/when.ts's, so the counts agree), for the counts the
+// engine's `stepProgress` leaves without numbers ("Visited 4 of 9 places in Asakusa", "regular at 2 of 3").
+const visitable = visitablePlaces;
 const onMapOf = (w, p, map) => p.map === map || w.maps.find(m => m.id === p.map)?.area === map;
 function extraCount(g, w, key, v) {
     if (key === 'visited') {
@@ -205,7 +205,7 @@ function extraCount(g, w, key, v) {
             return { have: map ? visitable(w).filter(p => onMapOf(w, p, map) && isRegular(g, p.id)).length : 0, need: Number(m[1]) };
         }
         if (v === 'all')
-            return { have: placesBeen(g).filter(id => visitable(w).some(p => p.id === id)).length, need: visitable(w).length };
+            return { have: visitable(w).filter(p => beenTo(g, p.id)).length, need: visitable(w).length };
     }
     // the term you're in, of the one asked for (past it once you graduate)
     if (key === 'degree' && /^term\s+\d+$/i.test(v)) {

@@ -2830,6 +2830,7 @@ const DICT: Record<string, string> = {
  "Your character": "Tu personaje",
  "Open the map": "Abrir el mapa",
  "Nobody here right now.": "Ahora no hay nadie aquí.",
+ "Not visited yet": "Aún sin visitar",
  "Enter the scene": "Entrar en la escena",
  "Go here": "Ir aquí",
  "Maps": "Mapas",

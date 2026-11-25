@@ -1,0 +1,5 @@
+/* The map: places you haven't been to yet get a small gold mark on their pin, and their card says so. */
+#mundi-root .mu-pin-new { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ffc83d; box-shadow: 0 0 0 2px rgba(8, 10, 22, .85), 0 0 6px rgba(255, 200, 61, .8); }
+#mundi-root .mu-pin > .mu-pin-new { position: absolute; top: -4px; left: calc(50% + 4px); pointer-events: none; }
+#mundi-root .mu-pop-new { display: flex; align-items: center; gap: 6px; color: #ffd76a; font-weight: 600; }
+#mundi-root .mu-pop-new .mu-pin-new { width: 7px; height: 7px; flex: none; }

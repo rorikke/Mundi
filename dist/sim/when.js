@@ -713,7 +713,10 @@ function friendsHold(g, w, v) {
 // The places a `visited` counts: real places (not a pin to another map, not private, not adult).
 // (business: a venture's unit isn't one of the places to visit: it's only there while it's yours)
 // (museum) the museum's place isn't a corner of its district: it's hidden until yours, and only one player's
-const visitable = (w) => { const own = w.collection?.museum?.place; return w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture && !p.room && p.id !== own); };
+export const visitablePlaces = (w) => { const own = w.collection?.museum?.place; return w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture && !p.room && p.id !== own); };
+const visitable = visitablePlaces;
+/** (the map) A place `visited` counts that you haven't been to yet. */
+export const notVisited = (g, w, id) => !beenTo(g, id) && visitablePlaces(w).some(p => p.id === id);
 /** (the collection) The places `visited: all in <map>` asks for, and how many of them you've been to. */
 export function placesToVisit(g, w, map) {
     const on = placesOnMap(g, w, map);

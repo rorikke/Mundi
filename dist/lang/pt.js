@@ -2817,6 +2817,7 @@ const DICT = {
     "Your character": "Seu personagem",
     "Open the map": "Abrir o mapa",
     "Nobody here right now.": "Ninguém aqui agora.",
+    "Not visited yet": "Ainda não visitado",
     "Enter the scene": "Entrar na cena",
     "Go here": "Ir para cá",
     "Maps": "Mapas",

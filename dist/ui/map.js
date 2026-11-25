@@ -28,6 +28,7 @@ import { pins, placeOf, mapOf, travelMinutes, playerHomeId, isOuting, outingName
 import { sleepRoom } from '../sim/homerooms.js';
 import { SECOND_HOME_ID } from '../sim/housing.js';
 import { tallyEvent } from '../sim/tally.js';
+import { notVisited } from '../sim/when.js';
 import { missedTrain, drivesNow, taxiFare, untilFirstTrain, byTrain, fellowTravelers, meetOdds, tookLateTrip } from '../sim/transit.js';
 import { planOn, floorsOn, planTarget, unplaced, floorOf } from '../sim/plan.js';
 import { presentAt, whereNow } from '../sim/people.js';
@@ -64,8 +65,11 @@ function pinsHtml(g, w) {
         if (p.link)
             return `<button class="mu-pin is-link" data-act="pin" data-loc="${esc(p.id)}" style="left:${p.x}%;top:${p.y}%" aria-label="${esc(p.name)}"><span class="dot">${icon('map')}</span><span class="label">${esc(p.name)}</span></button>`;
         const shut = !p.home && systemOn(w, 'living') && !openNow(g, w, p.id);
-        return `<button class="mu-pin ${p.home ? 'is-home' : ''} ${shut ? 'is-closed' : ''} ${p.id === sel ? 'is-sel' : ''} ${p.id === g.player.loc ? 'is-you' : ''}" data-act="pin" data-loc="${esc(p.id)}" style="left:${p.x}%;top:${p.y}%" aria-label="${esc(p.name)}">
-            <span class="dot"></span><span class="label">${esc(p.name)}</span>
+        // a place you haven't been to yet (one the Explorer goals count): a small mark by its dot (outside it: a closed
+        // place's dot is greyed, the mark stays gold)
+        const fresh = !p.home && p.id !== g.player.loc && notVisited(g, w, p.id);
+        return `<button class="mu-pin ${p.home ? 'is-home' : ''} ${shut ? 'is-closed' : ''} ${fresh ? 'is-new' : ''} ${p.id === sel ? 'is-sel' : ''} ${p.id === g.player.loc ? 'is-you' : ''}" data-act="pin" data-loc="${esc(p.id)}" style="left:${p.x}%;top:${p.y}%" aria-label="${esc(p.name)}">
+            <span class="dot"></span>${fresh ? '<i class="mu-pin-new"></i>' : ''}<span class="label">${esc(p.name)}</span>
             ${here.length ? `<span class="faces">${known.slice(0, 3).map(r => `<img draggable="false" src="${esc(thumb(r.avatar))}" alt="" title="${esc(r.name)}">`).join('')}${strangers || known.length > 3 ? `<i>+${strangers + Math.max(0, known.length - 3)}</i>` : ''}</span>` : ''}
         </button>`;
     }).join('');
@@ -106,6 +110,7 @@ function popHtml(g, w, loc, touch) {
     return `<h3>${esc(p.name)}</h3>
         ${p.desc ? `<p>${esc(p.desc)}</p>` : ''}${p.event ? `<p class="mu-muted">${esc(p.event)}</p>` : ''}
         ${people}
+        ${!you && notVisited(g, w, loc) ? `<small class="mu-pop-new"><i class="mu-pin-new"></i>Not visited yet</small>` : ''}
         ${you ? `<span class="mu-badge">You are here</span>` : `<small class="mu-muted">${travelMinutes(g, w, g.player.loc, loc)} min away · click to go</small>`}
         ${touch || you ? `<button class="mu-primary" data-act="go" data-loc="${esc(loc)}" data-sfx="open">${you ? 'Enter the scene' : 'Go here'}</button>` : ''}
         ${banLine(g, loc)}

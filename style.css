@@ -5682,6 +5682,11 @@ body.mundi-open #completion_prompt_manager_popup {
 /* Stella's picture sits exactly on the box's bottom line */
 #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box img, #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box.is-wide img { position: absolute; left: 22px; bottom: 0; margin: 0; }
 #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box .mu-tut-talk { grid-column: 2; }
+/* The map: places you haven't been to yet get a small gold mark on their pin, and their card says so. */
+#mundi-root .mu-pin-new { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ffc83d; box-shadow: 0 0 0 2px rgba(8, 10, 22, .85), 0 0 6px rgba(255, 200, 61, .8); }
+#mundi-root .mu-pin > .mu-pin-new { position: absolute; top: -4px; left: calc(50% + 4px); pointer-events: none; }
+#mundi-root .mu-pop-new { display: flex; align-items: center; gap: 6px; color: #ffd76a; font-weight: 600; }
+#mundi-root .mu-pop-new .mu-pin-new { width: 7px; height: 7px; flex: none; }
 /* Unfolded (ui/courses.ts, ui/phone.ts): a list on the left (the Profile's tabs, the Homes tabs, your Spark profile and
    matches, a section's apps such as Work's), what's picked on the right */
 #mundi-root :is(.mu-pf-split, .mu-hm-split, .mu-sp-split) .mu-ph-body { padding: 14px; }
