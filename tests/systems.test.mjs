@@ -74,7 +74,7 @@ for (const [id, file] of [['modern', 'v0.1.0-modern.json'], ['medieval', 'v0.1.0
                 ok(hr.homeRooms(g, w, 'home:player').length === 0 && hr.roomNow(g, w) === null, 'no rooms inside');
                 ok(needs.actionsHere(g, w).map(a => `${a.id}:${a.cost}`).join(',') === plain, 'the same things to do at home');
                 ok(hr.scenePlace(g, w)?.name === 'My home', 'the scene is the whole home');
-                if (ui) { const hs = await D('ui/homesui.js'); ok(hs.roomRows(g, w).length === 0, 'no room rows'); }
+                if (ui) { const hs = await D('ui/homesui.js'); ok(hs.roomsCard(g, w) === '', 'no Rooms card'); }
             }
             // nothing in the save was lost while it was off
             for (const k of Object.keys(before)) ok(k in g, `the save still has ${k}`);

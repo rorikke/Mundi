@@ -118,8 +118,9 @@ const w = world(ext, 'medieval'); W.registerWorld(w);
     const g2 = fresh(); g2.player.loc = 'hr_mead';
     let found = null; for (let i = 0; i < 200 && !found; i++) { g2.day++; found = SK.hazardHere(g2, w); }
     ok(!!found && found.climate === 'cold', `the cold north has its storms (${found?.name})`);
-    if (found?.drain?.energy) { const e0 = g2.player.stats.energy; time.advance(g2, w, 60); const lost = e0 - g2.player.stats.energy; ok(lost >= 0, 'needs drop faster in a storm'); }
+    // (before the hour passes: a place that closes shows you out, and the storm stays where it was)
     if (found?.blocksCamp) ok(SK.campBlocked(g2, w) && (E.addGood(g2, 'camping_gear', 1), !SK.campBlocked(g2, w)), 'no rest at camp without camping gear');
+    if (found?.drain?.energy) { const e0 = g2.player.stats.energy; time.advance(g2, w, 60); const lost = e0 - g2.player.stats.energy; ok(lost >= 0, 'needs drop faster in a storm'); }
 }
 // ecology
 {
