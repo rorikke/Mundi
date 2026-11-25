@@ -289,6 +289,45 @@ function effectWords(w: WorldDef, e: EffectDef): string {
         default: return `${e.kind} ${EFFECT_KINDS[e.kind]?.mode === 'mul' ? `${v >= 0 ? '+' : '−'}${pct(v)}` : plus(v)}${t ? ` (${t})` : ''}`;
     }
 }
+// What it unlocks: actions that need it, or name it in an `owns:` (adult ones only with adult content on).
+function unlocksOf(g: Save, w: WorldDef, it: Item): ActionDef[] {
+    const named = (a: ActionDef) => parseWhen(a.when).conds.some(c => c.key === 'owns' && !c.not && c.values.includes(it.id));
+    return w.actions.filter(a => (!a.adult || adultOn(g)) && (a.needsItem === it.id || (!!a.when && named(a))));
+}
+/** What an item is for, the Shop app's filter: the uses in the order offered, with English names (the screens
+ *  translate them). `plain`: kept things that do none of the others (a sofa, a dress). */
+export const ITEM_USES = [
+    { id: 'unlock', name: 'Unlocks something' },
+    { id: 'skill', name: 'Skill training' },
+    { id: 'needs', name: 'Needs & rest' },
+    { id: 'social', name: 'People & dating' },
+    { id: 'money', name: 'Work & money' },
+    { id: 'travel', name: 'Getting around' },
+    { id: 'gift', name: 'Gifts to give' },
+    { id: 'service', name: 'Services & supplies' },
+    { id: 'plain', name: 'Just to have' },
+] as const;
+export type ItemUse = typeof ITEM_USES[number]['id'];
+// each effect kind's use (the private-moments roll goes to people, other rolls to skills)
+const USE_OF: Partial<Record<string, ItemUse>> = {
+    learn: 'skill', study: 'skill', roll: 'skill', reroll: 'skill',
+    drain: 'needs', rest: 'needs', morning: 'needs',
+    warm: 'social', jealousy: 'social', fade: 'social', hint: 'social', party: 'social', risk: 'social',
+    interview: 'money', career: 'money', pay: 'money', perf: 'money', gain: 'money', points: 'money', price: 'money',
+    letting: 'money', royalty: 'money', venture: 'money', find: 'money', renown: 'money', travel: 'travel',
+};
+/** The uses of an item (the same facts its card's lines come from). */
+export function itemUses(g: Save, w: WorldDef, it: Item): ItemUse[] {
+    const out = new Set<ItemUse>();
+    if (unlocksOf(g, w, it).length) out.add('unlock');
+    for (const e of cleanEffects(it.effects, LIMITS)) { const u = e.kind === 'roll' && e.target === 'private' ? 'social' : USE_OF[e.kind]; if (u) out.add(u); }
+    if (Number(it.travel) > 0 || it.late) out.add('travel');
+    if (Number(it.sleepMood) > 0 || Object.values(it.now ?? {}).some(v => Number(v))) out.add('needs');
+    if (it.keepsake && keepsakeDef(w, it.keepsake).gift !== false) out.add('gift');
+    if (it.repeat) out.add('service');
+    if (!out.size && isKept(it)) out.add('plain');
+    return ITEM_USES.map(u => u.id).filter(id => out.has(id));
+}
 /** What an item does, in words for its card: trips, driving late, mood on waking, its effects, what it unlocks, how
  *  long a service lasts or how many uses it holds, what it changes at once, the keepsake it gives. English interface
  *  text (the screens translate it). */
@@ -298,9 +337,7 @@ export function itemDoes(g: Save, w: WorldDef, it: Item): string[] {
     if (it.late) out.push('Drive after the last train');
     if (Number(it.sleepMood) > 0) out.push(`${plus(Number(it.sleepMood))} mood waking up at home`);
     for (const e of cleanEffects(it.effects, LIMITS)) out.push(effectWords(w, e));
-    // what it unlocks: actions that need it, or name it in an `owns:` (adult ones only with adult content on)
-    const named = (a: ActionDef) => parseWhen(a.when).conds.some(c => c.key === 'owns' && !c.not && c.values.includes(it.id));
-    const unlocks = w.actions.filter(a => (!a.adult || adultOn(g)) && (a.needsItem === it.id || (!!a.when && named(a))));
+    const unlocks = unlocksOf(g, w, it);
     if (unlocks.length) out.push(`Unlocks: ${[...new Set(unlocks.map(actName))].join(', ')}`);
     const d = daysOf(it), n = stockOf(it);
     if (d && !it.now) out.push(d === 1 ? 'Lasts a day' : `Lasts ${d} days`);
