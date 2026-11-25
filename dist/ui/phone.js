@@ -46,7 +46,8 @@ import { awayNow, answerLater, dueLater, waitingOn, heartTone, heartBackfired, H
 import { grudgeOf } from '../sim/grudges.js';
 import { planForm, calendarApp, plansBadge } from './plans.js';
 import { hobbyNeed, hobbyFits, skillName } from '../sim/hobbies.js';
-import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays, myJob, trackOf, needsPick, openTracks, feeOf, waitDays, pathChoices, closedText, isFreelance, bookedJob } from '../sim/work.js';
+import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays, myJob, trackOf, needsPick, openTracks, feeOf, waitDays, pathChoices, closedText, isFreelance, bookedJob, colleaguesOf, bossOf, colleagueWeekText } from '../sim/work.js';
+import { rankName, jobOf as npcJob } from '../sim/dayplan.js';
 import { trackName } from '../sim/tracks.js';
 import { icon } from './icons.js';
 import { appsOf, featureOn } from '../sim/creator.js';
@@ -632,6 +633,23 @@ const jobSortChips = () => `<div class="mu-chips mu-jobs-sort"><small class="mu-
 // list, sorted as you pick). It opens on Your job, and on Openings again once you quit or before you're hired; a job
 // taken or left (however: the list, a pick of track, the scene) starts it over.
 const JV = { tab: '', job: undefined };
+// The other people with your job (or working at your place): their rank and their shifts this week, so you know who
+// you'll be working with, the boss among them, and who you haven't met yet.
+function coworkersHtml(g, w, o) {
+    if (!systemOn(w, 'jobs'))
+        return '';
+    const self = g.swap?.avatar, boss = bossOf(g, w, o);
+    const list = colleaguesOf(g, w, o).filter(r => r.avatar !== self && !r.gone && npcJob(g, w, r));
+    if (!list.length)
+        return '';
+    const row = (r) => {
+        const job = npcJob(g, w, r), rank = rankName(g, w, r), week = colleagueWeekText(g, w, r);
+        const what = [rank, job.id !== o.id ? job.name : ''].filter(Boolean).join(' · ');
+        return `<div class="mu-ph-job mu-cowork"><img src="${esc(thumb(r.avatar))}" alt=""><span><b data-notr>${esc(r.name)}</b>${r === boss ? ' <em class="mu-cowork-boss">Boss</em>' : ''}${what ? `<small>${esc(what)}</small>` : ''}
+            <small class="mu-muted">${week ? esc(week) : 'No shifts this week'}</small>${r.met ? '' : '<small class="mu-muted">Not met yet</small>'}</span></div>`;
+    };
+    return `<section class="mu-workweek mu-coworkers"><h4>${icon('users')} Coworkers</h4>${list.map(row).join('')}</section>`;
+}
 function jobsApp(g, w) {
     const j = g.player.job;
     const mine = myJob(g, w); // the job you hold, on your track
@@ -664,7 +682,7 @@ function jobsApp(g, w) {
             ${jobCourseHtml(g, w, mine.id)}
             ${likes(g, mine).length ? `<small>Your traits help: ${esc(likes(g, mine).join(', '))}</small>` : ''}
             <button class="mu-danger" data-act="ph-quit">Quit</button></section>
-            ${workWeekHtml(g, w)}` : '');
+            ${workWeekHtml(g, w)}${coworkersHtml(g, w, mine)}` : '');
     // an opening, all it says, with Apply
     const card = (job) => {
         const o = trackOf(g, job), picks = needsPick(g, job) ? openTracks(g, w, job) : [], fee = feeOf(g, w, job), days = waitDays(g, job), byTitle = bookedJob(g, w, job);

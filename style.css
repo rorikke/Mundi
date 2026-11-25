@@ -3327,6 +3327,13 @@ body.mundi-open #toast-container { display: none !important; }
 /* The Jobs app's sort chips (ui/phone.ts jobSortChips) */
 #mundi-root .mu-jobs-sort { margin: 2px 0 8px; align-items: center; }
 #mundi-root .mu-jobs-sort > small { margin-right: 2px; }
+
+/* Your job's coworkers (ui/phone.ts coworkersHtml) and who's on each of your shifts (ui/relui.ts workWeekHtml) */
+#mundi-root .mu-cowork { justify-content: flex-start; }
+#mundi-root .mu-cowork > img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex: none; }
+#mundi-root .mu-cowork-boss { font-style: normal; font-size: .75em; padding: 1px 6px; border-radius: 999px; background: color-mix(in srgb, var(--accent, #0a84ff) 22%, transparent); }
+#mundi-root .mu-ww-mates { display: flex; gap: 4px; align-items: center; color: var(--accent, #0a84ff); }
+#mundi-root .mu-ww-mates svg { width: 13px; height: 13px; flex: none; }
 /* The fight screen (RPG), in the style of monster-battle games: the place as the backdrop, foes up and to the right,
    your party down and to the left, name / level / HP boxes, a text box and a 2×2 menu. */
 #mundi-root .mu-pkb-veil { position: absolute; inset: 0; z-index: 90; display: grid; place-items: center; padding: 12px; background: rgba(5, 8, 14, .72); }

@@ -13,7 +13,7 @@ import { ACT } from './reg.js';
 import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, tierNo, notYetAnswer, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, addRomance, slowedDown, FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { bondOf, social, isPartner, textFrom } from '../sim/social.js';
 import { visitAnswer, askToStay, visitOf, sayGoodbye, atTheDoor, letIn, visitWhen, nightsOf, visitsOn } from '../sim/visitors.js';
-import { myJob, hire, feeOf, waitDays, realDays, WORK_MODES, workShift, jobDef, rankOf, canWork, atWork, offScreen, promoNeeds, promoProgress, perfOf, pendingEvent, chooseEvent, dropEvent, shiftOn, shiftHours, scheduleOf, vacationLeft, sickNo, workRules, weekText, jobPlace, bookOff, callSick, chooseShift, whenText as shiftWhen, noShifts } from '../sim/work.js';
+import { myJob, hire, feeOf, waitDays, realDays, WORK_MODES, workShift, jobDef, rankOf, canWork, atWork, offScreen, promoNeeds, promoProgress, perfOf, pendingEvent, chooseEvent, dropEvent, shiftOn, shiftHours, scheduleOf, vacationLeft, sickNo, workRules, weekText, jobPlace, bookOff, callSick, chooseShift, whenText as shiftWhen, noShifts, matesOnShift } from '../sim/work.js';
 import { placeOf } from '../sim/places.js';
 import { skillName } from '../sim/hobbies.js';
 import { hm } from '../sim/time.js';
@@ -531,8 +531,10 @@ export function workWeekHtml(g, w) {
     const mine = shiftHours(g, o);
     const row = (s) => {
         const off = j.off?.[s.day], done = (j.worked ?? []).includes(s.day);
+        // who else works it (a colleague to get to know shows up here)
+        const mates = off ? [] : matesOnShift(g, w, o, s);
         // (adult) a raid shut the place for the week: nothing to work or take off
-        return `<div class="mu-ph-job"><span><b>${esc(shiftWhen(g, s))}</b><small>${done ? 'Worked ✓' : off === 'vacation' ? 'Day off' : off === 'sick' ? 'Called in sick' : off === 'closed' ? 'Closed (raid)' : esc(placeOf(g, w, offScreen(w, o) ? '' : jobPlace(g, o))?.name ?? (offScreen(w, o) ? 'off-screen' : ''))}</small></span>
+        return `<div class="mu-ph-job"><span><b>${esc(shiftWhen(g, s))}</b><small>${done ? 'Worked ✓' : off === 'vacation' ? 'Day off' : off === 'sick' ? 'Called in sick' : off === 'closed' ? 'Closed (raid)' : esc(placeOf(g, w, offScreen(w, o) ? '' : jobPlace(g, o))?.name ?? (offScreen(w, o) ? 'off-screen' : ''))}</small>${mates.length ? `<small class="mu-ww-mates">${icon('users')} With <span data-notr>${esc(mates.map(r => r.name).join(', '))}</span></small>` : ''}</span>
             ${done || off === 'sick' || off === 'closed' ? '' : `<button class="mu-ghost" data-act="wk-off" data-day="${s.day}" ${off || (vac >= 1 && s.start > now) ? '' : 'aria-disabled="true"'}>${off ? 'Work it' : 'Take the day off'}</button>`}</div>`;
     };
     return `<section class="mu-workweek"><h4>${icon('briefcase')} Work this week</h4>

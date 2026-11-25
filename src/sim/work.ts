@@ -993,6 +993,23 @@ function workedToday(g: Save, w: WorldDef, o: Occupation, start: number, mates: 
     const self = (g as any).swap?.avatar;
     return [...out].filter(r => !goneAway(r) && r.avatar !== self);
 }
+/** (Jobs app) The colleagues on one of your shifts: one of theirs (starting that day or the day before) overlaps it, at
+ *  the same place. None for an off-screen job. */
+export function matesOnShift(g: Save, w: WorldDef, o: Occupation, s: ShiftTime): Resident[] {
+    if (offScreen(w, trackOf(g, o))) return [];
+    const place = jobPlace(g, o), self = (g as any).swap?.avatar;
+    const overlaps = (r: Resident) => [s.day - 1, s.day].some(d => { const x = npcShiftOn(g, w, r, d); return !!x && x.place === place && x.from < s.end && x.to > s.start; });
+    return colleaguesOf(g, w, o).filter(r => !goneAway(r) && r.avatar !== self && overlaps(r));
+}
+/** (Jobs app) A colleague's shifts over the next seven days, as "Mon, Thu · 19:00–01:00" (each day with its own hours
+ *  when they differ); '' without a weekly schedule or with no shift this week. */
+export function colleagueWeekText(g: Save, w: WorldDef, r: Resident): string {
+    const list = Array.from({ length: 7 }, (_, k) => g.day + k).map(d => npcShiftOn(g, w, r, d)).filter((x): x is NonNullable<typeof x> => !!x)
+        .map(x => ({ wd: wdOf(Math.floor(x.from / 1440)), hours: `${hm(x.from % 1440)}–${hm(x.to % 1440)}` })).sort((a, b) => a.wd - b.wd);
+    if (!list.length) return '';
+    const day = (i: number) => WEEKDAYS[i].slice(0, 3);
+    return list.every(x => x.hours === list[0].hours) ? `${list.map(x => day(x.wd)).join(', ')} · ${list[0].hours}` : list.map(x => `${day(x.wd)} ${x.hours}`).join(', ');
+}
 const halfHour = (t: number) => t + ((30 - (t % 30)) % 30);
 // A hash spread evenly over [0, 1) (FNV-1a of strings that differ in a digit or two clusters).
 const mix = (h: number) => { h ^= h >>> 16; h = Math.imul(h, 0x45d9f3b); h ^= h >>> 16; h = Math.imul(h, 0x45d9f3b); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
