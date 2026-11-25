@@ -17,7 +17,7 @@ import { festivalsOn } from './festivals.js';
 import { placeOn, extraRooms, mapOf, tripMinutes } from './places.js';
 import { trainHours } from './transit.js';
 import { partySpot } from './houseparty.js';
-import { stampOf, slotAt, shiftAt, shiftOn, scheduled, dayStep, dayOff, onVacation, broughtNow, adultOn, adultPlaces, jobOf, workPlace, type Stamp } from './dayplan.js';
+import { stampOf, slotAt, shiftAt, shiftOn, scheduled, dayStep, dayOff, onVacation, broughtNow, adultOn, adultPlaces, jobOf, workPlace, type Stamp, type Shift } from './dayplan.js';
 import { guestSpot } from './guests.js';
 import { homeIdAt } from './visitors.js';
 
@@ -133,6 +133,8 @@ function routineCore(g: Save, w: WorldDef, r: Resident, at: number, st?: Stamp):
     st ??= stampOf(g, w);
     const shift = scheduled(g, w, r) ? shiftAt(g, w, r, at, st) : null;
     if (shift) return shift.place;
+    const near = scheduled(g, w, r) ? aroundShift(g, w, r, at, st) : null;
+    if (near) return near.shift.place;
     const late = lateNight(g, w, r, at, homeId, st);
     if (late) return late;
     const step = dayStep(g, w, r, at, st), start = step[0];
@@ -144,6 +146,20 @@ function routineCore(g: Save, w: WorldDef, r: Resident, at: number, st?: Stamp):
     }
     if (target === 'leisure') return eventSpot(g, w, r.avatar, at) ?? festivalSpot(g, w, at, { map: homeMapOf(g, w, r) }) ?? leisureSpot(g, w, r, day, start, st);   // on a festival day, free time is spent there
     return w.places.some(p => p.id === target) && placeOn(g, w, target) && (adultOn(g) || !w.places.find(p => p.id === target)?.adult) ? target : homeId;
+}
+// People come in a while before their shift and stay on a while after it (a chance to talk with them off the clock).
+// Only on their own time: their plans (a date, a standing appointment, a role, an errand) are checked before this, so
+// they win; an off-screen job has nothing to come early to.
+export const AROUND_SHIFT = 60;
+export function aroundShift(g: Save, w: WorldDef, r: Resident, at: number, st = stampOf(g, w)): { shift: Shift; before: boolean } | null {
+    const day = Math.floor(at / 1440);
+    for (const d of [day - 1, day, day + 1]) {
+        const s = shiftOn(g, w, r, d, st);
+        if (!s || s.place === OUT) continue;
+        if (at >= s.from - AROUND_SHIFT && at < s.from) return { shift: s, before: true };
+        if (at >= s.to && at < s.to + AROUND_SHIFT) return { shift: s, before: false };
+    }
+    return null;
 }
 // (E36) A night out past the last train: where she was when it left (a standing appointment, a date, her free time)
 // and home is more than a short taxi ride away, so she stays out until the first train (there while it's open, else

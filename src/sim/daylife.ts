@@ -15,7 +15,7 @@ import { overhear, couples } from './living.js';
 import { exesOf, fr } from './rel.js';
 import { lex } from '../core/lexicon.js';
 import { scheduled, shiftOn, shiftAt, slotAt, stampOf, broughtNow, onVacation, rankName, type Slot } from './dayplan.js';
-import { workingAt, routineStep, waitingForTrain } from './people.js';
+import { workingAt, routineStep, waitingForTrain, aroundShift } from './people.js';
 import { levelHolds } from './when.js';
 import { sceneHere } from './homerooms.js';
 
@@ -185,6 +185,8 @@ export function whyHereLines(g: Save, w: WorldDef, present: Resident[]): string[
             out.push(`${r.name} is working${end ? ` (until ${hm(end % 1440)})` : ''}${rank ? `, as ${rank}` : ''}.`);
             continue;
         }
+        const near = aroundShift(g, w, r, now);
+        if (near?.shift.place === loc) { say(r.name, near.before ? `is in early for their shift (it starts at ${hm(near.shift.from % 1440)}), not working yet` : 'has just finished their shift and is staying on a while, off the clock'); continue; }
         if (onVacation(g, w, r, Math.floor(now / 1440))) say(r.name, 'is on vacation (a few days off work)');
         else if (waitingForTrain(g, w, r, now)) say(r.name, 'missed the last train home and is staying out until the first one');
     }
