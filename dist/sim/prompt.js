@@ -40,6 +40,7 @@ import { nowAbs } from '../core/store.js';
 import { worldLine, weatherHere } from './worldstate.js';
 import { placeMemoryLines, whyHereLines } from './daylife.js';
 import { openNow } from './daynight.js';
+import { lastOrders } from './closing.js';
 import { neighbors } from './happenings.js';
 import { sheetLine } from './rpg.js';
 import { questLines } from './quests.js';
@@ -179,7 +180,7 @@ export function sceneBlocks() {
             `[World state — ${w.name}]`,
             ...scenarioLines(g, w),
             `Now: ${weekday(g.day)}, day ${g.day}, ${hm(g.minutes)} (${period(w, g.minutes).name.toLowerCase()}). Weather: ${weatherHere(g, w).name.toLowerCase()}. Season: ${seasonOf(g).name.toLowerCase()}.`,
-            `Place: ${here?.name ?? 'somewhere'}${here?.desc ? ` — ${here.desc}` : ''}${here && !here.home && systemOn(w, 'living') && !openNow(g, w, here.id) ? ' (closed at this hour: the doors are shut; only staff, if anyone, is around)' : ''}`,
+            `Place: ${here?.name ?? 'somewhere'}${here?.desc ? ` — ${here.desc}` : ''}${here && !here.home && systemOn(w, 'living') && !openNow(g, w, here.id) ? ' (closed at this hour: the doors are shut; only staff, if anyone, is around)' : ''}${lastOrdersLine(g, w)}`,
             hereLine(g, w, present, bg, sheets.length > 0),
             // (dress) what people here have put on for the place or what they're doing (a Home's code is in scenarioLines)
             ...(() => { const l = isScenario(w) ? '' : dressLine(g, w); return l ? [l] : []; })(),
@@ -320,4 +321,9 @@ function soloLine(g, present) {
     if (!r || present.length < 2)
         return '';
     return `{{user}} is talking only with ${r.name}; the others here (${present.filter(x => x !== r).map(x => x.name).join(', ')}) give them space and stay out of the conversation.`;
+}
+// (the living world) Half an hour before the place closes: last orders, so the scene can wind down before you're shown out.
+function lastOrdersLine(g, w) {
+    const t = lastOrders(g, w);
+    return t === null ? '' : ` (last orders: it closes at ${hm(t % 1440)}; the staff are starting to close up and will see the guests out)`;
 }

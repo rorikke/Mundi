@@ -30,7 +30,7 @@ import { onHour, onDay, onLook, onQuit, studentLink, ventureLink } from './hooks
 import { queueMoment } from './moments.js';
 import { shiftOn as npcShiftOn, slotAt, placeOk, bringTo } from './dayplan.js';
 import { festivalsOn } from './festivals.js';
-import { openAt } from './daynight.js';
+import { openAt, openNow } from './daynight.js';
 import { whenHolds, parseWhen, favorOwed, levelHolds, missingWords } from './when.js';
 import { callInFavor } from './stories.js';
 import { presentAt, workingAt } from './people.js';
@@ -173,7 +173,7 @@ export function shiftOn(g, w, o, day) {
     const start = day * 1440 + Math.round(sh.from * 60), end = start + long * 60;
     return { day, start, end, hours, latest: end - hours * 60 };
 }
-const EARLY = 120; // you may set off for work up to two hours before your shift (the time waits until it starts)
+export const EARLY = 120; // you may set off for work up to two hours before your shift (the time waits until it starts)
 const worked = (j, day) => (j.worked ?? []).includes(day);
 const offOn = (j, day) => j.off?.[day];
 /** The shift you can work now: today's, or last night's still going; null when there's none (or it was worked). */
@@ -205,8 +205,21 @@ export function nextShift(g, w, o, from = nowAbs(g)) {
     }
     return null;
 }
+// Overtime off your shift: a shift's length, cut short when the place closes (the living world): you stay until they
+// close, not through the night in an empty building. Under an hour left (or closed already): none.
+function overtimeRoom(g, w, o) {
+    const place = jobPlace(g, o), now = nowAbs(g);
+    if (offScreen(w, o) || !systemOn(w, 'living') || !w.places.some(p => p.id === place && !p.link && !p.home))
+        return o.shift;
+    if (!openNow(g, w, place))
+        return 0;
+    let h = 0;
+    while (h < o.shift && openAt(g, w, place, now + h * 60) && openAt(g, w, place, now + (h + 1) * 60 - 1))
+        h++;
+    return h;
+}
 /** What the work button can do now: work your shift (`early`: waiting for it to start; `late`: past the grace),
- *  overtime outside it (the job allows it and the place is open), or nothing (`why`). */
+ *  overtime outside it (the job allows it and the place is open; `hours`: until it closes), or nothing (`why`). */
 export function canWork(g, w, o) {
     o = trackOf(g, o);
     const s = shiftNow(g, w, o), now = nowAbs(g), grace = workRules(g, w).grace;
@@ -215,8 +228,11 @@ export function canWork(g, w, o) {
     const j = jobOf(g);
     if (noShiftsIn(g, w, o))
         return { kind: 'none', why: shiftlessApp(g, w).text };
-    if (o.overtime && isOpen(g, o) && j?.extraDay !== g.day && !(j?.start !== undefined && g.day < j.start))
-        return { kind: 'overtime' }; // one overtime shift a day
+    if (o.overtime && isOpen(g, o) && j?.extraDay !== g.day && !(j?.start !== undefined && g.day < j.start)) { // one overtime shift a day
+        const hours = overtimeRoom(g, w, o);
+        if (hours > 0)
+            return { kind: 'overtime', hours };
+    }
     const n = nextShift(g, w, o);
     return { kind: 'none', why: n ? `Your next shift: ${whenText(g, n)}.` : 'No shift this week.' };
 }
@@ -787,7 +803,7 @@ export function workShift(g, w, mode = 'normal', hours) {
         out.push(...advance(g, w, can.shift.start - nowAbs(g)));
     const s = can.kind === 'shift' ? can.shift : null;
     const overtime = !s && can.kind === 'overtime';
-    const room = s ? Math.floor((s.end - nowAbs(g)) / 60) : o.shift;
+    const room = s ? Math.floor((s.end - nowAbs(g)) / 60) : can.hours ?? o.shift;
     const h = Math.max(1, Math.min(s?.hours ?? o.shift, room, Math.round(hours ?? o.shift)));
     const part = h / (s?.hours ?? o.shift);
     let perf = 0;

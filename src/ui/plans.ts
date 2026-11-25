@@ -19,6 +19,7 @@ import { thumb, sendCanned, addUserLine, replyAs, personaName, setAsk } from '..
 import { weekday } from '../sim/time.js';
 import { fmtClock as hm } from '../core/fmt.js';
 import { placeOf, playerHomeId, pins } from '../sim/places.js';
+import { lastOrders } from '../sim/closing.js';
 import { STUDIO_ID } from '../sim/studio.js';
 import { bondOf, social, type PlanKind } from '../sim/social.js';
 import { canAskByText, looksLikeAsk, readAsk } from '../sim/texting.js';
@@ -62,10 +63,13 @@ export async function askByText(g: Save, w: WorldDef, who: string, text: string)
 
 /* ---------- the clock ---------- */
 
+let lastSaid = '';
 export function runPlans() {
     const g = game(); const w = g && getWorld(g.world);
     if (!g || !w) return false;
     const news = [...planTick(g, w), ...guestTick(g, w).map(text => ({ text, kind: /door/.test(text) ? 'success' : 'info' }) as any)];   // visitors: on time, like plans
+    const lo = lastOrders(g, w), key = `${g.player.loc}|${lo}`;   // last orders where you are: said once
+    if (lo !== null && key !== lastSaid) { lastSaid = key; news.push({ text: `Last orders: ${placeOf(g, w, g.player.loc)?.name ?? 'this place'} closes at ${hm(lo % 1440)}.`, kind: 'info' }); }
     tidyEvent(g);
     news.forEach(n => toast(n.text, n.kind));
     if (news.length) saveGame();

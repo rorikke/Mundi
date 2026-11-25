@@ -57,6 +57,7 @@ import { P as phone, phoneUnread } from './phone.js';
 import { facePlanHtml } from './plans.js';
 import { relBar, workButton, doorbellHtml } from './relui.js';
 import { openNow } from '../sim/daynight.js';
+import { lastOrders } from '../sim/closing.js';
 import { questsHere, doStep } from '../sim/quests.js';
 import { weatherHere, crowdLevel, crowdWord, regionState, regionOf, moodWord, tensionWord } from '../sim/worldstate.js';
 import { chanceOf } from '../sim/dice.js';
@@ -125,7 +126,8 @@ function clockCard(g: Save, w: WorldDef) {
     // how busy it is here, and the mood of the region (the living world)
     const reg = systemOn(w, 'living') && g.player.loc !== playerHomeId ? regionState(g, w, regionOf(g, w, g.player.loc)) : null;
     const shut = reg && !openNow(g, w, g.player.loc);
-    const crowd = shut ? `<small class="mh-crowd is-closed">${icon('lock')}<span>Closed</span></small>` : reg ? `<small class="mh-crowd" title="${esc(`${cap(crowdWord(crowdLevel(g, w, g.player.loc)))} · Public mood: ${moodWord(reg.mood)} · People are ${tensionWord(reg.tension)}`)}">${icon('users')}<span>${esc(cap(crowdWord(crowdLevel(g, w, g.player.loc))))}</span>${reg.tension >= 50 ? '<i class="mh-tense">!</i>' : ''}</small>` : '';
+    const closing = reg && !shut ? lastOrders(g, w) : null;   // last orders: it closes within half an hour
+    const crowd = shut ? `<small class="mh-crowd is-closed">${icon('lock')}<span>Closed</span></small>` : closing !== null ? `<small class="mh-crowd is-closed" title="Last orders">${icon('clock')}<span>${esc(`Closes ${fmtClock(closing % 1440)}`)}</span></small>` : reg ? `<small class="mh-crowd" title="${esc(`${cap(crowdWord(crowdLevel(g, w, g.player.loc)))} · Public mood: ${moodWord(reg.mood)} · People are ${tensionWord(reg.tension)}`)}">${icon('users')}<span>${esc(cap(crowdWord(crowdLevel(g, w, g.player.loc))))}</span>${reg.tension >= 50 ? '<i class="mh-tense">!</i>' : ''}</small>` : '';
     // inside a place: one bar across the top (time, day, part of the day, the place, weather and season)
     // (on a phone the clock stays a card beside yours, in a place too)
     if (state.view === 'scene' && !onPhone() && !isScenario(w)) return `<div class="mh-clock mh-glass is-bar" data-act="skip-ask" title="Let time pass" role="button">

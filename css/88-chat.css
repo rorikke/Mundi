@@ -607,6 +607,8 @@
 #mundi-root .mu-pin.is-closed .dot { filter: grayscale(1) brightness(.7); }
 #mundi-root .mu-pin.is-closed .label { opacity: .65; }
 #mundi-root .mu-pin.is-closed .label::after { content: ' · closed'; font-size: .85em; opacity: .9; }
+#mundi-root .mu-pop-closed { display: flex; align-items: center; gap: 6px; color: #ffcf9a; font-size: 12.5px; }
+#mundi-root .mu-pop-closed svg { width: 14px; height: 14px; flex: none; }
 /* relations (any two people, any household) */
 #mundi-root .mu-ngrel { display: grid; gap: 8px; margin-top: 14px; padding: 14px 16px; border-radius: 16px; }
 #mundi-root .mu-ngrel h3 { margin: 0; }

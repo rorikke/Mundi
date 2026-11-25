@@ -500,7 +500,7 @@ export function nextRankLine(g, w, o) {
 export function shiftLabel(g, w, o) {
     const c = canWork(g, w, o);
     if (c.kind === 'overtime')
-        return { ok: true, text: 'Overtime · +25% pay' };
+        return { ok: true, text: `Overtime · until ${hm((g.minutes + (c.hours ?? o.shift) * 60) % 1440)} · +25% pay` };
     if (c.kind === 'none')
         return { ok: false, text: c.why ?? '' };
     const s = c.shift, wait = s.start - nowAbs(g);

@@ -20,6 +20,7 @@ import { setPrompt, sendCanned, cannedText, addUserLine } from '../st/bridge.js'
 import { beforeTravel, beforeSleep } from '../sim/plans.js';
 import { getWorld, worldFile, systemOn, isScenario } from '../core/world.js';
 import { openNow, pictureAt, entryDue, payEntry } from '../sim/daynight.js';
+import { gated, closedTo, closedWords, reasonAt, shownOut, wayOut } from '../sim/closing.js';
 import { looksAt } from '../sim/worldstate.js';
 import { isRpg, longRest } from '../sim/rpg.js';
 import { journeyOf, travelRoad } from '../sim/journey.js';
@@ -94,6 +95,22 @@ function jobCard(g, w, sel, you) {
         ${you ? `<button data-act="apply" data-id="${esc(o.id)}" ${fits(g, o) ? '' : 'aria-disabled="true"'}>${lex(w, 'jobApply')}</button>` : ''}</div>`).join('')}
         ${you ? '' : `<small class="mu-muted">${lex(w, 'applyThere')}</small>`}</div>`;
 }
+// A closed place on its card: when it opens, or why you may go in all the same (your shift, a plan there…).
+const REASON_WORDS = {
+    shift: 'You can go in for your shift.', class: 'You can go in for your class.', plan: 'You can go in for your plan.',
+    event: 'You can go in for the event.', yours: 'You can go in: it is yours.', guest: 'You can go in: you booked a night.',
+    brief: 'You can go in for your brief.', rental: 'You can go in: you rented it.',
+};
+function closedLine(g, w, loc, shut) {
+    if (loc === g.player.loc || !gated(w, loc))
+        return '';
+    const at = nowAbs(g) + travelMinutes(g, w, g.player.loc, loc);
+    const line = `<small class="mu-pop-closed">${icon('lock')}<span>${esc(closedWords(g, w, loc, at))}</span></small>`;
+    if (shut)
+        return line;
+    const why = openNow(g, w, loc) ? null : reasonAt(g, w, loc, at);
+    return why && REASON_WORDS[why] ? `${line}<small class="mu-muted">${esc(REASON_WORDS[why])}</small>` : '';
+}
 // The card that opens next to a pin.
 function popHtml(g, w, loc, touch) {
     const p = placeOf(g, w, loc);
@@ -104,6 +121,7 @@ function popHtml(g, w, loc, touch) {
         return `<h3>${esc(p.name)}</h3><small class="mu-muted">${esc(m?.name ?? '')} · click to open the map</small>${touch ? `<button class="mu-primary" data-act="open-map" data-map="${esc(p.link)}">Open the map</button>` : ''}`;
     }
     const you = loc === g.player.loc;
+    const shut = you ? '' : closedTo(g, w, loc, nowAbs(g) + travelMinutes(g, w, g.player.loc, loc));
     const here = presentAt(g, w, loc);
     const people = here.length ? `<div class="mu-pop-people">${here.map(r => `<span class="mu-pop-person"><img src="${esc(thumb(r.avatar))}" alt=""><b>${esc(r.met ? r.name : 'Someone')}</b></span>`).join('')}</div>`
         : '<small class="mu-muted">Nobody here right now.</small>';
@@ -111,8 +129,8 @@ function popHtml(g, w, loc, touch) {
         ${p.desc ? `<p>${esc(p.desc)}</p>` : ''}${p.event ? `<p class="mu-muted">${esc(p.event)}</p>` : ''}
         ${people}
         ${!you && notVisited(g, w, loc) ? `<small class="mu-pop-new"><i class="mu-pin-new"></i>Not visited yet</small>` : ''}
-        ${you ? `<span class="mu-badge">You are here</span>` : `<small class="mu-muted">${travelMinutes(g, w, g.player.loc, loc)} min away · click to go</small>`}
-        ${touch || you ? `<button class="mu-primary" data-act="go" data-loc="${esc(loc)}" data-sfx="open">${you ? 'Enter the scene' : 'Go here'}</button>` : ''}
+        ${you ? `<span class="mu-badge">You are here</span>` : `<small class="mu-muted">${travelMinutes(g, w, g.player.loc, loc)} min away${shut ? '' : ' · click to go'}</small>`}${closedLine(g, w, loc, shut)}
+        ${touch || you ? `<button class="mu-primary" data-act="go" data-loc="${esc(loc)}" data-sfx="open" ${shut ? 'aria-disabled="true"' : ''}>${you ? 'Enter the scene' : 'Go here'}</button>` : ''}
         ${banLine(g, loc)}
         ${you ? '' : jobCard(g, w, loc, false)}`;
 }
@@ -574,6 +592,12 @@ export async function travelTo(loc, road, late) {
         toast('Wait until they finish speaking.', 'info');
         return;
     } // nobody walks out mid-sentence
+    // (the living world) a closed place lets you in only with a reason, judged as you'd get there
+    const shut = closedTo(g, w, loc, nowAbs(g) + travelMinutes(g, w, g.player.loc, loc) + (late === 'wait' ? untilFirstTrain(w, g.minutes) : 0));
+    if (shut) {
+        toast(shut, 'info');
+        return;
+    }
     finishFirst(g, w); // (E14.6) what you were doing in the scene ends first (the rest of its time passes)
     const fee = entryDue(g, w, loc); // (E19) a gate to pay at, once a day
     if (fee && g.player.money < fee) {
@@ -665,6 +689,8 @@ export function journeyHtml() {
     const w = g && getWorld(g.world);
     if (g && w && LATE.to)
         return lateHtml(g, w);
+    if (g && w && !JOURNEY.to && state.view !== 'map' && shownOut(g, w))
+        return closingHtml(g, w);
     if (!g || !w || !JOURNEY.to)
         return '';
     const p = placeOf(g, w, JOURNEY.to);
@@ -677,6 +703,20 @@ export function journeyHtml() {
             <button class="mu-work-mode" data-act="jr-road" data-v="push"><i>🌙</i><b>${esc(lex(w, 'pushOn'))}</b><small>Arrive sooner, but exhausted (no rest).</small></button>
         </div>
         <button class="mu-ghost" data-act="jr-cancel">Stay here</button></section></div>`;
+}
+// Closing time: the place you're at has closed and you have no reason to stay (sim/closing.ts). Out onto the nearest
+// open place on this map (the street, not another bar), home, or the map to pick somewhere open.
+function closingHtml(g, w) {
+    const p = placeOf(g, w, g.player.loc), out = wayOut(g, w), home = travelMinutes(g, w, g.player.loc, playerHomeId);
+    const to = out && placeOf(g, w, out.id);
+    return `<div class="mu-recap-veil"><section class="mu-recap mh-glass mu-journey" role="dialog" aria-label="Closing time">
+        <header><small>Closing time</small><h3 data-notr>${esc(p?.name ?? '')}</h3></header>
+        <p>${esc('The staff are closing up and seeing the last guests out.')} <span class="mu-muted">${esc(closedWords(g, w, g.player.loc))}</span></p>
+        <div class="mu-work-modes">
+            ${to ? `<button class="mu-work-mode" data-act="cl-go" data-loc="${esc(out.id)}"><i>🚶</i><b>${esc(`Step out to ${to.name}`)}</b><small>${esc(`${out.minutes} min`)}</small></button>` : ''}
+            <button class="mu-work-mode" data-act="cl-go" data-loc="${esc(playerHomeId)}"><i>🏠</i><b>Go home</b><small>${esc(`${home} min`)}</small></button>
+        </div>
+        <button class="mu-ghost" data-act="to-map">Open the map</button></section></div>`;
 }
 function lateHtml(g, w) {
     const p = placeOf(g, w, LATE.to);
@@ -813,6 +853,7 @@ Object.assign(ACT, {
     'jr-road': async (el) => { const to = JOURNEY.to; if (!to)
         return; await travelTo(to, el.dataset.v); },
     'jr-cancel': () => { JOURNEY.to = ''; notify(); },
+    'cl-go': async (el) => { await travelTo(el.dataset.loc); },
     'lt-go': async (el) => { const to = LATE.to; if (!to)
         return; await travelTo(to, undefined, el.dataset.v); },
     'lt-cancel': () => { LATE.to = ''; notify(); },
@@ -833,7 +874,7 @@ Object.assign(ACT, {
             toast(tired, 'warn');
             return;
         }
-        const mins = c.shift ? Math.max(0, c.shift.start - nowAbs(g)) + Math.min(c.shift.hours * 60, c.shift.end - Math.max(nowAbs(g), c.shift.start)) : job.shift * 60;
+        const mins = c.shift ? Math.max(0, c.shift.start - nowAbs(g)) + Math.min(c.shift.hours * 60, c.shift.end - Math.max(nowAbs(g), c.shift.start)) : (c.hours ?? job.shift) * 60;
         if (askAboutPlans(g, mins, 'work'))
             return; // a plan during the shift: ask first
         openWork(); // the work screen: how you spend the shift (like The Sims)
