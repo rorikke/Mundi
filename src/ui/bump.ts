@@ -108,11 +108,8 @@ Object.assign(ACT, {
     'bump-greet': () => {
         const g = game(); const w = g && getWorld(g.world); const r = g && g.cast[BUMP.who];
         BUMP.who = '';
-        if (g && w && r) {
-            if (r.met) { addBond(g, r.avatar, 2); metNote(g, w, r, 'and said hi.'); }
-            else markMet(g, r.avatar);   // a hello is enough to know each other's name
-            saveGame();
-        }
+        // a passing hello to a stranger leaves them a stranger: no name learned, no friendship
+        if (g && w && r?.met) { addBond(g, r.avatar, 2); metNote(g, w, r, 'and said hi.'); saveGame(); }
         BUMP.on = '';
         notify();
     },
