@@ -194,17 +194,24 @@
 @container ph (min-width: 600px) {
     #mundi-root .is-fold-only { display: none !important; }
     #mundi-root .mu-ph-today { padding: 6px 8px 4px; }
+    /* every page the same height, as folded (the apps under it stay put); what's longer scrolls inside it, and the parts
+       keep their own height instead of being squeezed into it */
+    #mundi-root .mu-pt-page { height: 318px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; align-content: start; }
+    #mundi-root .mu-ph-today .mu-pt-part { min-height: auto; }
+    #mundi-root .mu-pt-page.is-overview .mu-pt-list > :nth-child(n + 5) { display: none; }
     #mundi-root .mu-ph-today .mu-pt-part { padding: 12px 16px; }
     #mundi-root .mu-ph-today .mu-pt-part + .mu-pt-part { border-top-width: 0; border-left-width: 1px; }
     #mundi-root .mu-pt-title { margin: 10px 16px 0; }
     /* the overview: now and today | the week and what's coming | the goal, and work and studies under it */
-    #mundi-root .mu-pt-page.is-overview { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "now week goal" "now soon status"; }
-    #mundi-root .mu-pt-page.is-overview.no-status { grid-template-areas: "now week goal" "now soon goal"; }
-    #mundi-root .mu-pt-page.is-overview.no-goal { grid-template-areas: "now week status" "now soon status"; }
-    #mundi-root .mu-pt-page.is-overview:not(.has-goal) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); grid-template-areas: "now week" "now soon"; }
-    #mundi-root .mu-pt-page.is-overview:not(.has-cal) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "now goal" "now status"; }
-    #mundi-root .mu-pt-page.is-overview:not(.has-cal).no-status { grid-template-areas: "now goal" "now goal"; }
-    #mundi-root .mu-pt-page.is-overview:not(.has-cal).no-goal { grid-template-areas: "now status" "now status"; }
+    /* (three rows: the week's row is only as tall as the week, the goal spans it and the next, so a long goal never
+       leaves a gap between the week and what's coming; work and studies sit at the bottom) */
+    #mundi-root .mu-pt-page.is-overview { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr); grid-template-rows: auto 1fr auto; grid-template-areas: "now week goal" "now soon goal" "now soon status"; }
+    #mundi-root .mu-pt-page.is-overview.no-status { grid-template-areas: "now week goal" "now soon goal" "now soon goal"; }
+    #mundi-root .mu-pt-page.is-overview.no-goal { grid-template-areas: "now week status" "now soon status" "now soon status"; }
+    #mundi-root .mu-pt-page.is-overview:not(.has-goal) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); grid-template-areas: "now week" "now soon" "now soon"; }
+    #mundi-root .mu-pt-page.is-overview:not(.has-cal) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "now goal" "now goal" "now status"; }
+    #mundi-root .mu-pt-page.is-overview:not(.has-cal).no-status { grid-template-areas: "now goal" "now goal" "now goal"; }
+    #mundi-root .mu-pt-page.is-overview:not(.has-cal).no-goal { grid-template-areas: "now status" "now status" "now status"; }
     #mundi-root .mu-ph-today .mu-pt-now { grid-area: now; }
     #mundi-root .mu-ph-today .mu-pt-week { grid-area: week; padding-bottom: 6px; }
     #mundi-root .mu-ph-today .mu-pt-soon { grid-area: soon; padding-top: 6px; }
