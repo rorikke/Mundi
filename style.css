@@ -2627,6 +2627,12 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mu-fix.is-have { box-shadow: 0 0 0 2px rgba(19, 207, 224, .55), 0 4px 12px rgba(0, 0, 0, .3); }
 #mundi-root .mu-hu-ask p { margin: 0 0 10px; }
 #mundi-root .mu-hu-ask .mu-row { gap: 8px; flex-wrap: wrap; }
+/* My home: who lives with you, each one opening their page */
+#mundi-root .mu-home-with { display: grid; margin-top: 10px; }
+#mundi-root .mu-home-with h5 { display: flex; gap: 6px; align-items: center; margin: 0 0 2px; color: #a9b6cc; font-size: .78em; text-transform: uppercase; letter-spacing: .04em; }
+#mundi-root .mu-livewith { width: 100%; padding: 8px 0; border: 0; border-bottom: 1px solid var(--line); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+#mundi-root .mu-livewith:last-child { border-bottom: 0; }
+#mundi-root .mu-livewith .mu-ph-heart { margin-left: auto; }
 /* Homes you let (R-a): each home's card under the one you live in and the second, a line between them, its buttons
    wrapping on a narrow phone. */
 #mundi-root .mu-home-let + .mu-home-let { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .08); }

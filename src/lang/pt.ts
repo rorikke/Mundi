@@ -9095,6 +9095,7 @@ const DICT: Record<string, string> = {
  "Moving costs {0} now: the first week's rent. Then {1} a week and {2} of bills, counted from today.": "A mudança custa {0} agora: o aluguel da primeira semana. Depois {1} por semana e {2} de contas, contados a partir de hoje.",
  "Moving costs {0} now: the first week's rent. Then {1} a week, counted from today.": "A mudança custa {0} agora: o aluguel da primeira semana. Depois {1} por semana, contados a partir de hoje.",
  "You own the home you live in. Sell it, keep it as your second home, or let it?": "A casa em que você mora é sua. Vender, ficar com ela como segunda casa, ou alugar?",
+ "Living with you": "Morando com você",
  "Move to {0}": "Mudar para {0}",
  "Move for {0}": "Mudar por {0}",
  "That home is not free any more.": "Essa casa não está mais livre.",

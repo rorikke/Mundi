@@ -28,7 +28,7 @@ import { feel } from '../sim/life.js';
 import { journalApp, openJournal } from './journal.js';
 import { relBar, relSubtitle, workWeekHtml, perfWord, askTrack, visitRow } from './relui.js';
 import { note } from '../sim/facts.js';
-import { notify, esc, game, toast, saveGame, settings, saveSettings, nowAbs, UI, adultOn } from '../core/store.js';
+import { notify, esc, game, toast, saveGame, settings, saveSettings, nowAbs, UI, adultOn, residentsOf } from '../core/store.js';
 import { galleryPictures, photosOf } from './gallery.js';
 import { getWorld, worldFile, deviceLook, messageKind, appsShown, systemOn, isScenario } from '../core/world.js';
 import { upcoming, when as planWhen, isWorking } from '../sim/plans.js';
@@ -753,6 +753,17 @@ function billsLine(g, w) {
     const due = list.some(b => owed(g, b.id));
     return `<button class="mu-ph-billsline ${due ? 'is-due' : ''}" data-act="ph-go" data-app="bank"><span>${esc(T('billsLine', list.map(b => `${billName(w, b.id)} ${money(w, billAmount(g, w, b.id))}`).join(' · '), appRef(w, 'bank')))}</span>${due ? `<b class="mu-bad">${esc('Due now')}</b>` : ''}${icon('forward')}</button>`;
 }
+// Who shares your home (housemates, family, a partner who moved in): each one opens their page in People; someone
+// you haven't met yet says so, since a share house can come with strangers.
+function livingWithHtml(g) {
+    const self = g.swap?.avatar;
+    const list = residentsOf(g).filter(r => r.homeWith === '__you' && !r.gone && r.avatar !== self);
+    if (!list.length)
+        return '';
+    const row = (r) => `<button class="mu-ph-job mu-cowork mu-livewith" data-act="ph-person" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
+        <span><b data-notr>${esc(r.name)}</b><small>${r.met ? relSubtitle(g, r.avatar) : esc('Not met yet')}</small></span>${isPartner(g, r.avatar) ? `<i class="mu-ph-heart">${icon('heart')}</i>` : ''}</button>`;
+    return `<div class="mu-home-with"><h5>${icon('users')} ${esc('Living with you')}</h5>${list.map(row).join('')}</div>`;
+}
 // Unfolded (`wide`), like Messages: your home and the tabs as a list on the left (how many homes are for rent), the
 // open tab (or a house's rooms) on the right.
 function homesApp(g, w, wide = false) {
@@ -770,6 +781,7 @@ function homesApp(g, w, wide = false) {
     const content = `${tab !== 'mine' ? '' : `<section><h4>${T('myHome')}</h4>
         <article class="mu-home-card is-mine"><span class="mu-home-pic" ${pic(g.player.home.kind ?? mine?.kind ?? '')}></span>
             <div class="mu-home-info"><span><b>${esc(homeAddress(w, g.player.home))}</b><small>${esc(w.homes.kinds[g.player.home.kind ?? mine?.kind ?? '']?.name ?? '')} · ${T('yourHome')}</small></span></div></article>
+        ${livingWithHtml(g)}
         ${billsApp(w) === 'homes' ? billsHtml(g, w) : billsLine(g, w)}
         ${ownedHtml(g, w)}
         </section>
