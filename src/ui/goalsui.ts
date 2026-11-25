@@ -221,7 +221,7 @@ function waysHtml(g: Save, w: WorldDef, goal: GoalDef, step: number): string {
 /* ---------- the Goals tab ---------- */
 
 const perkLine = (goal: GoalDef) => (goal.perk ? `${goal.perk.name}${goal.perk.desc ? `: ${goal.perk.desc}` : ''}` : '');
-function pipsHtml(done: number, total: number, finished: boolean): string {
+export function pipsHtml(done: number, total: number, finished: boolean): string {
     return `<span class="mu-gl-pips" aria-label="${esc(`${done} of ${total} steps`)}">${Array.from({ length: total }, (_, i) => `<i class="${i < done ? 'is-done' : i === done && !finished ? 'is-now' : ''}"></i>`).join('')}</span>`;
 }
 function activeHtml(g: Save, w: WorldDef): string {

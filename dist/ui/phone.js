@@ -23,7 +23,7 @@ import { factionsApp } from './factionsui.js';
 import { holdingsApp } from './holdingsui.js';
 import { towerApp, contractsApp, workshopApp, trophiesApp, bladeApp, soulApp, healthApp } from './adventureui.js';
 import { PL, askByText } from './plans.js';
-import { dayItems } from './agenda.js';
+import { todayCard, resetToday } from './today.js';
 import { feel } from '../sim/life.js';
 import { journalApp, openJournal } from './journal.js';
 import { relBar, relSubtitle, workWeekHtml, perfWord, askTrack, visitRow } from './relui.js';
@@ -310,18 +310,8 @@ function tileBadge(g, w, id, key) {
     const b = s ? secApps(w, s).map(a => badgeOf(g, w, a)).find(Boolean) ?? '' : badgeOf(g, w, id);
     return b ? `<em${key === 'goals' ? ' class="is-goals"' : ''}>${b}</em>` : '';
 }
-// The home screen's Today card, over the apps: the time and the day, and what's next today (the Calendar's agenda),
-// opening the Calendar. Without the Calendar, the time and the day alone.
-function todayCard(g, w) {
-    const cal = shownApps(w).some(a => a.id === 'plans'), now = nowAbs(g);
-    const next = cal ? dayItems(g, w, g.day).filter(i => i.allDay || (i.to ?? i.from) > now).slice(0, 3) : [];
-    const line = (i) => `<li><i>${icon(i.icon)}</i><span${i.titleData ? ' data-notr' : ''}>${esc(i.title)}</span><small>${i.allDay ? '' : esc(hm(i.from % 1440))}</small></li>`;
-    const body = `<span class="mu-pt-clock"><b>${esc(hm(g.minutes % 1440))}</b><small>${esc(`${weekday(g.day)} · Day ${g.day}`)}</small></span>
-        ${cal ? (next.length ? `<ul>${next.map(line).join('')}</ul>` : `<p>${esc('Nothing else planned today.')}</p>`) : ''}`;
-    return cal ? `<button class="mu-ph-today" data-act="ph-go" data-nav="root" data-app="plans">${body}</button>` : `<div class="mu-ph-today">${body}</div>`;
-}
 function homeApp(g, w) {
-    return `<div class="mu-ph-apps">${todayCard(g, w)}${APPS(w).map(([id, name, ic, color, key]) => `<button class="mu-ph-app" data-act="ph-go" data-nav="root" data-app="${esc(id)}">
+    return `<div class="mu-ph-apps">${todayCard(g, w, shownApps(w).some(a => a.id === 'plans'), shownApps(w).some(a => a.id === 'goals'))}${APPS(w).map(([id, name, ic, color, key]) => `<button class="mu-ph-app" data-act="ph-go" data-nav="root" data-app="${esc(id)}">
         <i style="--c:${color}">${icon(ic)}</i><span>${esc(name)}</span>${tileBadge(g, w, id, key)}</button>`).join('')}
         <button class="mu-ph-app" data-act="ph-go" data-nav="root" data-app="settings"><i style="--c:#7d8597">${icon('gear')}</i><span>Settings</span></button>
         <button class="mu-ph-app" data-act="ph-help"><i style="--c:#30b0c7">${icon('help')}</i><span>${T('help')}</span></button></div>`;
@@ -1078,7 +1068,7 @@ function bookFront(g, w) {
 export const phoneUnread = () => { const g = game(); return g ? Object.values(social(g).unread).reduce((a, b) => a + b, 0) : 0; };
 Object.assign(ACT, {
     phone: () => { if (P.open)
-        return closePhone(); P.open = true; if (P.app === 'thread' && !P.who)
+        return closePhone(); P.open = true; resetToday(); if (P.app === 'thread' && !P.who)
         P.app = 'home'; notify(); },
     'ph-close': () => closePhone(),
     'ph-help': () => openHelp(),

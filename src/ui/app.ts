@@ -49,6 +49,7 @@ import { runPlans } from './plans.js';
 import { syncNative, releaseNative, guardBackgrounds } from './native.js';
 import { phoneHtml, P as phone, feedTick } from './phone.js';
 import { attachHScroll } from './hscroll.js';
+import { attachTodaySwipe } from './today.js';
 import { advance, period, weekday } from '../sim/time.js';
 import { residents, whereNow } from '../sim/people.js';
 import { syncScene } from '../sim/game.js';
@@ -274,6 +275,7 @@ function attach(r: HTMLElement) {
     });
     mapInput.attach(r);
     attachHScroll(r);   // rows that scroll sideways: dragged or wheeled with a mouse
+    attachTodaySwipe(r);   // the phone's Today card: swiped between its pages
     guardBackgrounds(r);
 }
 

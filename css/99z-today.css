@@ -1,0 +1,238 @@
+/* The phone home screen's Today card (ui/today.ts), in pages: the overview (the time and what's next today, the week's
+   days with marks, what's coming up, the life goal, work and studies in a line), the week, the life goal, skills, work
+   and studies; dots under it (labelled tabs unfolded). Folded the parts stack with a line between them; unfolded they
+   sit in columns. The card itself (glass, rounded) is in 99z-phone.css. */
+#mundi-root .mu-ph-today { gap: 0; padding: 4px 16px 6px; touch-action: pan-y; overflow: hidden; }
+#mundi-root .mu-pt-page { display: grid; min-width: 0; }
+#mundi-root .mu-pt-page.from-right { animation: mu-pt-in-r .22s ease; }
+#mundi-root .mu-pt-page.from-left { animation: mu-pt-in-l .22s ease; }
+@keyframes mu-pt-in-r { from { transform: translateX(36px); opacity: 0; } }
+@keyframes mu-pt-in-l { from { transform: translateX(-36px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { #mundi-root .mu-pt-page.from-right, #mundi-root .mu-pt-page.from-left { animation: none; } }
+#mundi-root .mu-pt-title { margin: 12px 0 0; font-size: 17px; font-weight: 800; }
+#mundi-root .mu-ph-today .mu-pt-part { display: grid; gap: 7px; align-content: start !important; justify-content: stretch !important; justify-items: stretch !important; align-items: start !important; min-width: 0; min-height: 0; width: 100%;
+    padding: 12px 0; margin: 0; text-align: left; color: inherit; font: inherit; background: none; border: 0 solid rgba(36, 48, 74, .12); border-radius: 0; box-shadow: none; transform: none; }
+/* (a part that's a button keeps its separator's colour when hovered) */
+#mundi-root .mu-ph-today .mu-pt-part:hover:not(:disabled) { background: none; border-color: rgba(36, 48, 74, .12); box-shadow: none; transform: none; }
+#mundi-root .mu-ph-today .mu-pt-part + .mu-pt-part { border-top-width: 1px; }
+#mundi-root .mu-ph-today h5 { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; opacity: .65; }
+#mundi-root .mu-ph-today h5 small { font-size: 11px; font-weight: 700; text-transform: none; letter-spacing: 0; }
+#mundi-root .mu-ph-today p { margin: 0; font-size: 12.5px; opacity: .7; }
+
+/* rows: today's list and what's coming up */
+#mundi-root .mu-pt-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+#mundi-root .mu-pt-list li, #mundi-root .mu-pt-list .mu-pt-row, #mundi-root .mu-pt-list .mu-pt-row:hover:not(:disabled) { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 0; padding: 0; margin: 0;
+    font-size: 12.5px; font-weight: 600; text-align: left; color: inherit; background: none !important; border: 0 !important; box-shadow: none !important; transform: none !important; }
+#mundi-root .mu-pt-list .mu-pt-row:hover:not(:disabled) > span { text-decoration: underline; }
+#mundi-root .mu-pt-list i { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; background: rgba(10, 132, 255, .14); color: #0a63c9; font-style: normal; }
+#mundi-root .mu-pt-list i.is-emoji { background: none; font-size: 15px; }
+#mundi-root .mu-pt-list i .mu-ic { width: 13px; height: 13px; }
+#mundi-root .mu-pt-list :is(li, .mu-pt-row) > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-pt-list small { font-weight: 700; opacity: .7; white-space: nowrap; }
+/* folded: three rows each; unfolded: five */
+#mundi-root .mu-pt-list > :nth-child(n + 4) { display: none; }
+
+/* the week: seven days, each with up to three marks and the shift's start */
+#mundi-root .mu-pt-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+#mundi-root .mu-pt-days button, #mundi-root .mu-pt-days button:hover:not(:disabled) { display: grid; justify-items: center; align-content: start; gap: 2px; min-height: 0; min-width: 0; padding: 5px 1px 4px; margin: 0;
+    border-radius: 11px !important; color: inherit; background: rgba(255, 255, 255, .45) !important; border: 1px solid rgba(36, 48, 74, .08) !important; box-shadow: none !important; transform: none !important; }
+#mundi-root .mu-pt-days button:hover:not(:disabled) { border-color: rgba(10, 132, 255, .5) !important; }
+#mundi-root .mu-pt-days button.is-today { background: rgba(10, 132, 255, .16) !important; border-color: rgba(10, 132, 255, .35) !important; }
+#mundi-root .mu-pt-days small { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .02em; opacity: .7; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-pt-days b { font-size: 14px; line-height: 1.1; }
+#mundi-root .mu-pt-marks { display: flex; gap: 1px; min-height: 14px; }
+#mundi-root .mu-pt-marks i { display: grid; place-items: center; width: 14px; height: 14px; border-radius: 4px; font-style: normal; }
+#mundi-root .mu-pt-marks i .mu-ic { width: 10px; height: 10px; }
+#mundi-root .mu-pt-marks i.is-work { background: rgba(10, 132, 255, .18); color: #0a63c9; }
+#mundi-root .mu-pt-marks i.is-class { background: rgba(124, 77, 255, .18); color: #6236d6; }
+#mundi-root .mu-pt-marks i.is-plan { background: rgba(255, 55, 120, .16); color: #d0245e; }
+#mundi-root .mu-pt-marks i.is-due { background: rgba(255, 149, 0, .2); color: #b35f00; }
+#mundi-root .mu-pt-marks i.is-fun { background: rgba(52, 199, 89, .18); color: #1d8a3c; }
+#mundi-root .mu-pt-days em { font-size: 9.5px; font-weight: 700; font-style: normal; opacity: .7; }
+
+/* the life goal */
+#mundi-root .mu-pt-gtitle { display: flex; align-items: center; gap: 8px; min-width: 0; }
+#mundi-root .mu-pt-gtitle i { font-style: normal; font-size: 18px; }
+#mundi-root .mu-pt-gtitle b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-pt-goal small { font-size: 12px; font-weight: 600; opacity: .85; }
+#mundi-root .mu-pt-goal .mu-gl-pips i { background: rgba(36, 48, 74, .14); }
+#mundi-root .mu-pt-goal .mu-gl-pips i.is-done { background: #34c759; }
+#mundi-root .mu-pt-goal .mu-gl-pips i.is-now { background: #ffb02e; }
+#mundi-root .mu-pt-next { display: flex; gap: 6px; align-items: baseline; }
+#mundi-root .mu-pt-next span { flex: 1; min-width: 0; }
+#mundi-root .mu-pt-num { flex: 0 0 auto; font-weight: 800; }
+#mundi-root .mu-pt-goal.is-empty b { font-size: 14px; }
+
+/* over a wallpaper: white text on dark glass */
+#mundi-root .mu-phone.has-bg .mu-ph-today { background: rgba(20, 24, 36, .45) !important; border-color: rgba(255, 255, 255, .25) !important; color: #fff; }
+#mundi-root .mu-phone.has-bg .mu-ph-today .mu-pt-part, #mundi-root .mu-phone.has-bg .mu-ph-today .mu-pt-part:hover:not(:disabled) { border-color: rgba(255, 255, 255, .18); }
+#mundi-root .mu-phone.has-bg .mu-pt-list i:not(.is-emoji) { background: rgba(255, 255, 255, .18); color: #fff; }
+#mundi-root .mu-phone.has-bg .mu-pt-days button { background: rgba(255, 255, 255, .1) !important; border-color: rgba(255, 255, 255, .14) !important; }
+#mundi-root .mu-phone.has-bg .mu-pt-days button.is-today { background: rgba(255, 255, 255, .26) !important; border-color: rgba(255, 255, 255, .4) !important; }
+#mundi-root .mu-phone.has-bg .mu-pt-marks i { background: rgba(255, 255, 255, .22); color: #fff; }
+#mundi-root .mu-phone.has-bg .mu-pt-goal .mu-gl-pips i { background: rgba(255, 255, 255, .25); }
+#mundi-root .mu-phone.has-bg .mu-pt-goal .mu-gl-pips i.is-done { background: #6ee59a; }
+#mundi-root .mu-phone.has-bg .mu-pt-goal .mu-gl-pips i.is-now { background: #ffb02e; }
+
+/* the overview's work-and-study line */
+#mundi-root .mu-ph-today .mu-pt-status { gap: 5px; }
+#mundi-root .mu-pt-status > span { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; font-size: 12.5px; font-weight: 600; }
+#mundi-root .mu-pt-status > span > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-pt-status i { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; background: rgba(52, 199, 89, .16); color: #1d8a3c; font-style: normal; }
+#mundi-root .mu-pt-status i .mu-ic { width: 13px; height: 13px; }
+
+/* the pager: dots folded (the current one long), labelled tabs unfolded; arrows at the ends */
+#mundi-root .mu-pt-pager { display: flex; align-items: center; justify-content: center; gap: 2px; padding: 2px 0 2px; border-top: 1px solid rgba(36, 48, 74, .12); }
+#mundi-root .mu-pt-pager button, #mundi-root .mu-pt-pager button:hover:not(:disabled) { display: grid; place-items: center; min-height: 0; min-width: 0; padding: 7px 4px; margin: 0; color: inherit;
+    background: none !important; border: 0 !important; box-shadow: none !important; transform: none !important; }
+#mundi-root .mu-pt-dot i { display: block; width: 7px; height: 7px; border-radius: 4px; background: currentColor; opacity: .25; transition: width .2s ease, opacity .2s ease; }
+#mundi-root .mu-pt-dot:hover i { opacity: .5; }
+#mundi-root .mu-pt-dot.is-on i { width: 20px; opacity: .8; }
+#mundi-root .mu-pt-dot span { display: none; }
+#mundi-root .mu-pt-arrow { opacity: .55; }
+#mundi-root .mu-pt-arrow .mu-ic { width: 14px; height: 14px; }
+#mundi-root .mu-pt-arrow.is-next .mu-ic { transform: scaleX(-1); }
+#mundi-root .mu-pt-pager .mu-pt-arrow[aria-disabled="true"] { opacity: .15; }
+
+/* bars (work, studies, skills, objectives), and a label with its number at the right */
+#mundi-root .mu-ph-today .mu-bond { display: block; height: 6px; border-radius: 3px; background: rgba(36, 48, 74, .12); overflow: hidden; }
+#mundi-root .mu-ph-today .mu-bond i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #0a84ff, #5e5ce6); }
+#mundi-root .mu-pt-kv { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; min-width: 0; }
+#mundi-root .mu-pt-kv > :first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+#mundi-root .mu-pt-kv > b, #mundi-root .mu-pt-kv > small { flex: 0 0 auto; white-space: nowrap; }
+#mundi-root .mu-ph-today .mu-pt-part > b { font-size: 14px; }
+#mundi-root .mu-ph-today .mu-pt-part > small { font-size: 12px; font-weight: 600; }
+#mundi-root .mu-ph-today .mu-good { color: #1d8a3c; }
+#mundi-root .mu-ph-today .mu-bad { color: #d70015; }
+
+/* the week, day by day */
+#mundi-root .mu-pt-wdays { display: grid; gap: 4px; padding: 10px 0; }
+#mundi-root .mu-pt-wday, #mundi-root .mu-pt-wday:hover:not(:disabled) { display: grid; gap: 4px; align-content: start; min-height: 0; min-width: 0; padding: 7px 10px; margin: 0; text-align: left; color: inherit;
+    border-radius: 12px !important; background: rgba(255, 255, 255, .4) !important; border: 1px solid rgba(36, 48, 74, .08) !important; box-shadow: none !important; transform: none !important; }
+#mundi-root .mu-pt-wday:hover:not(:disabled) { border-color: rgba(10, 132, 255, .5) !important; }
+#mundi-root .mu-pt-wday.is-today { background: rgba(10, 132, 255, .12) !important; border-color: rgba(10, 132, 255, .3) !important; }
+#mundi-root .mu-pt-wday.is-free { grid-template-columns: auto 1fr; align-items: baseline; gap: 10px; }
+#mundi-root .mu-pt-wday.is-free p { font-size: 11.5px; }
+#mundi-root .mu-pt-wday, #mundi-root .mu-pt-wday:hover:not(:disabled) { justify-items: stretch !important; justify-content: stretch !important; align-items: start !important; }
+#mundi-root .mu-pt-wday h5 { justify-content: flex-start; }
+#mundi-root .mu-pt-wday h5 > span { flex: 1; }
+#mundi-root .mu-pt-more { font-style: normal; font-weight: 700; text-transform: none; letter-spacing: 0; opacity: .8; }
+
+/* the life goal's step */
+#mundi-root .mu-pt-objs { display: grid; gap: 6px; margin: 2px 0 0; padding: 0; list-style: none; }
+#mundi-root .mu-pt-objs li { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 6px; font-size: 12.5px; font-weight: 600; }
+#mundi-root .mu-pt-objs li > i { font-style: normal; font-weight: 800; opacity: .6; }
+#mundi-root .mu-pt-objs li.is-ok > i { color: #1d8a3c; opacity: 1; }
+#mundi-root .mu-pt-objs li.is-ok .mu-pt-kv > span { text-decoration: line-through; opacity: .6; }
+#mundi-root .mu-pt-objs li > span { display: grid; gap: 3px; min-width: 0; }
+#mundi-root .mu-ph-today .mu-pt-or { font-size: 11px; text-transform: uppercase; opacity: .55; }
+#mundi-root .mu-pt-steps { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+#mundi-root .mu-pt-steps li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 6px; align-items: center; font-size: 12.5px; font-weight: 600; opacity: .8; }
+#mundi-root .mu-pt-steps li i { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font: 800 10.5px/1 system-ui, sans-serif; background: rgba(36, 48, 74, .1); }
+#mundi-root .mu-pt-gmore ol + h5 { margin-top: 6px; }
+
+/* skills, and the modules and courses of work and studies */
+#mundi-root .mu-pt-skills ul, #mundi-root .mu-pt-mods { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+#mundi-root .mu-pt-skills li, #mundi-root .mu-pt-mods li { display: grid; gap: 3px; min-width: 0; font-size: 12.5px; }
+#mundi-root .mu-pt-skills li small, #mundi-root .mu-pt-mods li small { font-size: 11.5px; font-weight: 600; opacity: .75; }
+#mundi-root .mu-pt-mods li > span { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-pt-mods { margin-top: 4px; }
+
+/* over a wallpaper (the pages) */
+#mundi-root .mu-phone.has-bg .mu-pt-pager { border-color: rgba(255, 255, 255, .18); }
+#mundi-root .mu-phone.has-bg .mu-ph-today .mu-bond { background: rgba(255, 255, 255, .2); }
+#mundi-root .mu-phone.has-bg .mu-ph-today .mu-bond i { background: linear-gradient(90deg, #64d2ff, #bf8cff); }
+#mundi-root .mu-phone.has-bg .mu-pt-status i { background: rgba(255, 255, 255, .18); color: #fff; }
+#mundi-root .mu-phone.has-bg .mu-pt-wday { background: rgba(255, 255, 255, .1) !important; border-color: rgba(255, 255, 255, .14) !important; }
+#mundi-root .mu-phone.has-bg .mu-pt-wday.is-today { background: rgba(255, 255, 255, .22) !important; border-color: rgba(255, 255, 255, .35) !important; }
+#mundi-root .mu-phone.has-bg .mu-pt-steps li i { background: rgba(255, 255, 255, .18); }
+#mundi-root .mu-phone.has-bg .mu-ph-today .mu-good, #mundi-root .mu-phone.has-bg .mu-pt-objs li.is-ok > i { color: #6ee59a; }
+#mundi-root .mu-phone.has-bg .mu-ph-today .mu-bad { color: #ff8a80; }
+
+/* folded: every page the same short height (the apps under it don't move), each showing less; what doesn't fit
+   scrolls inside it. The overview keeps the time, the next two things today and the week's days; what's coming up has
+   its own page; the goal's step without what follows; work and studies without the modules; the calendar a line a day. */
+@container ph (max-width: 599.98px) {
+    #mundi-root .mu-ph-today { padding: 0 14px 2px; }
+    #mundi-root .is-wide-only { display: none !important; }
+    #mundi-root .mu-pt-page { display: block; height: 196px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; align-content: start; }
+    #mundi-root .mu-pt-page::-webkit-scrollbar { display: none; }
+    #mundi-root .mu-ph-today .mu-pt-part { gap: 6px; padding: 10px 0; }
+    #mundi-root .mu-pt-title { margin: 10px 0 0; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; opacity: .65; }
+    #mundi-root .mu-pt-title + .mu-pt-part, #mundi-root .mu-pt-title + .mu-pt-wdays { padding-top: 6px; }
+    #mundi-root .mu-pt-page.is-overview :is(.mu-pt-soon, .mu-pt-goal, .mu-pt-status) { display: none; }
+    #mundi-root .mu-pt-page.is-overview .mu-pt-now { grid-template-columns: auto minmax(0, 1fr); align-items: center !important; column-gap: 14px; }
+    #mundi-root .mu-pt-page.is-overview .mu-pt-clock { flex-direction: column; align-items: flex-start; gap: 2px; }
+    #mundi-root .mu-pt-page.is-overview .mu-pt-clock b { font-size: 30px; }
+    #mundi-root .mu-pt-page.is-overview .mu-pt-clock small { font-size: 11px; }
+    #mundi-root .mu-pt-page.is-overview .mu-pt-list > :nth-child(n + 3) { display: none; }
+    #mundi-root .mu-pt-page.is-soon .mu-pt-list > :nth-child(n + 4) { display: grid; }
+    #mundi-root .mu-pt-page.is-overview .mu-pt-now > p { font-size: 12px; }
+    #mundi-root .mu-pt-days b { font-size: 13px; }
+    #mundi-root .mu-ph-today :is(.mu-pt-gmore, .mu-pt-job .mu-muted) { display: none; }
+    #mundi-root .mu-ph-today .mu-pt-page:not(.is-study) .mu-pt-mods { display: none; }
+    #mundi-root .mu-pt-page.is-work .mu-pt-job > h5 { display: none; }
+    #mundi-root .mu-pt-objs li:nth-child(n + 4) { display: none; }
+    #mundi-root .mu-pt-skills ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; }
+    #mundi-root .mu-pt-skills li small { font-size: 10.5px; }
+    /* the calendar: a line a day, its things one after the other */
+    #mundi-root .mu-pt-wdays { gap: 3px; padding-bottom: 6px; }
+    #mundi-root .mu-pt-wday, #mundi-root .mu-pt-wday:hover:not(:disabled), #mundi-root .mu-pt-wday.is-free { grid-template-columns: 96px minmax(0, 1fr); align-items: center !important; gap: 8px; padding: 4px 9px; border-radius: 9px !important; }
+    #mundi-root .mu-pt-wday h5 { font-size: 10px; }
+    #mundi-root .mu-pt-wday .mu-pt-more { display: none; }
+    #mundi-root .mu-pt-wday .mu-pt-list { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11.5px; font-weight: 600; }
+    #mundi-root .mu-pt-wday .mu-pt-list .mu-pt-row { display: inline; }
+    #mundi-root .mu-pt-wday .mu-pt-list .mu-pt-row + .mu-pt-row::before { content: ' · '; opacity: .5; }
+    #mundi-root .mu-pt-wday .mu-pt-row > i { display: none; }
+    #mundi-root .mu-pt-wday .mu-pt-row > span, #mundi-root .mu-pt-wday .mu-pt-row > small { display: inline; overflow: visible; }
+    #mundi-root .mu-pt-wday .mu-pt-row > small:not(:empty)::before { content: ' '; }
+    #mundi-root .mu-pt-wday .mu-pt-row > small { font-size: 10.5px; }
+    #mundi-root .mu-pt-wday.is-free p { font-size: 11px; }
+}
+
+/* unfolded: each page in columns, a line between them; the pager shows each page's name */
+@container ph (min-width: 600px) {
+    #mundi-root .is-fold-only { display: none !important; }
+    #mundi-root .mu-ph-today { padding: 6px 8px 4px; }
+    #mundi-root .mu-ph-today .mu-pt-part { padding: 12px 16px; }
+    #mundi-root .mu-ph-today .mu-pt-part + .mu-pt-part { border-top-width: 0; border-left-width: 1px; }
+    #mundi-root .mu-pt-title { margin: 10px 16px 0; }
+    /* the overview: now and today | the week and what's coming | the goal, and work and studies under it */
+    #mundi-root .mu-pt-page.is-overview { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "now week goal" "now soon status"; }
+    #mundi-root .mu-pt-page.is-overview.no-status { grid-template-areas: "now week goal" "now soon goal"; }
+    #mundi-root .mu-pt-page.is-overview.no-goal { grid-template-areas: "now week status" "now soon status"; }
+    #mundi-root .mu-pt-page.is-overview:not(.has-goal) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); grid-template-areas: "now week" "now soon"; }
+    #mundi-root .mu-pt-page.is-overview:not(.has-cal) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "now goal" "now status"; }
+    #mundi-root .mu-pt-page.is-overview:not(.has-cal).no-status { grid-template-areas: "now goal" "now goal"; }
+    #mundi-root .mu-pt-page.is-overview:not(.has-cal).no-goal { grid-template-areas: "now status" "now status"; }
+    #mundi-root .mu-ph-today .mu-pt-now { grid-area: now; }
+    #mundi-root .mu-ph-today .mu-pt-week { grid-area: week; padding-bottom: 6px; }
+    #mundi-root .mu-ph-today .mu-pt-soon { grid-area: soon; padding-top: 6px; }
+    #mundi-root .mu-ph-today .mu-pt-goal { grid-area: goal; }
+    #mundi-root .mu-ph-today .mu-pt-status { grid-area: status; align-content: end; }
+    #mundi-root .mu-ph-today .mu-pt-goal + .mu-pt-status { border-top-width: 1px; }
+    #mundi-root .mu-pt-list > :nth-child(n + 4) { display: grid; }
+    #mundi-root .mu-pt-clock b { font-size: 40px; }
+    #mundi-root .mu-pt-clock { flex-wrap: wrap; }
+    /* the other pages: their parts side by side under the title (the goal's step wider than what follows) */
+    #mundi-root .mu-pt-page:not(.is-overview) { grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
+    #mundi-root .mu-pt-page:not(.is-overview) > .mu-pt-title { grid-row: 1; grid-column: 1 / -1; }
+    #mundi-root .mu-pt-page:not(.is-overview) > :not(.mu-pt-title) { grid-row: 2; }
+    #mundi-root .mu-pt-page.is-goal { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+    #mundi-root .mu-pt-wdays { grid-template-columns: repeat(7, minmax(0, 1fr)); padding: 10px 8px; }
+    #mundi-root .mu-pt-wday, #mundi-root .mu-pt-wday:hover:not(:disabled) { min-height: 130px; padding: 8px 7px; }
+    #mundi-root .mu-pt-wday.is-free { grid-template-columns: none; align-items: start; gap: 4px; }
+    #mundi-root .mu-pt-wday .mu-pt-list { gap: 6px; }
+    #mundi-root .mu-pt-wday .mu-pt-list > :nth-child(n + 4) { display: grid; }
+    #mundi-root .mu-pt-more { display: none; }
+    #mundi-root .mu-pt-wday .mu-pt-list .mu-pt-row { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    #mundi-root .mu-pt-wday .mu-pt-row > i { display: none; }
+    #mundi-root .mu-pt-wday .mu-pt-row > span { white-space: normal; font-size: 11.5px; line-height: 1.25; }
+    #mundi-root .mu-pt-wday .mu-pt-row > small { font-size: 10.5px; }
+    #mundi-root .mu-pt-skills ul { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px 22px; }
+    #mundi-root .mu-pt-dot i { display: none; }
+    #mundi-root .mu-pt-dot span { display: inline; font-size: 11.5px; font-weight: 700; }
+    #mundi-root .mu-pt-pager button.mu-pt-dot { padding: 5px 11px; border-radius: 999px !important; opacity: .65; }
+    #mundi-root .mu-pt-pager button.mu-pt-dot.is-on { opacity: 1; background: rgba(10, 132, 255, .14) !important; }
+    #mundi-root .mu-phone.has-bg .mu-pt-pager button.mu-pt-dot.is-on { background: rgba(255, 255, 255, .2) !important; }
+}

@@ -1,6 +1,6 @@
 // The Calendar's agenda: a strip of the next seven days, and the chosen day with everything in it in time order: your
 // shifts and classes, plans with people (and photo shoots), what's on in town, festivals, weddings of people you know,
-// bills coming due, Lens briefs due; in adult video (adult content and the industry on), your shoot days, releases, an
+// bills coming due, Lens briefs due, a degree's finals and its first term; in adult video (adult content and the industry on), your shoot days, releases, an
 // edit's last day and the monthly test. Each opens where you act on it. It reads the engine and moves nothing; the
 // buttons are the ones the other apps already have.
 import { esc, nowAbs, notify, adultOn, type Save } from '../core/store.js';
@@ -14,6 +14,7 @@ import type { Appointment } from '../sim/social.js';
 import { upcoming } from '../sim/plans.js';
 import { myJob, shiftOn, isFreelance } from '../sim/work.js';
 import { takingNow, classWindow } from '../sim/courses.js';
+import { degreeOf, termEndOf, daysToNextTerm } from '../sim/degrees.js';
 import { comingEvents, isGoing } from '../sim/cityevents.js';
 import { upcoming as festivalsAhead } from '../sim/festivals.js';
 import { weddingsAhead } from '../sim/longlife.js';
@@ -27,7 +28,8 @@ import { ACT } from './reg.js';
 
 export const AG = { day: 0 };   // the day shown, from today (0) to six days ahead
 const DAYS = 7;
-interface Item { from: number; to?: number; allDay?: boolean; kind: string; icon: string; /** its own emoji (a city event's, a festival's) */ emoji?: string; title: string; titleData?: boolean; sub: string; who?: string; tap?: string; btn?: string; done?: boolean }
+interface Item { from: number; to?: number; allDay?: boolean; kind: string; icon: string; /** its own emoji (a city event's, a festival's) */ emoji?: string; title: string; titleData?: boolean; sub: string; who?: string; tap?: string; btn?: string; done?: boolean; /** a city event you said you'd go to */ going?: boolean }
+export type AgendaItem = Item;
 const fmt = (t: string, ...a: string[]) => tr(t).replace(/\{(\d)\}/g, (_, n) => a[Number(n)] ?? '');
 const where = (g: Save, w: WorldDef, id: string) => (id.startsWith('home:') ? tr('Your home') : placeOf(g, w, id)?.name ?? '');
 const span = (from: number, to?: number) => (to ? `${hm(from % 1440)}–${hm(to % 1440)}` : hm(from % 1440));
@@ -59,7 +61,7 @@ export function dayItems(g: Save, w: WorldDef, d: number): Item[] {
     // what's on in town
     for (const x of comingEvents(g, w, DAYS).filter(x => x.from >= start && x.from < end)) {
         const going = isGoing(g, x.key), live = x.from <= now && x.to > now && !x.off;
-        out.push({ from: x.from, to: x.to, kind: 'event', icon: 'star', emoji: x.ev.icon || '🎉', title: x.ev.name, titleData: true, sub: x.off ? tr('Called off: rain') : `${span(x.from, x.to)} · ${where(g, w, x.ev.place)}`, done: x.off,
+        out.push({ from: x.from, to: x.to, kind: 'event', icon: 'star', emoji: x.ev.icon || '🎉', title: x.ev.name, titleData: true, sub: x.off ? tr('Called off: rain') : `${span(x.from, x.to)} · ${where(g, w, x.ev.place)}`, done: x.off, going,
             btn: x.off ? '' : live && g.player.loc !== x.ev.place ? `<button class="mu-primary" data-act="go" data-loc="${esc(x.ev.place)}">${esc(tr('Go now'))}</button>`
                 : live ? '' : `${going ? waitGoBtn({ kind: 'event', id: x.key }) : ''}<button class="mu-ghost" data-act="ce-go" data-key="${esc(x.key)}">${esc(going ? tr('✓ Going') : tr("I'll go"))}</button>` });
     }
@@ -74,6 +76,10 @@ export function dayItems(g: Save, w: WorldDef, d: number): Item[] {
         if (due.length) out.push({ from: start, allDay: true, kind: 'bill', icon: 'wallet', title: due.length === 1 ? fmt('{0} due', billName(w, due[0].id)) : tr('Bills due'),
             sub: due.length === 1 ? '' : due.map(b => billName(w, b.id)).join(' · '), tap: `data-act="ph-go" data-app="${billsApp(w)}"` });
     }
+    // a degree: the term's finals (its last day), or the first term beginning
+    const deg = degreeOf(g, w);
+    if (deg?.termDay && termEndOf(g) === d) out.push({ from: start, allDay: true, kind: 'finals', icon: 'cap', title: tr('Finals'), sub: tr("The term's last day: each module is graded"), tap: 'data-act="ph-go" data-app="campus"' });
+    if (deg && !deg.termDay && g.day + daysToNextTerm(g) === d) out.push({ from: start, allDay: true, kind: 'term', icon: 'cap', title: tr('Your first term begins'), sub: '', tap: 'data-act="ph-go" data-app="campus"' });
     if (photoOn(w)) for (const t of peekPhoto(g).open.filter(t => t.due === d))
         out.push({ from: start, allDay: true, kind: 'brief', icon: 'camera', title: fmt('Brief due: {0}', briefOf(w, t.brief)?.name ?? ''), sub: '', tap: 'data-act="ph-go" data-app="photos"' });
     return out.sort((a, b) => Number(!!b.allDay) - Number(!!a.allDay) || a.from - b.from);

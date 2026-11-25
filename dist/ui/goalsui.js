@@ -269,7 +269,7 @@ function waysHtml(g, w, goal, step) {
 }
 /* ---------- the Goals tab ---------- */
 const perkLine = (goal) => (goal.perk ? `${goal.perk.name}${goal.perk.desc ? `: ${goal.perk.desc}` : ''}` : '');
-function pipsHtml(done, total, finished) {
+export function pipsHtml(done, total, finished) {
     return `<span class="mu-gl-pips" aria-label="${esc(`${done} of ${total} steps`)}">${Array.from({ length: total }, (_, i) => `<i class="${i < done ? 'is-done' : i === done && !finished ? 'is-now' : ''}"></i>`).join('')}</span>`;
 }
 function activeHtml(g, w) {
