@@ -40,7 +40,7 @@ import { levelOf, skillsOf, skillName } from './hobbies.js';
 import { fr, ro, statusOf, relOf, idOf, YOU } from './rel.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
-import { tallyOf, beenTo, placesBeen, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
+import { tallyOf, beenTo, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
 import { careerOf, trackOf, playerTrack } from './work.js';
 import { styleOf, knownCount, knownOf } from './intimacy.js';
 import { usualPay, money } from './needs.js';
@@ -593,7 +593,7 @@ function visitedHolds(g: Save, w: WorldDef, v: string): boolean {
     const s = v.toLowerCase(), map = m[3] && mapArg(g, w, m[3]);
     if (m[1] && m[2]) return systemOn(w, 'living') && places.filter(p => (!m[3] || onMapOf(w, p, map as string)) && isRegular(g, p.id)).length >= Number(m[1]);
     if (m[1] && m[3]) return places.filter(p => onMapOf(w, p, map as string) && been(p.id)).length >= Number(m[1]);
-    if (m[1]) return placesBeen(g).length >= Number(m[1]);
+    if (m[1]) return places.filter(p => been(p.id)).length >= Number(m[1]);
     if (m[4]) { const on = places.filter(p => onMapOf(w, p, mapArg(g, w, m[4]))); return on.length > 0 && on.every(p => been(p.id)); }
     const maps = [...new Set(places.map(p => p.map))];
     if (s === 'map') return maps.some(id => places.filter(p => p.map === id).every(p => been(p.id)));

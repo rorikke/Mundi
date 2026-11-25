@@ -7,8 +7,8 @@ import { backgroundOn, backgroundLine, sheetPeople, castSheet, addressLine, prof
 import './longlife.js';
 import './fading.js';   // romance fades without contact, partners may leave (day by day)   // people's lives over the weeks (runs by itself, day by day)
 import { feelingLine, physiqueLine } from './life.js';
-import { goalLine } from './goals.js';
-import { game, settings, changed, adultOn } from '../core/store.js';
+import { goalLine, checkGoals } from './goals.js';
+import { game, settings, changed, adultOn, toast, saveGame } from '../core/store.js';
 import { getWorld, homeNeedsOn } from '../core/world.js';
 import { aiLangNote } from '../core/i18n.js';
 import { setPrompt, nameOf, chat } from '../st/bridge.js';
@@ -251,11 +251,16 @@ export function sceneText(): string {
 }
 
 // Characters' initiatives are checked first (feelings may have just changed); the moments that went out with the
-// prompt are marked as sent (the verdict of that scene finishes them).
+// prompt are marked as sent (the verdict of that scene finishes them). The life goal is checked here too, so a step
+// finishes as soon as it holds (a place reached, an action done) rather than at the next game hour.
 export function refreshPrompt() {
     changed();   // called after changes: where people are is worked out again
     const g = game(), w = g && getWorld(g.world);
-    if (g && w) checkInitiative(g, w);
+    if (g && w) {
+        checkInitiative(g, w);   // (its look notes the place you're at: the goal check reads it)
+        const news = checkGoals(g, w);
+        if (news.length) { news.forEach(m => toast(m, 'success')); saveGame(); }
+    }
     setPrompt(PROMPT_KEY, sceneText());
     if (g && w && sceneBlocks().find(b => b.id === 'moments')?.state === 'sent') markSent(momentsFor(g, w, sceneHere(g, w)), chat().length);
 }

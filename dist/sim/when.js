@@ -40,7 +40,7 @@ import { levelOf, skillsOf, skillName } from './hobbies.js';
 import { fr, ro, statusOf, relOf, idOf, YOU } from './rel.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
-import { tallyOf, beenTo, placesBeen, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
+import { tallyOf, beenTo, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
 import { careerOf, trackOf, playerTrack } from './work.js';
 import { styleOf, knownCount, knownOf } from './intimacy.js';
 import { usualPay, money } from './needs.js';
@@ -743,7 +743,7 @@ function visitedHolds(g, w, v) {
     if (m[1] && m[3])
         return places.filter(p => onMapOf(w, p, map) && been(p.id)).length >= Number(m[1]);
     if (m[1])
-        return placesBeen(g).length >= Number(m[1]);
+        return places.filter(p => been(p.id)).length >= Number(m[1]);
     if (m[4]) {
         const on = places.filter(p => onMapOf(w, p, mapArg(g, w, m[4])));
         return on.length > 0 && on.every(p => been(p.id));

@@ -13,7 +13,7 @@ import { systemOn, activeStatuses, getWorld, type WorldDef, type GoalDef, type G
 import { goalsOf, goalOf, isSystemNeed, FOLDED_GOALS, SKILL_GROUPS, GENERAL_GOALS, GOAL_CATEGORIES } from '../core/goals.js';
 import type { EffectDef } from '../core/traits.js';
 import { whenHolds, parseWhen, namedIn, personNamed, countKey, countedOf, moneyAmount, homeMap, PLACE_REGULAR, knownHave } from './when.js';
-import { tally, tallyOf, placesBeen, isRegular } from './tally.js';
+import { tally, tallyOf, beenTo, isRegular } from './tally.js';
 import { onHour, onGoalStep, goalLink } from './hooks.js';
 import { addStatus } from './needs.js';
 import { addKeepsake } from './social.js';
@@ -416,11 +416,11 @@ export function stepProgress(g: Save, w: WorldDef, id: string, step?: number): {
             const m = v.match(SKILL);
             if (m && m[1] !== 'any' && !SKILL_GROUPS[m[1]]) { o.have = levelOf(g, m[1]); o.need = Number(m[2]); }
         } else if (c.key === 'money' && !c.not) { o.have = g.player.money; o.need = moneyAmount(w, v); }
-        else if (c.key === 'visited' && /^\d+$/.test(v)) { o.have = placesBeen(g).length; o.need = Number(v); }
+        else if (c.key === 'visited' && /^\d+$/.test(v)) { o.have = countable(w).filter(p => beenTo(g, p.id)).length; o.need = Number(v); }
         else if (c.key === 'known' && !c.not) { const k = knownHave(g, v); if (k) { o.have = k.have; o.need = k.need; } }
         else if (c.key === 'visited' && !c.not && c.values.length === 1) {
             const m = v.match(VISITED_N), map = m?.[3] ? (m[3].toLowerCase() === 'home' ? homeMap(g, w) : m[3]) : undefined;
-            if (m && (m[2] || m[3])) { const on = map === '' ? [] : countable(w, map); o.have = on.filter(p => (m[2] ? isRegular(g, p.id) : placesBeen(g).includes(p.id))).length; o.need = Number(m[1]); }
+            if (m && (m[2] || m[3])) { const on = map === '' ? [] : countable(w, map); o.have = on.filter(p => (m[2] ? isRegular(g, p.id) : beenTo(g, p.id))).length; o.need = Number(m[1]); }
         }
         return o;
     }));

@@ -12,7 +12,7 @@ import { nowAbs, adultOk, adultOn, residentsOf, residentIds } from '../core/stor
 import { systemOn, activeStatuses, getWorld } from '../core/world.js';
 import { goalsOf, goalOf, isSystemNeed, FOLDED_GOALS, SKILL_GROUPS, GENERAL_GOALS, GOAL_CATEGORIES } from '../core/goals.js';
 import { whenHolds, parseWhen, namedIn, personNamed, countKey, countedOf, moneyAmount, homeMap, PLACE_REGULAR, knownHave } from './when.js';
-import { tally, tallyOf, placesBeen, isRegular } from './tally.js';
+import { tally, tallyOf, beenTo, isRegular } from './tally.js';
 import { onHour, onGoalStep, goalLink } from './hooks.js';
 import { addStatus } from './needs.js';
 import { addKeepsake } from './social.js';
@@ -502,7 +502,7 @@ export function stepProgress(g, w, id, step) {
             o.need = moneyAmount(w, v);
         }
         else if (c.key === 'visited' && /^\d+$/.test(v)) {
-            o.have = placesBeen(g).length;
+            o.have = countable(w).filter(p => beenTo(g, p.id)).length;
             o.need = Number(v);
         }
         else if (c.key === 'known' && !c.not) {
@@ -516,7 +516,7 @@ export function stepProgress(g, w, id, step) {
             const m = v.match(VISITED_N), map = m?.[3] ? (m[3].toLowerCase() === 'home' ? homeMap(g, w) : m[3]) : undefined;
             if (m && (m[2] || m[3])) {
                 const on = map === '' ? [] : countable(w, map);
-                o.have = on.filter(p => (m[2] ? isRegular(g, p.id) : placesBeen(g).includes(p.id))).length;
+                o.have = on.filter(p => (m[2] ? isRegular(g, p.id) : beenTo(g, p.id))).length;
                 o.need = Number(m[1]);
             }
         }
