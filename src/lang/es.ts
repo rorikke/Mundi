@@ -12476,5 +12476,7 @@ const DICT: Record<string, string> = {
  "Perk": "Ventaja",
  "Level {0}": "Nivel {0}",
  "Free day": "Día libre",
+ "{0}% to level {1} · {2} xp to go": "{0}% hasta el nivel {1} · faltan {2} xp",
+ "Top level": "Nivel máximo",
 };
 export default DICT;

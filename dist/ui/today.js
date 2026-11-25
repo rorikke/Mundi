@@ -204,7 +204,9 @@ function goalPage(g, w) {
 function skillsPage(g, w) {
     const xp = skillXp(g);
     const list = skillsOf(w, g).filter(s => (xp[s.id] ?? 0) > 0).map(s => ({ s, p: progressOf(g, s.id) })).sort((a, b) => b.p.level - a.p.level || b.p.xp - a.p.xp);
-    return `<button class="mu-pt-part mu-pt-skills" data-act="pt-profile" data-v="skills"><ul>${list.map(({ s, p }) => `<li><span class="mu-pt-kv"><b data-notr>${esc(s.name)}</b><small>${esc(fmt('Level {0}', String(p.level)))} · ${esc(titleOf(p.level))}</small></span>${bar(p.pct)}</li>`).join('')}</ul></button>`;
+    // hovered: how far into the level, and the xp still to go for the next
+    const tip = (p) => (p.next ? fmt('{0}% to level {1} · {2} xp to go', String(p.pct), String(p.level + 1), String(Math.max(0, p.next - p.xp))) : tr('Top level'));
+    return `<button class="mu-pt-part mu-pt-skills" data-act="pt-profile" data-v="skills"><ul>${list.map(({ s, p }) => `<li title="${esc(tip(p))}"><span class="mu-pt-kv"><b data-notr>${esc(s.name)}</b><small>${esc(fmt('Level {0}', String(p.level)))} · ${esc(titleOf(p.level))}</small></span>${bar(p.pct)}</li>`).join('')}</ul></button>`;
 }
 /* ---------- the card ---------- */
 function pagesOf(g, w, cal, goals, s) {
