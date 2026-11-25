@@ -1337,13 +1337,20 @@ export function freeSpots(g, w, zoneId) {
     const taken = takenSpots(g);
     return zone.spots.filter(s => !taken.has(`${zone.id}:${s[0]},${s[1]}`));
 }
-// Moving costs one week of the new rent; rent then counts from today. (housing) Leaving a home you own: `leave` says
-// whether it's sold or kept as your second home (asked first; without it, nothing happens).
-export function moveTo(g, w, zoneId, leave) {
+/** The homes free in a zone by their number there (House 2, Apartment 5…): the one you pick when moving. */
+export const freeUnits = (g, w, zoneId) => {
     const zone = w.homes.zones.find(z => z.id === zoneId);
-    const spot = freeSpots(g, w, zoneId)[0];
+    return zone ? freeSpots(g, w, zoneId).map(s => zone.spots.indexOf(s) + 1) : [];
+};
+// Moving costs one week of the new rent; rent then counts from today. `n` is the home you picked there (its number;
+// without it, the first free one). (housing) Leaving a home you own: `leave` says whether it's sold or kept as your
+// second home (asked first; without it, nothing happens).
+export function moveTo(g, w, zoneId, leave, n) {
+    const zone = w.homes.zones.find(z => z.id === zoneId);
+    const free = freeSpots(g, w, zoneId);
+    const spot = n ? free.find(s => zone.spots.indexOf(s) + 1 === n) : free[0];
     if (!zone || !spot)
-        return 'There is no free home there.';
+        return n && free.length ? 'That home is not free any more.' : 'There is no free home there.';
     if (!((zone.rent ?? 0) > 0) && zone.price)
         return 'Homes there are for sale, not for rent.';
     const student = studentLink.homeBlock(g, w, zone.id); // (while you study for a degree: student homes only)
@@ -1358,7 +1365,7 @@ export function moveTo(g, w, zoneId, leave) {
         return 'Not enough money.';
     g.player.money -= deposit;
     book(g, `${zone.name}: deposit`, -deposit);
-    g.player.home = { zone: zone.id, kind: zone.kind, x: spot[0], y: spot[1], n: zone.spots.findIndex(s => s[0] === spot[0] && s[1] === spot[1]) + 1 };
+    g.player.home = { zone: zone.id, kind: zone.kind, x: spot[0], y: spot[1], n: zone.spots.indexOf(spot) + 1 };
     g.player.rentPaidDay = g.day;
     resetBills(g, w);
     note(g, '{u} moved to a new home: {0}.', [zone.name], [], g.player.loc, 'home');

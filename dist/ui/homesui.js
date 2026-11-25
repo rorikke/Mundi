@@ -6,15 +6,15 @@
 // photo studio: yours (rented or bought, what it costs a week, its fixtures, Give it up) or the studios to rent or buy,
 // shown with the homes for sale. The numbers are the engine's (sim/owning.ts, sim/fixtures.ts, sim/letting.ts,
 // sim/studio.ts); nothing here counts anything.
-import { esc, game, toast, notify, saveGame, nowAbs } from '../core/store.js';
+import { esc, game, toast, notify, saveGame, nowAbs, residentsOf } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { safeUrl } from '../core/safe.js';
 import { worldFile } from '../core/world.js';
-import { money } from '../sim/needs.js';
+import { money, billsOf } from '../sim/needs.js';
 import { refreshPrompt } from '../sim/prompt.js';
-import { homeAddress, placeOn, playerHomeId } from '../sim/places.js';
+import { homeAddress, homeKindName, placeOn, playerHomeId } from '../sim/places.js';
 import { homeKey } from '../sim/homes.js';
-import { moveTo } from '../sim/work.js';
+import { moveTo, freeUnits } from '../sim/work.js';
 import { itemDoes } from '../sim/shop.js';
 import { billAmount, UPKEEP, priceOf, owed, owedAmount } from '../sim/bills.js';
 import { housingOn, ownedAt, ownedHere, secondHome, zoneOf, sizeOf, guestsOf, resaleOf, SECOND_HOME_ID, lettable, toLet, keptHomes, isLet, MAX_LET, zonePrice, upkeepOf } from '../sim/housing.js';
@@ -264,9 +264,31 @@ export function askHtml(g, w) {
             : m.st.free ? `${m.z.name} was given to you: given up, it's gone for good, with its fixtures.` : `${m.z.name} sells for ${money(w, studioSale(w, m.st))} (${pct(resaleOf(m.z))} of the ${money(w, m.st.paid)} you paid). Its fixtures go with it; what's owed on the upkeep is paid from the sale.`;
         return box('Give up your photo studio', `<p>${esc(body)}</p>`, `<button class="mu-primary" data-act="hu-studio-off-go" ${btnWhy(giveUpBlock(g, w))}>${m.st.way === 'buy' && !m.st.free ? `Sell for ${money(w, studioSale(w, m.st))}` : 'Give it up'}</button>`);
     }
-    const z = zoneOf(w, a.zone);
-    return box('Move out of a home you own', `<p>You own the home you live in. Before moving to ${esc(z?.name ?? '')}: sell it, keep it as your second home, or let it?</p>`, leaveButtons('hu-move-go', `data-zone="${esc(a.zone)}"`, 0));
+    return moveBox(g, w, a, box, housingOn(w) && ownedHere(g) ? leaveButtons : null);
 }
+// Moving to a rented home: which of the free homes there (a chip each), where you leave and who stays behind, and
+// what it costs, before anything happens. A home you own asks as well whether it's sold, kept or let.
+function moveBox(g, w, a, box, leaveButtons) {
+    const z = zoneOf(w, a.zone), units = freeUnits(g, w, a.zone);
+    if (!z || !units.length) {
+        HU.ask = null;
+        return '';
+    }
+    if (!units.includes(a.n))
+        a.n = units[0];
+    const deposit = priceOf(g, z.rent), bills = priceOf(g, billsOf(w, z.kind));
+    const address = (n) => homeAddress(w, { zone: z.id, x: 0, y: 0, n, kind: z.kind });
+    const chips = units.map(n => `<button class="mu-chip ${n === a.n ? 'is-on' : ''}" data-act="hu-move-unit" data-n="${n}" aria-pressed="${n === a.n}">${esc(homeKindName(w, z.kind))} ${n}</button>`).join('');
+    const stay = residentsOf(g).filter(r => r.homeWith === '__you' && !r.gone).map(r => r.name);
+    const leaving = stay.length ? `You leave ${homeAddress(w, g.player.home)}. ${listNames(stay)} ${stay.length > 1 ? 'stay' : 'stays'} there.` : `You leave ${homeAddress(w, g.player.home)}.`;
+    const cost = `Moving costs ${money(w, deposit)} now: the first week's rent. Then ${money(w, deposit)} a week${bills ? ` and ${money(w, bills)} of bills` : ''}, counted from today.`;
+    const body = `<p>${esc(units.length > 1 ? 'Which home?' : 'The one free home there:')}</p><div class="mu-chips mu-hu-units">${chips}</div><p>${esc(leaving)}</p><p>${esc(cost)}</p>${leaveButtons ? '<p>You own the home you live in. Sell it, keep it as your second home, or let it?</p>' : ''}`;
+    const extra = `data-zone="${esc(z.id)}" data-n="${a.n}"`;
+    const short = g.player.money < deposit ? 'Not enough money.' : '';
+    return box(`Move to ${address(a.n)}`, body, leaveButtons ? leaveButtons('hu-move-go', extra, deposit)
+        : `<button class="mu-primary" data-act="hu-move-go" ${extra} ${btnWhy(short)}>Move for ${money(w, deposit)}</button>`);
+}
+const listNames = (list) => (list.length < 3 ? list.join(' and ') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`);
 /** (homerooms, housing) Moving between the rooms of a home: one card with a chip per room, the one you are in lit,
  *  each showing who is in it (asleep: dimmed) and whether its door is shut to you. Navigation, not a thing to do, so a
  *  share house costs one row instead of one per room. '' when the home you are at has no rooms. */
@@ -443,8 +465,13 @@ Object.assign(ACT, {
         const leave = el.dataset.leave;
         if (HU.rooms === homeKey(c.g.player.home) && leave === 'sell')
             HU.rooms = '';
-        done(moveTo(c.g, c.w, el.dataset.zone, leave), 'You moved.');
+        const err = moveTo(c.g, c.w, el.dataset.zone, leave, Number(el.dataset.n) || undefined);
+        done(err, `You moved to ${homeAddress(c.w, c.g.player.home)}.`);
     },
+    'hu-move-unit': (el) => { if (HU.ask?.kind === 'move') {
+        HU.ask.n = Number(el.dataset.n) || 0;
+        notify();
+    } },
     'hu-fix': (el) => {
         const c = C();
         if (!c)
@@ -501,11 +528,9 @@ Object.assign(ACT, {
 });
 // (photography) What's owed now on your studio's rent.
 const owedNow = (g, w) => (owed(g, STUDIO_RENT) ? owedAmount(g, w, STUDIO_RENT) : 0);
-/** The Homes app's Move button: a home you own asks first (sell it, or keep it as the second). */
-export function askLeave(g, w, zone) {
-    if (!housingOn(w) || !ownedHere(g))
-        return false;
-    HU.ask = { kind: 'leave', zone };
+/** The Homes app's Move button: asks first which free home there, says what you leave and what it costs (and, for a
+ *  home you own, whether it's sold, kept or let). */
+export function askMove(zone) {
+    HU.ask = { kind: 'move', zone, n: 0 };
     notify();
-    return true;
 }

@@ -46,7 +46,7 @@ import { awayNow, answerLater, dueLater, waitingOn, heartTone, heartBackfired, H
 import { grudgeOf } from '../sim/grudges.js';
 import { planForm, calendarApp, plansBadge } from './plans.js';
 import { hobbyNeed, hobbyFits, skillName } from '../sim/hobbies.js';
-import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays, myJob, trackOf, needsPick, openTracks, feeOf, waitDays, pathChoices, closedText, isFreelance, bookedJob, colleaguesOf, bossOf, colleagueWeekText } from '../sim/work.js';
+import { likes, traitsOf, hire, quitJob, ledger, freeSpots, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays, myJob, trackOf, needsPick, openTracks, feeOf, waitDays, pathChoices, closedText, isFreelance, bookedJob, colleaguesOf, bossOf, colleagueWeekText } from '../sim/work.js';
 import { rankName, jobOf as npcJob } from '../sim/dayplan.js';
 import { trackName } from '../sim/tracks.js';
 import { icon } from './icons.js';
@@ -70,7 +70,7 @@ import { PP, personTabs, feelingsNow, aboutHtml, memoriesHtml, circleHtml, notes
 import { nudgeAnswersHtml, theirStoryHtml } from './threadui.js';
 import { sharedLikes } from '../sim/private.js';
 import { buyOnly } from '../sim/housing.js';
-import { HU, ownedHtml, letHtml, forSaleHtml, roomsHtml, askHtml, askLeave } from './homesui.js';
+import { HU, ownedHtml, letHtml, forSaleHtml, roomsHtml, askHtml, askMove } from './homesui.js';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
 let closeTimer = 0;
 export function closePhone() {
@@ -789,7 +789,7 @@ function homesApp(g, w, wide = false) {
         const rent = priceOf(g, z.rent), bills = priceOf(g, billsOf(w, z.kind));
         return `<article class="mu-home-card"><span class="mu-home-pic" ${pic(z.kind)}></span>
                 <div class="mu-home-info"><span><b>${esc(z.name)}</b><small>${esc(w.homes.kinds[z.kind]?.name ?? z.kind)} · ${money(w, rent)}/wk${bills ? ` + ${money(w, bills)} bills` : ''} · ${free} free</small></span>
-                <button class="mu-home-move" data-act="ph-move" data-id="${esc(z.id)}" ${free && g.player.money >= rent && !student ? '' : 'aria-disabled="true"'} ${student ? 'title="Not while you study for a degree"' : ''}>Move</button></div></article>`;
+                <button class="mu-home-move" data-act="ph-move" data-id="${esc(z.id)}" ${(() => { const why = !free ? 'There is no free home there.' : student ? 'Not while you study for a degree' : g.player.money < rent ? 'Not enough money.' : ''; return why ? `aria-disabled="true" title="${esc(why)}"` : ''; })()}>Move…</button></div></article>`;
     }).join('')}</div>
         ${w.homes.zones.some(z => studentLink.homeBlock(g, w, z.id)) ? `<p class="mu-bad">${esc(w.homes.zones.map(z => studentLink.homeBlock(g, w, z.id)).find(Boolean))}</p>` : ''}
         <p class="mu-muted">${T('movingNote')}</p></section>`}`;
@@ -1256,20 +1256,11 @@ Object.assign(ACT, {
     'ph-quit': () => { const g = game(); if (!g)
         return; quitJob(g, getWorld(g.world) ?? undefined); toast('You quit your job.', 'info'); saveGame(); notify(); },
     'ph-move': (el) => {
-        const g = game();
-        const w = g && getWorld(g.world);
-        if (!g || !w)
-            return;
-        if (askLeave(g, w, el.dataset.id))
-            return; // (a home you own: sell it, or keep it as the second, first)
-        const err = moveTo(g, w, el.dataset.id);
-        if (err) {
-            toast(err, 'warn');
+        if (el.getAttribute('aria-disabled') === 'true') {
+            toast(el.title || 'Not now.', 'info');
             return;
         }
-        toast(`You moved to ${homeAddress(w, g.player.home)}.`, 'success');
-        saveGame();
-        notify();
+        askMove(el.dataset.id); // (nothing happens until you pick the home there and say yes)
     },
 });
 Object.assign(INPUT, {
