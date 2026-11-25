@@ -1,5 +1,55 @@
 # Changelog
 
+## 1.2.1 · 2026-11-25
+
+Small changes after 1.2.0: days that tire you, places that close their doors, time that passes as you talk, a Today
+card of slides, and the Shop searchable. Your saves open as they are: no save format change.
+
+### Days and places
+
+- **Energy drains while you're awake** (4 an hour, nothing while asleep or travelling the map), so a day ends tired and
+  a night's sleep is what fills it. Fit, Lazy and Night owl slow the drain as well as what actions cost.
+- **Time passes as you talk,** in every world: each message you send is 2 to 5 minutes by its length (set per save in
+  This world → World › Time, or This Home › Home), added once the reply is done. The same message sent again adds
+  nothing, and nothing passes with the running clock, while texting or during an action played out in the scene.
+- **Closed places close their doors.** A closed place lets you in only with a reason to be there (your shift, a class,
+  a plan or an event about to start, a business or a night of your own), and its map card says when it opens. Half an
+  hour before closing it's last orders, and at closing you're shown out to the nearest open place, home or the map;
+  overtime ends when the place closes.
+- **The map** marks places you haven't been to yet with a small gold mark on their pin (*Not visited yet* on the card).
+  Clicking a place you can't go to keeps you on the map with the notice, and the Work and Home buttons keep you where
+  you were when the trip can't happen; a closed workplace says when your next shift is.
+- **Moving to a rented home asks first:** pick which free home there, see where you leave and who stays behind, and
+  what it costs, and nothing happens until you say yes.
+- **At a home with rooms,** moving around is one Rooms card at the top of Things to do: a chip per room, the faces of
+  who is in each (dimmed when asleep) and a lock on a door shut to you.
+
+### The phone
+
+- **The Today card is slides you swipe between:** an overview (the time, what's next today, the week's shifts,
+  classes, plans and deadlines), then coming up, the calendar day by day, your life goal's step, work, studies and
+  skills (hover a skill for the xp to its next level). Unfolded, each slide spreads into columns and they all keep the
+  same height, so the apps under them stay put. Its small print is easier to read.
+- **The Shop can be searched** (by name, description and what an item does: "train" finds "Photography trains 5%
+  faster") and filtered by use (unlocks something, skill training, needs and rest, gifts…).
+- **Jobs lists your coworkers** (rank, this week's shifts, who's the boss, who you haven't met yet), and each shift in
+  Work this week says who's on it with you. Unfolded, the Your job / Openings tabs no longer cover your job's card.
+- **My home in Homes lists who lives with you** (housemates, family, a partner who moved in), each with how close you
+  are, and a tap opens their page.
+- **Campus nudges you to enroll** when no degree is open, with a badge and a card like Goals' *Pick a life goal*. The
+  Calendar shows a degree's finals and the first term's start.
+
+### People and goals
+
+- **Coworkers and other staff** come in an hour before their shift and stay an hour after it (unless a plan of theirs
+  comes first), so you can catch them off the clock.
+- **Saying hi in passing** to someone you don't know leaves them a stranger, until you stop and talk.
+- **The world's own people who have no job** take the one their world gives them when a save opens, once per job, with
+  a backup and a message saying who.
+- **A life goal's step** finishes as soon as it's done (arriving at a place, an action) instead of at the next game
+  hour, and *Visit N places* counts only real places, not private places, rooms or businesses.
+- Everything new in Portuguese and Spanish.
+
 ## 1.2.0 · 2026-11-25
 
 With adult content on, the adult video job becomes a career of its own, and for everyone, pictures for Tokyo's things,
