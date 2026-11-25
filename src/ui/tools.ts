@@ -1,7 +1,7 @@
 // The top bar in game: day and time, map/scene switch, settings and the menu.
 import { showTransition } from './lifeui.js';
 import { period } from '../sim/time.js';
-import { state, game } from '../core/store.js';
+import { state, game, nowAbs } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { toNextPeriod, advance } from '../sim/time.js';
 import { verdictNow } from '../sim/verdict.js';
@@ -9,7 +9,7 @@ import { runPlans } from './plans.js';
 import { syncScene } from '../sim/game.js';
 import { toast, saveGame, notify } from '../core/store.js';
 import { ACT } from './reg.js';
-import { playerHomeId } from '../sim/places.js';
+import { playerHomeId, placeOf, travelMinutes } from '../sim/places.js';
 
 const SPEEDS = [0, 30, 60, 120];
 
@@ -33,7 +33,8 @@ Object.assign(ACT, {
     // straight home, into the home scene
     'go-home': async () => {
         const g = game(); if (!g) return;
-        if (g.player.loc !== playerHomeId) { const { travelTo } = await import('./map.js'); await travelTo(playerHomeId); }
+        // a trip that didn't happen (someone mid-sentence, a gate) leaves you where you were, on the map if you were there
+        if (g.player.loc !== playerHomeId) { const { travelTo } = await import('./map.js'); if (!(await travelTo(playerHomeId))) { notify(); return; } }
         state.view = 'scene'; notify();
     },
     // straight to work (and the shift, if it is open)
@@ -41,8 +42,18 @@ Object.assign(ACT, {
         const g = game(); const w = g && getWorld(g.world); const o = g?.player.job && w?.occupations.find(x => x.id === g.player.job!.id);
         if (!g || !w || !o) return;
         if (state.generating) { toast('Wait until they finish speaking.', 'info'); return; }
-        const { jobPlace } = await import('../sim/work.js');
-        if (g.player.loc !== jobPlace(g, o)) { const { travelTo } = await import('./map.js'); await travelTo(jobPlace(g, o)); }
+        const { jobPlace, nextShift, whenText } = await import('../sim/work.js');
+        const place = jobPlace(g, o);
+        if (g.player.loc !== place) {
+            // (the living world) closed until your shift comes near: say when it is, not when the doors open
+            const { closedTo } = await import('../sim/closing.js');
+            if (closedTo(g, w, place, nowAbs(g) + travelMinutes(g, w, g.player.loc, place))) {
+                const n = nextShift(g, w, o), name = placeOf(g, w, place)?.name ?? o.name;
+                toast(n ? `${name} is closed. Your next shift: ${whenText(g, n)}.` : `${name} is closed.`, 'info'); return;
+            }
+            const { travelTo } = await import('./map.js');
+            if (!(await travelTo(place))) { notify(); return; }
+        }
         state.view = 'scene'; notify();
     },
     'open-settings': () => { state.backTo = state.view; state.view = 'settings'; notify(); },

@@ -1,6 +1,7 @@
 // Portuguese (Brazil) interface text. Key = the English text exactly as shown; {0}, {1}… are the parts that change.
 // Made from the screens' sources (see core/tr.ts). Only Mundi's own screens: a world's places and people are not here.
 const DICT: Record<string, string> = {
+ "{0} is closed. Your next shift: {1}.": "{0} está fechado. Seu próximo turno: {1}.",
  "{0} is closed until {1}.": "{0} está fechado até {1}.",
  "{0} is closed.": "{0} está fechado.",
  "Closed · opens {0}": "Fechado · abre {0}",

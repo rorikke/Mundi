@@ -1,6 +1,7 @@
 // Spanish interface text. Key = the English text exactly as shown; {0}, {1}… are the parts that change.
 // Made from the screens' sources (see core/tr.ts). Only Mundi's own screens: a world's places and people are not here.
 const DICT = {
+    "{0} is closed. Your next shift: {1}.": "{0} está cerrado. Tu próximo turno: {1}.",
     "{0} is closed until {1}.": "{0} está cerrado hasta {1}.",
     "{0} is closed.": "{0} está cerrado.",
     "Closed · opens {0}": "Cerrado · abre {0}",
