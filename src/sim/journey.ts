@@ -31,7 +31,7 @@ export function travelRoad(g: Save, w: WorldDef, minutes: number, camp: boolean)
         if (left <= 0) break;
         if (!camp) { addStatus(g, w, 'energy', -20); out.push('You push on through the night without rest.'); continue; }
         // a night at camp
-        out.push(...advance(g, w, 8 * 60));
+        g.asleep = true; out.push(...advance(g, w, 8 * 60)); g.asleep = false;   // (asleep: the awake drains wait)
         if (campBlocked(g, w)) { addStatus(g, w, 'energy', 15); out.push(`🏕️ ${hazardHere(g, w)?.name ?? 'The weather'} rages all night: without camping gear, you barely rest.`); }
         else { longRest(g, w, 0.5); addStatus(g, w, 'energy', 60); }
         const c = rollCheck(g, w, 'survival', 12, talentSum(w, sheetOf(g)!, 'camp'));

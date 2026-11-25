@@ -32,7 +32,9 @@ export function travelRoad(g, w, minutes, camp) {
             continue;
         }
         // a night at camp
+        g.asleep = true;
         out.push(...advance(g, w, 8 * 60));
+        g.asleep = false; // (asleep: the awake drains wait)
         if (campBlocked(g, w)) {
             addStatus(g, w, 'energy', 15);
             out.push(`🏕️ ${hazardHere(g, w)?.name ?? 'The weather'} rages all night: without camping gear, you barely rest.`);

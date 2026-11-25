@@ -556,7 +556,11 @@
    "start": 100,
    "max": 100,
    "hud": true,
-   "decay": null,
+   "decay": {
+    "amount": 1,
+    "everyMinutes": 15,
+    "awakeOnly": true
+   },
    "zero": {
     "text": "Exhausted, you fall asleep where you are and wake up at home.",
     "restore": 40,

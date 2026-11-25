@@ -359,6 +359,9 @@ function upgradeAdult(w: WorldDef) {
     }
     for (const t of w.sheet?.traits ?? []) if (t.adultOptions !== undefined) t.adultOptions = strList(t.adultOptions);
 }
+/** Energy's drain while awake: 4 an hour, so a waking day (about 16 hours) takes most of it before what you do. */
+export const ENERGY_DRAIN = { amount: 1, everyMinutes: 15, awakeOnly: true };
+
 export function upgradeWorld(w: WorldDef): WorldDef {
     const p = presetOf(w);
     const c = (w.catalogs ??= {} as any) as any;
@@ -439,6 +442,13 @@ export function upgradeWorld(w: WorldDef): WorldDef {
             s.zero = { ...(s.zero ?? {}), crisis: structuredClone(c) };
         }
         (w as any).presetCrises = true;
+    }
+    // energy drains while you're awake (a night's sleep is what fills it), once: a world whose energy only dropped
+    // through what you did gets the built-in worlds' drain; one set otherwise in the creator later keeps its own
+    if (!(w as any).presetEnergyDrain) {
+        const e = (w.statuses ?? []).find(s => s.id === 'energy');
+        if (e && !e.decay) e.decay = { ...ENERGY_DRAIN };
+        (w as any).presetEnergyDrain = true;
     }
     // (E16) origins become the simplest starts, once (a world that has starts keeps its own; removed ones stay removed).
     // Same id, money and home; no premise of its own: the origin's words are told as before.

@@ -33,14 +33,14 @@ export function money(w: WorldDef, v: number): string {
 // How cheap this world's economy is: the usual pay of a first job, for prices the engine sets itself (a party…).
 export const usualPay = (w: WorldDef) => { const p = w.occupations.map(o => o.ranks?.[0]?.pay ?? 0).filter(x => x > 0).sort((a, b) => a - b); return p.length ? p[Math.floor(p.length / 2)] : 16; };
 
-export function addStatus(g: Save, w: WorldDef, id: string, delta: number) {
+export function addStatus(g: Save, w: WorldDef, id: string, delta: number, timed = false) {
     const d = statusDef(w, id);
     if (!d || (d.adult && !adultOn(g))) return;   // (an adult need, Desire, stays as it was while adult content is off)
     // in the RPG, "life" is your hit points (the need shows the share left): a change goes to the hit points
     if ((id === 'life' || id === 'health') && sheetOf(g) && isRpg(w)) { changeHp(g, w, (delta / d.max) * hpMax(w, sheetOf(g)!)); return; }
-    // a need that never drops with time (energy, in the built-in worlds) drops only through what you do: what slows its
-    // drain (a perk, a trait: Fit, Lazy) makes those drops smaller
-    if (delta < 0 && !d.decay && !d.rpg) delta *= effectMul(g, w, 'drain', id);
+    // what slows a need's drain (a perk, a trait: Fit, Lazy) makes what you do cost less of a need that never drops with
+    // time, and of energy, which drops while you're awake too (its time drain is scaled in `decayMods`, so `timed` skips it)
+    if (delta < 0 && !d.rpg && !timed && (!d.decay || id === 'energy')) delta *= effectMul(g, w, 'drain', id);
     g.player.stats[id] = clamp((g.player.stats[id] ?? d.start) + delta, d.max);
 }
 
@@ -56,12 +56,13 @@ function periods(g: Save, key: string, every: number): number {
 
 /* ---------- adult needs (Desire): sim/drive.ts changes them through `zeroDrainMods` and `gainMods` (sim/hooks.ts) ---------- */
 // An adult need's decay keeps its fractions (Desire at Low drive loses half a point a step), so the drive's rate is
-// what it says; other needs round as they always have.
+// what it says; so does energy's, small steps that a perk (Fit: −20%) would otherwise round away. Other needs round
+// as they always have.
 function decayBy(g: Save, w: WorldDef, s: StatusDef, n: number) {
-    if (!s.adult) { addStatus(g, w, s.id, n); return; }
+    if (!s.adult && s.id !== 'energy') { addStatus(g, w, s.id, n, true); return; }
     const key = `carry:${s.id}`, total = n + (g.tick[key] ?? 0), whole = Math.trunc(total);
     g.tick[key] = total - whole;
-    if (whole) addStatus(g, w, s.id, whole);
+    if (whole) addStatus(g, w, s.id, whole, true);
 }
 
 // Runs after every slice of time: decay, damage at zero, passing out, rent.
@@ -71,7 +72,7 @@ export function applyTimedRules(g: Save, w: WorldDef): string[] {
     for (const s of activeStatuses(w, g)) {
         if (s.decay) {
             const n = periods(g, `decay:${s.id}`, s.decay.everyMinutes);
-            // (walking the map costs no energy)
+            // (walking the map costs no energy; energy drains only while you're awake: `awakeOnly`)
             if (n > 0 && !(s.decay.awakeOnly && g.asleep) && !(s.id === 'energy' && (g as any).traveling)) decayBy(g, w, s, -s.decay.amount * n * (cfg(g).decay ?? 1) * decayMods.reduce((m, f) => m * f(g, w, s.id), 1));
         }
         const v = g.player.stats[s.id] ?? s.start;

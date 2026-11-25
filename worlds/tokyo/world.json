@@ -1720,6 +1720,11 @@
    "start": 100,
    "max": 100,
    "hud": true,
+   "decay": {
+    "amount": 1,
+    "everyMinutes": 15,
+    "awakeOnly": true
+   },
    "zero": {
     "crisis": {
      "after": 0,
