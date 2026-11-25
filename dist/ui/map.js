@@ -578,7 +578,8 @@ export const mapInput = {
     },
 };
 /* ---------- actions ---------- */
-// Moves the player: time passes, the scene follows (who is there now), and the screen goes to the scene.
+// Moves the player: time passes, the scene follows (who is there now), and the screen goes to the scene. False when
+// the trip didn't happen (refused, or a dialog asks first: the journey, the last train).
 // A long journey (RPG, between regions): first, how you go (making camp, or pushing on).
 // (E4) After the last train, a trip to another map: first, a taxi or a wait for the first train (`late`); with a car of
 // your own you just drive (no fare, no wait, not a missed train, and nobody to meet on a train).
@@ -587,41 +588,41 @@ export const LATE = { to: '', minutes: 0, fare: 0, wait: 0 };
 export async function travelTo(loc, road, late) {
     const { g, w } = ctxW();
     if (loc === g.player.loc)
-        return;
+        return false;
     if (state.generating) {
         toast('Wait until they finish speaking.', 'info');
-        return;
+        return false;
     } // nobody walks out mid-sentence
     // (the living world) a closed place lets you in only with a reason, judged as you'd get there
     const shut = closedTo(g, w, loc, nowAbs(g) + travelMinutes(g, w, g.player.loc, loc) + (late === 'wait' ? untilFirstTrain(w, g.minutes) : 0));
     if (shut) {
         toast(shut, 'info');
-        return;
+        return false;
     }
     finishFirst(g, w); // (E14.6) what you were doing in the scene ends first (the rest of its time passes)
     const fee = entryDue(g, w, loc); // (E19) a gate to pay at, once a day
     if (fee && g.player.money < fee) {
         toast(`Getting into ${placeOf(g, w, loc)?.name ?? 'there'} costs ${money(w, fee)}. Not enough money.`, 'info');
-        return;
+        return false;
     }
     const mins = travelMinutes(g, w, g.player.loc, loc);
     if (!late && missedTrain(g, w, g.player.loc, loc)) {
         Object.assign(LATE, { to: loc, minutes: mins, fare: taxiFare(g, w, mins), wait: untilFirstTrain(w, g.minutes) });
         notify();
-        return;
+        return false;
     }
     const drive = !late && drivesNow(g, w, g.player.loc, loc);
     const fare = late === 'taxi' ? taxiFare(g, w, mins) : 0;
     if (fare && g.player.money < fare + fee) {
         toast(`A taxi there costs ${money(w, fare)}. Not enough money.`, 'info');
-        return;
+        return false;
     }
     LATE.to = '';
     const trip = journeyOf(g, w, g.player.loc, loc, mins);
     if (trip && trip.camps > 0 && !road) {
         Object.assign(JOURNEY, { to: loc, minutes: mins, camps: trip.camps });
         notify();
-        return;
+        return false;
     }
     // the scene you leave closes; the next one starts clean. Not in a Home: walking from room to room (often with
     // the same people) is one long scene, and closing it made them forget what was just said.
@@ -666,6 +667,7 @@ export async function travelTo(loc, road, late) {
     state.view = 'scene'; // arriving somewhere opens its scene (with its things to do), even when nobody is there
     // (the elevator ride on arriving at an apartment is gone: it only got in the way)
     notify();
+    return true;
 }
 // (E11) Someone you know made the same trip (or, at rush hour, left from the same station): now and then you run into
 // them on the way, and they can come along for a while (the encounter's own choices, ui/bump.ts).
@@ -748,8 +750,11 @@ async function goTo(loc) {
     }
     if (door.text)
         toast(door.text, 'info');
-    if (loc !== g.player.loc)
-        await travelTo(loc);
+    // a trip that didn't happen (closed, no money for the gate, someone mid-sentence) leaves you on the map
+    if (loc !== g.player.loc && !(await travelTo(loc))) {
+        notify();
+        return;
+    }
     state.view = 'scene';
     notify();
 }
