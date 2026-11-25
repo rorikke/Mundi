@@ -3,7 +3,8 @@
 import { esc, notify, saveGame, cfg, game, type Save } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { thumb } from '../st/bridge.js';
-import { REPLY_MINUTES, perMessage, npcOut, SHIFTS, DAYS, homeJobOf } from '../sim/hometime.js';
+import { npcOut, SHIFTS, DAYS, homeJobOf } from '../sim/hometime.js';
+import { chatTimeHtml } from './chattimeui.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { housemates } from '../sim/guests.js';
 import { INPUT } from './reg.js';
@@ -12,7 +13,7 @@ export function homeSettingsHtml(g: Save): string {
     const w = getWorld(g.world); if (!w || !isScenario(w)) return '';
     const people = housemates(g);   // guests have no job or shift here
     return `<h4>Home</h4>
-        <label class="mu-check"><input type="checkbox" data-input="home-permsg" ${perMessage(g) ? 'checked' : ''}><span>Time passes with each message<small>Each message you send is ${REPLY_MINUTES} minutes. Off: time only moves with "Let time pass", sleeping and what you do.</small></span></label>
+        ${chatTimeHtml(g)}
         <label class="mu-check"><input type="checkbox" data-input="home-out" ${npcOut(g) ? 'checked' : ''}><span>The housemates leave the house<small>For work, errands and nights out (off-screen), then they come back. Off: everyone stays in.</small></span></label>
         <div class="mu-homejobs">${people.map(r => { const j = homeJobOf(r); const timed = !!SHIFTS.find(s => s.id === j.shift && s.from !== undefined);
             return `<div class="mu-homejob"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.name)}</b>
@@ -25,7 +26,6 @@ export function homeSettingsHtml(g: Save): string {
 const job = (g: Save, who: string) => { const r: any = g.cast[who]; return r ? (r.homeJob ??= {}) : null; };
 const done = (g: Save) => { saveGame(); refreshPrompt(); notify(); };
 Object.assign(INPUT, {
-    'home-permsg': (el) => { const g = game(); if (!g) return; cfg(g).perMessage = (el as HTMLInputElement).checked; done(g); },
     'home-out': (el) => { const g = game(); if (!g) return; cfg(g).npcOut = (el as HTMLInputElement).checked; done(g); },
     'home-job': (el) => { const g = game(); const j = g && job(g, el.dataset.who!); if (!g || !j) return; j.name = el.value.trim(); saveGame(); refreshPrompt(); },
     'home-shift': (el) => { const g = game(); const j = g && job(g, el.dataset.who!); if (!g || !j) return; j.shift = el.value; done(g); },

@@ -235,7 +235,7 @@ const topics = (w: WorldDef | null): Topic[] => {
     { id: 'start', icon: 'home', title: 'Getting started', intro: 'Mundi turns a SillyTavern group chat into a life you live: a world, a clock, needs, people with their own days, and the story the AI writes around what you do.',
         items: [
             ['Your card (top left)', settings().playAs ? 'Your name, money, energy and needs. Click your photo to play as someone else.' : 'Your name, money, energy and needs. Click your photo to use another SillyTavern persona.'],
-            ['The clock (top)', 'The day, the time, where you are and the weather. Time passes when you do things, travel or sleep. Click it to let time pass.'],
+            ['The clock (top)', 'The day, the time, where you are and the weather. Time passes when you do things, talk, travel or sleep. Click it to let time pass.'],
             ['Here', 'Who is in this place right now. Click a face to open their page in People; click them in the scene for what you can do with them.'],
             ['Things to do (right)', 'What this place offers: eat, drink, work, rest… Turn on "Something else…" in Settings → Game to do anything you can think of.'],
             ['Doing things with people around', "Being in the same place isn't being together: what you do on your own goes into the story with no reply, and the people here go on with their own things. Someone may come over now and then (friends more often, and more in a bar than a library): talk, or nod and keep going. Talk to someone and they're with you for a while. \"Keep to myself\" in Things to do: only friends come over, and rarely."],
@@ -252,6 +252,7 @@ const topics = (w: WorldDef | null): Topic[] => {
     { id: 'needs', icon: 'bolt', title: 'Time and needs', intro: 'Energy, hunger, thirst, mood and hygiene drop over time. Keep them up with the things you do.',
         items: [
             ['Actions take time', 'Each action shows its cost and how long it takes. The clock moves forward when you do it.'],
+            ['Talking takes time', 'Each message you send is a few minutes, a longer one a few more (☰ → This world → World sets how many, or turns it off).'],
             ['Sleep', 'At home (or where you stay the night). The night ends the day: your diary is written and you see how the day went with everyone.'],
             ['Let time pass', 'Click the clock: time jumps to the next part of the day.'],
             ...(billList ? [<[string, string]>['Rent and bills', `${billList} are weekly bills: pay them ${appRef(w, w ? billsApp(w) : 'homes')} (they turn red when due). One left unpaid for a week stops (or, for the rent, you are locked out of your home) until you pay what is overdue; you can pay part of a bill, and one that stopped owes no more weeks.`]] : []),

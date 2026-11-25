@@ -3,7 +3,8 @@
 import { esc, notify, saveGame, cfg, game } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { thumb } from '../st/bridge.js';
-import { REPLY_MINUTES, perMessage, npcOut, SHIFTS, DAYS, homeJobOf } from '../sim/hometime.js';
+import { npcOut, SHIFTS, DAYS, homeJobOf } from '../sim/hometime.js';
+import { chatTimeHtml } from './chattimeui.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { housemates } from '../sim/guests.js';
 import { INPUT } from './reg.js';
@@ -13,7 +14,7 @@ export function homeSettingsHtml(g) {
         return '';
     const people = housemates(g); // guests have no job or shift here
     return `<h4>Home</h4>
-        <label class="mu-check"><input type="checkbox" data-input="home-permsg" ${perMessage(g) ? 'checked' : ''}><span>Time passes with each message<small>Each message you send is ${REPLY_MINUTES} minutes. Off: time only moves with "Let time pass", sleeping and what you do.</small></span></label>
+        ${chatTimeHtml(g)}
         <label class="mu-check"><input type="checkbox" data-input="home-out" ${npcOut(g) ? 'checked' : ''}><span>The housemates leave the house<small>For work, errands and nights out (off-screen), then they come back. Off: everyone stays in.</small></span></label>
         <div class="mu-homejobs">${people.map(r => {
         const j = homeJobOf(r);
@@ -28,8 +29,6 @@ export function homeSettingsHtml(g) {
 const job = (g, who) => { const r = g.cast[who]; return r ? (r.homeJob ??= {}) : null; };
 const done = (g) => { saveGame(); refreshPrompt(); notify(); };
 Object.assign(INPUT, {
-    'home-permsg': (el) => { const g = game(); if (!g)
-        return; cfg(g).perMessage = el.checked; done(g); },
     'home-out': (el) => { const g = game(); if (!g)
         return; cfg(g).npcOut = el.checked; done(g); },
     'home-job': (el) => { const g = game(); const j = g && job(g, el.dataset.who); if (!g || !j)

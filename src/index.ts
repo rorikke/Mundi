@@ -107,20 +107,25 @@ function follow() {
     on('GROUP_WRAPPER_FINISHED', done);
     on('STREAM_TOKEN_RECEIVED', () => { if (state.open && state.view === 'scene') patchLastLine(); });
     on('MESSAGE_SENT', (id: number) => { const m: any = (globalThis as any).SillyTavern?.getContext?.().chat?.[id]; if (m?.is_user) { void import('./ui/relui.js').then(x => { x.detectAsk(String(m.mes ?? '')); void x.checkReverse(); }); void import('./ui/trainui.js').then(x => x.detectTrain(String(m.mes ?? ''))); } });
-    // Home: time passes with every message you send (Settings › This save can turn it off)
+    // A line you send moves the clock: (E14.6) an action played out in the scene moves its own clock and may end
+    // (ui/sceneact.ts); otherwise the line is a few minutes, added once the reply is done (sim/chattime.ts). One
+    // handler, so a line that ends the action isn't also counted as talk. Minutes still waiting from a reply that
+    // never ended pass first.
     on('MESSAGE_SENT', async (id: number) => {
         const m: any = (globalThis as any).SillyTavern?.getContext?.().chat?.[id];
         if (!m?.is_user || m.is_system) return;
-        const { homeTick } = await import('./sim/hometime.js');
-        if (await homeTick()) redraw();
+        const { game } = await import('./core/store.js');
+        const { sceneAct } = await import('./sim/actions.js');
+        const { chatSent, chatSettle } = await import('./sim/chattime.js');
+        if (await chatSettle()) redraw();
+        const g = game(); if (!g) return;
+        if (sceneAct(g)) { const { sceneActTick } = await import('./ui/sceneact.js'); if (await sceneActTick(m)) redraw(); }
+        else chatSent(g, m);
     });
-    // (E14.6) an action played out in the scene: each line you send moves its clock, and it may end (ui/sceneact.ts)
-    on('MESSAGE_SENT', async (id: number) => {
-        const m: any = (globalThis as any).SillyTavern?.getContext?.().chat?.[id];
-        if (!m?.is_user || m.is_system) return;
-        const { sceneActTick } = await import('./ui/sceneact.js');
-        if (await sceneActTick(m)) redraw();
-    });
+    // the reply to your line is done (all of the group's answers, or stopped): its minutes pass
+    const settle = () => void import('./sim/chattime.js').then(async x => { if (await x.chatSettle()) redraw(); });
+    on('GROUP_WRAPPER_FINISHED', settle);
+    on('GENERATION_STOPPED', settle);
     // someone answered you in the scene: you're talking (they're with you for a while, sim/social.ts), and someone you
     // did not know is now someone you know. A reply you stopped counts for neither: you cut it off.
     on('MESSAGE_RECEIVED', async (id: number) => {

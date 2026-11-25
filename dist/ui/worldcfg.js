@@ -42,6 +42,7 @@ import { adultSettingHtml } from './adultui.js';
 import { gendersOf, cleanPerson } from '../sim/gender.js';
 import { ensureProfile } from '../sim/profiles.js';
 import { newPeopleBox } from './newpeople.js';
+import { chatTimeHtml } from './chattimeui.js';
 const TABS = [['people', 'People'], ['homes', 'Households'], ['house', 'The house'], ['needs', 'Needs'], ['save', "Author's Note"], ['lore', 'Lorebooks'], ['ai', 'AI context'], ['rules', 'World']];
 const WC = { tab: 'people', adv: false, who: '', adding: false, q: '', lq: '', back: 'map' };
 const opt = (v, label, sel) => `<option value="${esc(v)}" ${sel ? 'selected' : ''}>${esc(label)}</option>`;
@@ -309,8 +310,9 @@ function tabRules(g, w) {
         ${isScenario(w) ? `<section class="mu-wc-sec">${homeSettingsHtml(g)}</section>${dressHtml(g, w)}${relSection(g, w)}${adultSettingHtml(g)}${storyDressHtml(g)}<section class="mu-wc-sec">${head('Rooms', 'maps')}${list(w.places.map(p => p.name))}</section>` : `
         <section class="mu-wc-sec"><h4>Time</h4>
             <div class="mu-heropick is-start">
-                <button class="mu-herocard ${live ? '' : 'is-on'}" data-act="wc-clock" data-v="action"><b>Only with actions</b><p>The clock moves only when you do something: eat, drink, sleep, work, travel, or let time pass. Talking does not spend time.</p></button>
-                <button class="mu-herocard ${live ? 'is-on' : ''}" data-act="wc-clock" data-v="live"><b>Running clock</b><p>Time also passes by itself while you play (1 real second = 1 game minute at ×1). For testing.</p></button></div></section>
+                <button class="mu-herocard ${live ? '' : 'is-on'}" data-act="wc-clock" data-v="action"><b>With what you do</b><p>The clock moves when you do something (eat, drink, sleep, work, travel, let time pass) and a little with each message you send.</p></button>
+                <button class="mu-herocard ${live ? 'is-on' : ''}" data-act="wc-clock" data-v="live"><b>Running clock</b><p>Time also passes by itself while you play (1 real second = 1 game minute at ×1). For testing.</p></button></div>
+            ${live ? '' : chatTimeHtml(g)}</section>
         <section class="mu-wc-sec"><h4>Difficulty</h4><p class="mu-muted">Changes the economy: what work pays, what things cost and what bills are.</p>
             <div class="mu-heropick is-start mu-diff">${DIFFICULTIES.map(d => `<button class="mu-herocard ${difficultyOf(g).id === d.id ? 'is-on' : ''}" data-act="wc-diff" data-v="${esc(d.id)}"><b>${d.name}</b><p>${d.desc}</p></button>`).join('')}</div></section>
         ${workSection(g, w)}

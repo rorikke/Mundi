@@ -1,23 +1,7 @@
-// Home: the clock moves with the story. Every message you send is a few minutes; "Let time pass" and sleeping are
-// the big jumps. Settings › This save can turn the per-message minutes off.
-import { game, saveGame, cfg, toast, state } from '../core/store.js';
-import { getWorld, isScenario } from '../core/world.js';
-import { advance } from './time.js';
+// Home: the housemates going out, and a job of your own words with its shift. (The minutes each message is worth are
+// in sim/chattime.ts, for every world.)
+import { cfg } from '../core/store.js';
 
-export const REPLY_MINUTES = 5;
-export const perMessage = (g: Parameters<typeof cfg>[0]) => cfg(g).perMessage !== false;
-
-export async function homeTick(): Promise<boolean> {
-    const g = game(); const w = g && getWorld(g.world);
-    if (!g || !w || !isScenario(w) || !perMessage(g) || state.view !== 'scene') return false;
-    advance(g, w, REPLY_MINUTES).forEach(m => toast(m, 'warn'));
-    const { runPlans } = await import('../ui/plans.js'); runPlans();
-    const { syncScene } = await import('./game.js'); await syncScene();
-    saveGame();
-    return true;
-}
-
-/* ---------- the housemates: going out, and a job of your own words with its shift ---------- */
 
 // Home: the people may leave the house (work, errands, nights out: off-screen) or stay in all the time.
 export const npcOut = (g: Parameters<typeof cfg>[0]) => cfg(g).npcOut !== false;

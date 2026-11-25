@@ -133,7 +133,7 @@ export interface Save {
 
 // The open chat's save, or null when the open chat is not a Mundi game.
 // Per-save world settings (Globe → World → Advanced). Missing values mean the world's defaults.
-export interface WorldCfg { /** Home: minutes pass with each message (default on) */ perMessage?: boolean; /** Home: the housemates leave the house (work, errands, nights out; default on) */ npcOut?: boolean; travel?: number; decay?: number; seasonDays?: number; /** relationships (World → Rules → Relationships) */ rel?: RelCfg; lore?: string[]; clock?: 'action' | 'live'; /** open relationships: no jealousy, date several people freely */ poly?: boolean;
+export interface WorldCfg { /** minutes pass with each message you send (default on), `msgMin`–`msgMax` by its length (sim/chattime.ts) */ perMessage?: boolean; msgMin?: number; msgMax?: number; /** Home: the housemates leave the house (work, errands, nights out; default on) */ npcOut?: boolean; travel?: number; decay?: number; seasonDays?: number; /** relationships (World → Rules → Relationships) */ rel?: RelCfg; lore?: string[]; clock?: 'action' | 'live'; /** open relationships: no jealousy, date several people freely */ poly?: boolean;
     /** (E15) adult content on (see adultOn) */ adult?: boolean }
 // Per-save relationship settings. Missing values mean the defaults (sim/pace.ts).
 export interface RelCfg {
