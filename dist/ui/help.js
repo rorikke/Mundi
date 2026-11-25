@@ -377,7 +377,7 @@ const topics = (w) => {
                 ['Your household', settings().playAs ? 'The faces under your card. Click one to play as them, call them over or go to them.' : 'The faces under your card. Click one to call them over or go to them.'],
                 ['Households', 'In ☰ → This world: who lives where, and how they are related.'],
                 ['Children', 'A baby grows a stage at each birthday, once a week. Celebrate it from their card.'],
-                ...(roomsHere ? [['Rooms at home', `Some homes have rooms inside (a share house: the common room, the kitchen, the bathroom, a bedroom each). Walking between them takes no time; the scene is the room you are in, and "Elsewhere at home" shows who is in the others. Housemates keep the house's rhythm and come to find you now and then (Keep to myself keeps all but friends away). Someone's bedroom is theirs: close friends walk in, others knock.`]] : []),
+                ...(roomsHere ? [['Rooms at home', `Some homes have rooms inside (a share house: the common room, the kitchen, the bathroom, a bedroom each). Walking between them takes no time; the scene is the room you are in, and the Rooms card at the top of Things to do shows who is in each one and walks you there. Housemates keep the house's rhythm and come to find you now and then (Keep to myself keeps all but friends away). Someone's bedroom is theirs: close friends walk in, others knock.`]] : []),
             ] },
         ...(settings().playAs ? [{ id: 'playas', icon: 'user', title: 'Play as someone else', intro: 'Click your photo to switch to another person of the world.',
                 items: [

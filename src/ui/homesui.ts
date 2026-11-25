@@ -1,6 +1,6 @@
 // Owning a home, on the phone's Homes app: the home you own (its upkeep, what it would sell for, its rooms), your
 // second home, homes for sale, the Rooms view (the fixtures that fit a house of yours), and the questions a purchase or
-// a move out of a home you own asks first (sell it, keep it as your second home, or let it). The HUD's Rooms row walks
+// a move out of a home you own asks first (sell it, keep it as your second home, or let it). The HUD's Rooms card walks
 // you to a room of your home that's a place (the terrace, the bath). Homes you let (R-a): each one's state, last week
 // and what it brought, Buy to let, taking one back with a week's notice, moving into an empty one. (photography) Your
 // photo studio: yours (rented or bought, what it costs a week, its fixtures, Give it up) or the studios to rent or buy,
@@ -28,7 +28,8 @@ import { STUDIO_RENT } from '../sim/bills.js';
 import type { StudioZone } from '../core/world.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
-import { homeRooms, roomNow, enterRoom, roomDoor, roomOf, asleepAt } from '../sim/homerooms.js';
+import { homeRooms, roomNow, enterRoom, roomDoor, roomOf, asleepAt, elsewhereHere } from '../sim/homerooms.js';
+import { thumb } from '../st/bridge.js';
 import { syncScene } from '../sim/game.js';
 import { itemIco } from './itempic.js';
 
@@ -247,38 +248,54 @@ export function askHtml(g: Save, w: WorldDef): string {
     return box('Move out of a home you own', `<p>You own the home you live in. Before moving to ${esc(z?.name ?? '')}: sell it, keep it as your second home, or let it?</p>`, leaveButtons('hu-move-go', `data-zone="${esc(a.zone)}"`, 0));
 }
 
-/** The HUD's room rows, one list from two sources: the rooms inside the home you're at (homerooms: no time passes,
- *  the scene stays) and the rooms of a home you own that are places (housing: the terrace, the onsen), with back
- *  inside from one of those. */
-export function roomRows(g: Save, w: WorldDef): string[] {
-    return [...innerRooms(g, w), ...placeRooms(g, w)];
+/** (homerooms, housing) Moving between the rooms of a home: one card with a chip per room, the one you are in lit,
+ *  each showing who is in it (asleep: dimmed) and whether its door is shut to you. Navigation, not a thing to do, so a
+ *  share house costs one row instead of one per room. '' when the home you are at has no rooms. */
+export function roomsCard(g: Save, w: WorldDef): string {
+    const chips = [...innerRooms(g, w), ...placeRooms(g, w)];
+    if (chips.length < 2) return '';
+    return `<div class="mh-act mh-glass mh-rooms" role="group" aria-label="Rooms"><small>Rooms</small><div class="mh-rooms-grid">${chips.join('')}</div></div>`;
 }
-// (homerooms) every other room of the home you're at; a bedroom says whose it is
+// A room chip: the one you are in is a label, the others walk you there (data-act, data-room / data-loc).
+function chip(o: { here: boolean; ico: string; name: string; title: string; act: string; faces?: string; locked?: boolean; ours?: boolean }): string {
+    const inner = `<i>${o.ico}</i><b${o.ours ? '' : ' data-notr'}>${esc(o.name)}</b>${o.faces ?? ''}${o.locked ? `<em class="mh-room-lock">${icon('lock')}</em>` : ''}`;
+    return o.here ? `<span class="mh-room-chip is-here" aria-current="location" title="You are here">${inner}</span>`
+        : `<button class="mh-room-chip ${o.locked ? 'is-locked' : ''}" ${o.act} title="${esc(o.title)}">${inner}</button>`;
+}
+const ROOM_ICO: Record<string, string> = { kitchen: '🍳', living: '🛋️', bath: '🛁', gym: '🏋️' };
+const roomIco = (r: { bed?: string; tags: string[] }) => (r.bed ? '🛏️' : ROOM_ICO[r.tags.find(t => ROOM_ICO[t]) ?? ''] ?? '🚪');
+// (homerooms) every room of the home you are at; a bedroom says whose it is, and the faces are the people you know in it
 function innerRooms(g: Save, w: WorldDef): string[] {
     const here = roomNow(g, w);
     if (!here) return [];
-    return homeRooms(g, w, g.player.loc).filter(r => r.id !== here.id).map(r => {
-        const small = r.bed === 'you' ? 'Your own room' : r.bed ? bedLine(g, w, r.bed, r.id) : 'A room of the house';
-        return `<button class="mh-act mh-glass mh-room" data-act="hr-room" data-room="${esc(r.id)}"><i>${r.bed ? '🛏️' : '🚪'}</i><b>${esc(r.bed === 'you' ? 'Go to your room' : `Go to ${r.name}`)}</b><small>${esc(small)}</small></button>`;
+    const away = elsewhereHere(g, w);
+    return homeRooms(g, w, g.player.loc).map(r => {
+        const who = away.filter(x => x.room.id === r.id);
+        const faces = who.length ? `<span class="mh-room-faces">${who.slice(0, 3).map(x => `<img class="${x.asleep ? 'is-asleep' : ''}" src="${esc(thumb(x.r.avatar))}" alt="">`).join('')}${who.length > 3 ? `<s>+${who.length - 3}</s>` : ''}</span>` : '';
+        const shut = !!r.bed && r.bed !== 'you' && !roomDoor(g, w, r.id).ok;
+        const title = r.bed === 'you' ? 'Your own room' : r.bed ? bedLine(g, w, r.bed, r.id) : `Go to ${r.name}`;
+        return chip({ here: r.id === here.id, ico: roomIco(r), name: r.name, title, act: `data-act="hr-room" data-room="${esc(r.id)}"`, faces, locked: shut, ours: r.bed === 'you' });
     });
 }
-// (homerooms) a bedroom's row says whether its person is in (and asleep)
+// (homerooms) a bedroom's chip says whether its person is in (and asleep)
 function bedLine(g: Save, w: WorldDef, avatar: string, id: string): string {
     const r = g.cast[avatar]; if (!r) return 'A bedroom';
     if (roomOf(g, w, r) !== id) return 'Nobody inside';
     return asleepAt(g, w, r, nowAbs(g)) ? 'Asleep inside' : 'In their room';
 }
-// (housing) the rooms of a home you own that are places
+// (housing) the rooms of a home you own that are places (the terrace, the bath), and the way back inside
 function placeRooms(g: Save, w: WorldDef): string[] {
     if (!housingOn(w) || !ownedHomes(g).length) return [];
     const loc = g.player.loc, here = loc === playerHomeId ? g.player.home.zone : loc === SECOND_HOME_ID ? secondHome(g)?.zone : w.places.find(p => p.id === loc && p.room)?.homeZone;
     if (!here) return [];
     const inside = loc === playerHomeId || loc === SECOND_HOME_ID;
     const home = g.player.home.zone === here ? playerHomeId : SECOND_HOME_ID;
-    const rooms = w.places.filter(p => p.room && p.homeZone === here && p.id !== loc && placeOn(g, w, p.id));
+    const rooms = w.places.filter(p => p.room && p.homeZone === here && placeOn(g, w, p.id));
+    const go = (id: string) => `data-act="hu-go" data-loc="${esc(id)}"`;
     return [
-        ...rooms.map(p => `<button class="mh-act mh-glass mh-room" data-act="hu-go" data-loc="${esc(p.id)}"><i>🚪</i><b>${esc(`Go to ${p.name}`)}</b><small>A room of your home</small></button>`),
-        ...(inside ? [] : [`<button class="mh-act mh-glass mh-room" data-act="hu-go" data-loc="${esc(home)}"><i>🏠</i><b>Back inside</b><small>Your home</small></button>`]),
+        // inside a home with rooms of its own, its rooms already stand for "inside"
+        ...(inside && roomNow(g, w) ? [] : [chip({ here: inside, ico: '🏠', name: 'Home', title: 'Back inside', act: go(home), ours: true })]),
+        ...rooms.map(p => chip({ here: p.id === loc, ico: '🚪', name: p.name, title: `Go to ${p.name}`, act: go(p.id) })),
     ];
 }
 

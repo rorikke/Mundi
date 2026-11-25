@@ -71,7 +71,7 @@ import { adventureActs } from './adventureui.js';
 import { rpgOf } from '../core/rpgdef.js';
 import { afterglow, DESIRE } from '../sim/drive.js';
 import { toastLogHtml } from './toastlog.js';
-import { roomRows } from './homesui.js';
+import { roomsCard } from './homesui.js';
 import { roomNow, sceneHere, elsewhereHere } from '../sim/homerooms.js';
 import { SECOND_HOME_ID } from '../sim/housing.js';
 import { itemIco } from './itempic.js';
@@ -220,17 +220,9 @@ function hereBar(g, w) {
     const list = sceneHere(g, w); // everyone in the place (in your room, at a home with rooms), the people who came with you too
     const bell = doorbellHtml(g, w); // (plans) someone come to stay is at the door
     if (!list.length)
-        return bell + elsewhereBar(g, w);
+        return bell;
     const mine = new Set(withYou(g, w)); // (marked: who is with you now, sim/social.ts; the others are only around)
-    return `<nav class="mh-here mh-glass" aria-label="Who is here"><small>Here</small>${list.map(r => `<button class="mh-here-p ${pageOpen(r.avatar) ? 'is-on' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''} ${isWith(g, r.avatar) || mine.has(r.avatar) ? 'is-with' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b></button>`).join('')}</nav>${bell}${elsewhereBar(g, w)}`;
-}
-// (homerooms) The people you know elsewhere in the house: their face, name and room; a click walks you there (doors
-// apply).
-function elsewhereBar(g, w) {
-    const list = elsewhereHere(g, w);
-    if (!list.length)
-        return '';
-    return `<nav class="mh-here mh-glass mh-elsewhere" aria-label="Elsewhere at home"><small>Elsewhere at home</small>${list.map(x => `<button class="mh-here-p ${x.asleep ? 'is-asleep' : ''}" data-act="hr-room" data-room="${esc(x.room.id)}" title="${esc(x.r.name)}"><img src="${esc(thumb(x.r.avatar))}" alt=""><b data-notr>${esc(x.r.name)}</b><i>${x.room.bed === x.r.avatar ? '<span>Their room</span>' : `<span data-notr>${esc(x.room.name)}</span>`}${x.asleep ? ' · <span>asleep</span>' : ''}</i></button>`).join('')}</nav>`;
+    return `<nav class="mh-here mh-glass" aria-label="Who is here"><small>Here</small>${list.map(r => `<button class="mh-here-p ${pageOpen(r.avatar) ? 'is-on' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''} ${isWith(g, r.avatar) || mine.has(r.avatar) ? 'is-with' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b></button>`).join('')}</nav>${bell}`;
 }
 /* ---------- things to do (inside a scene) ---------- */
 function actsColumn(g, w) {
@@ -246,6 +238,7 @@ function actsColumn(g, w) {
     const rows = [
         ...(ban ? [`<div class="mh-act mh-glass is-warn mh-ban" role="note"><i>${icon('lock')}</i><b>${esc(ban.text)}</b><small>${esc(ban.days === 1 ? '1 more day' : `${ban.days} more days`)}</small></div>`] : []),
         sceneActRow(g, w),
+        roomsCard(g, w), // (homerooms, housing) where you can walk inside the home: one row, first
         keepRow(g, w),
         ...apptActions(g, w),
         lifeActs(g, w) + trainActs(g, w), // (one row: the count above counts rows)
@@ -258,7 +251,6 @@ function actsColumn(g, w) {
         ...(jobsOn ? [workButton(g, w)] : []),
         ...jobs.map(o => `<button class="mh-act mh-glass" data-act="apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id, o, traitsOf(g)) || !interviewChance(g, o, traitsOf(g)) ? 'aria-disabled="true"' : ''}><i>${icon('briefcase')}</i><b>Apply: ${esc(o.name)}</b><small>${missingCourses(g, w, o).length ? `${lex(w, 'needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}` : `${money(w, payOf(g, o.ranks[0].pay))}/h · ${interviewChance(g, o, traitsOf(g)) ? `interview 🎲 ${interviewChance(g, o, traitsOf(g))}%` : 'out of your reach for now'}${(() => { const s = interviewSkill(g, o); return s ? ` · ${esc(skillName(w, s.id))} ${s.level} helps` : ''; })()}`}</small></button>`),
         ...(atHome && lockedOut(g) ? [`<button class="mh-act mh-glass is-warn" data-act="ph-open-bills"><i>${icon('home')}</i><b>${lex(w, 'lockedOutShort')}</b><small>${lex(w, 'lockedOutHint', appRef(w, 'homes'), money(w, toGetBackIn(g, w, 'rent')))}</small></button>`] : []),
-        ...roomRows(g, w),
         ...((atHome && !lockedOut(g)) || g.player.loc === SECOND_HOME_ID || stayHere(g) ? [`<button class="mh-act mh-glass" data-act="sleep"><i>${icon('moon')}</i><b>Sleep until morning</b><small>${atHome || g.player.loc === SECOND_HOME_ID ? 'Rest' : 'Staying the night here'}</small></button>`] : []),
         ...innRows(g, w, atHome),
         ...acts.map(a => `<button class="mh-act mh-glass ${a.outing ? 'is-outing' : ''}" data-act="do" data-id="${esc(a.id)}" ${canAfford(g, a) ? '' : 'aria-disabled="true" title="Not enough money"'}><i>${a.icon ?? ''}</i><b>${esc(a.label)}</b><small>${isScenario(w) ? '' : `${a.cost < 0 ? `+${money(w, -a.cost)}` : a.cost ? money(w, a.cost) : 'Free'} · `}${a.minutes} min${a.roll && !isScenario(w) ? ` · 🎲 ${chanceOf(g, a)}% chance` : ''}${trainedSkill(w, a)}${a.together && mates.length ? ` · with <span data-notr>${esc(mates.map(m => g.cast[m]?.name ?? '').join(', '))}</span>` : ''}</small></button>`),

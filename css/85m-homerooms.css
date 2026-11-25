@@ -1,7 +1,19 @@
-/* (homerooms) Rooms inside a home: the room you're in after the home's name, and the rows to the other rooms. */
+/* (homerooms) Rooms inside a home: the room you're in after the home's name, and the Rooms card at the top of Things to
+   do: a chip per room (the one you're in lit), the faces of who's in each (asleep: dimmed), a lock on a door shut to you. */
 #mundi-root .mh-bar-room { font-weight: 500; opacity: .85; }
-#mundi-root .mh-act.mh-room > i { background: rgba(255, 255, 255, .08); }
-/* "Elsewhere at home": the housemates in other rooms, under the Here bar (asleep: dimmed) */
-#mundi-root .mh-elsewhere { margin-top: 6px; }
-#mundi-root .mh-elsewhere .mh-here-p > i { display: block; font-style: normal; font-size: 11px; color: var(--hud-muted); white-space: nowrap; }
-#mundi-root .mh-elsewhere .mh-here-p.is-asleep img { filter: grayscale(.6) brightness(.8); }
+#mundi-root .mh-act.mh-rooms { display: block; padding: 8px 10px 10px !important; }
+#mundi-root .mh-rooms > small { display: block; margin: 0 0 6px 4px; font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; }
+#mundi-root .mh-rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+#mundi-root .mh-room-chip { position: relative; display: flex; align-items: center; gap: 6px; min-width: 0; min-height: 34px; padding: 5px 8px !important; border-radius: 10px !important; border: 1px solid rgba(255, 255, 255, .12) !important; background: rgba(255, 255, 255, .07) !important; box-shadow: none !important; color: var(--hud-fg) !important; font-size: 12px; text-align: left; cursor: pointer; transition: background .12s; }
+#mundi-root button.mh-room-chip:hover { background: rgba(255, 255, 255, .16) !important; }
+#mundi-root .mh-room-chip.is-here { cursor: default; border-color: var(--accent) !important; background: color-mix(in srgb, var(--accent) 22%, transparent) !important; }
+#mundi-root .mh-room-chip.is-locked { opacity: .6; }
+#mundi-root .mh-room-chip > i { flex: none; font-style: normal; font-size: 15px; line-height: 1; }
+#mundi-root .mh-room-chip > b { flex: 1; min-width: 0; font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mh-room-faces { flex: none; display: flex; align-items: center; }
+#mundi-root .mh-room-faces img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; object-position: top; box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .55); }
+#mundi-root .mh-room-faces img + img { margin-left: -6px; }
+#mundi-root .mh-room-faces img.is-asleep { filter: grayscale(.6) brightness(.75); }
+#mundi-root .mh-room-faces s { text-decoration: none; font-size: 10px; color: var(--hud-muted); margin-left: 2px; }
+#mundi-root .mh-room-lock { flex: none; display: grid; place-items: center; font-style: normal; color: var(--hud-muted); }
+#mundi-root .mh-room-lock .mu-ic { width: 12px; height: 12px; }
